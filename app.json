@@ -30,6 +30,7 @@
     "plugins": [
       "expo-router",
       "expo-font",
+      "./plugins/with-fix-ios-spaces",
       [
         "expo-splash-screen",
         {
