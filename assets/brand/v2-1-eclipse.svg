@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#0A0A0A"/>
+
+  <!-- Terracotta full disc behind letters: creates a sun/eclipse halo -->
+  <circle cx="512" cy="460" r="280" fill="#C97D60"/>
+
+  <!-- Letters in Encre on top of disc, creating negative space cutout -->
+  <text x="512" y="480"
+        font-family="Montserrat, 'Helvetica Neue', sans-serif"
+        font-weight="900"
+        font-size="380"
+        fill="#0A0A0A"
+        text-anchor="middle"
+        dominant-baseline="central"
+        letter-spacing="-22">bby</text>
+
+  <!-- Wordmark below in clean tracked Albâtre -->
+  <text x="512" y="850"
+        font-family="Montserrat, 'Helvetica Neue', sans-serif"
+        font-weight="500"
+        font-size="48"
+        fill="#FAFAF8"
+        text-anchor="middle"
+        letter-spacing="22">BODY BY YOU</text>
+</svg>

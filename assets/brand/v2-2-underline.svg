@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#FAFAF8"/>
+
+  <!-- Letters tight, lowercase, Encre -->
+  <text x="512" y="480"
+        font-family="Montserrat, 'Helvetica Neue', sans-serif"
+        font-weight="800"
+        font-size="420"
+        fill="#0A0A0A"
+        text-anchor="middle"
+        dominant-baseline="central"
+        letter-spacing="-26">bby</text>
+
+  <!-- Short terracotta bar centered below — signature/anchor mark -->
+  <rect x="442" y="660" width="140" height="14" rx="7" fill="#C97D60"/>
+
+  <!-- Wordmark tracked out below -->
+  <text x="512" y="780"
+        font-family="Montserrat, 'Helvetica Neue', sans-serif"
+        font-weight="500"
+        font-size="44"
+        fill="#0A0A0A"
+        text-anchor="middle"
+        letter-spacing="20">BODY BY YOU</text>
+</svg>

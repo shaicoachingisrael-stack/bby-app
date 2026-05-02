@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#FAFAF8"/>
+  <g font-family="Montserrat, 'Helvetica Neue', sans-serif"
+     font-weight="700"
+     fill="#0A0A0A"
+     letter-spacing="-4"
+     text-anchor="middle">
+    <text x="512" y="430" font-size="160">body</text>
+    <text x="512" y="570" font-size="160">by</text>
+    <text x="512" y="710" font-size="160">you</text>
+  </g>
+</svg>

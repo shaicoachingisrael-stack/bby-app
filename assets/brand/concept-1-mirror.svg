@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#0A0A0A"/>
+
+  <!-- Two mirrored b's forming butterfly/heart shape, y descender below -->
+  <g transform="translate(512, 480)">
+    <!-- Left b (mirrored) -->
+    <g transform="translate(-260, 0)">
+      <!-- Stem -->
+      <rect x="-25" y="-200" width="50" height="400" fill="#FAFAF8"/>
+      <!-- Bowl -->
+      <circle cx="80" cy="80" r="130" fill="none" stroke="#FAFAF8" stroke-width="50"/>
+    </g>
+    <!-- Right b -->
+    <g transform="translate(260, 0) scale(-1, 1)">
+      <rect x="-25" y="-200" width="50" height="400" fill="#FAFAF8"/>
+      <circle cx="80" cy="80" r="130" fill="none" stroke="#FAFAF8" stroke-width="50"/>
+    </g>
+    <!-- Center accent: terracotta diamond where bowls meet -->
+    <path d="M 0,-30 L 60,80 L 0,190 L -60,80 Z" fill="#C97D60"/>
+  </g>
+
+  <!-- Y wordmark below mark -->
+  <text x="512" y="820"
+        font-family="Montserrat, 'Helvetica Neue', sans-serif"
+        font-weight="700"
+        font-size="120"
+        fill="#FAFAF8"
+        text-anchor="middle"
+        letter-spacing="20">BBY</text>
+</svg>

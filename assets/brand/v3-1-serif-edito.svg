@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#FAFAF8"/>
+  <g>
+    <path d="M 232,440 A 280,280 0 0 1 792,440 Z" fill="#C97D60"/>
+    <line x1="180" y1="440" x2="844" y2="440" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <text x="512" y="700"
+        font-family="'DM Serif Display', 'Didot', 'Bodoni 72', Georgia, serif"
+        font-weight="400"
+        font-style="italic"
+        font-size="280"
+        fill="#0A0A0A"
+        text-anchor="middle"
+        dominant-baseline="central"
+        letter-spacing="-4">bby</text>
+  <text x="512" y="900"
+        font-family="'DM Serif Display', 'Didot', Georgia, serif"
+        font-weight="400"
+        font-size="42"
+        fill="#0A0A0A"
+        text-anchor="middle"
+        letter-spacing="6">body by you</text>
+</svg>

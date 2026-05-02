@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#FAFAF8"/>
+  <g>
+    <path d="M 232,440 A 280,280 0 0 1 792,440 Z" fill="#C97D60"/>
+    <line x1="180" y1="440" x2="844" y2="440" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round"/>
+  </g>
+  <text x="512" y="700"
+        font-family="'Antique Olive', 'Optima', 'Gill Sans', 'Helvetica Neue', sans-serif"
+        font-weight="700"
+        font-stretch="expanded"
+        font-size="240"
+        fill="#0A0A0A"
+        text-anchor="middle"
+        dominant-baseline="central"
+        letter-spacing="14">BBY</text>
+  <text x="512" y="900"
+        font-family="'Optima', 'Gill Sans', 'Helvetica Neue', sans-serif"
+        font-weight="400"
+        font-size="36"
+        fill="#0A0A0A"
+        text-anchor="middle"
+        letter-spacing="20">BODY BY YOU</text>
+</svg>

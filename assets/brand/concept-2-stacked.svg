@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#FAFAF8"/>
+
+  <!-- Stacked geometric letters: two b's interlocked + Y descending -->
+  <g transform="translate(512, 512)">
+    <!-- First b (top) -->
+    <g transform="translate(-130, -240)">
+      <rect x="-30" y="-160" width="60" height="320" fill="#0A0A0A"/>
+      <circle cx="100" cy="80" r="120" fill="#0A0A0A"/>
+      <circle cx="100" cy="80" r="50" fill="#FAFAF8"/>
+    </g>
+    <!-- Second b (middle, offset right - interlocking) -->
+    <g transform="translate(50, -60)">
+      <rect x="-30" y="-160" width="60" height="320" fill="#C97D60"/>
+      <circle cx="100" cy="80" r="120" fill="#C97D60"/>
+      <circle cx="100" cy="80" r="50" fill="#FAFAF8"/>
+    </g>
+    <!-- Y (bottom) - V shape -->
+    <g transform="translate(-130, 180)">
+      <path d="M -100,-80 L 0,80 L 100,-80 L 60,-80 L 0,30 L -60,-80 Z" fill="#0A0A0A"/>
+      <rect x="-20" y="80" width="40" height="120" fill="#0A0A0A"/>
+    </g>
+  </g>
+</svg>

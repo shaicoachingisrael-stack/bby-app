@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" fill="#0A0A0A"/>
+
+  <!-- Tight monogram: b+b+y form a single ligature mark -->
+  <g transform="translate(512, 512)">
+    <!-- Background circle accent -->
+    <circle cx="0" cy="0" r="370" fill="none" stroke="#C97D60" stroke-width="14"/>
+
+    <!-- First b - bowl on right -->
+    <g transform="translate(-200, -30)">
+      <rect x="-30" y="-200" width="60" height="400" fill="#FAFAF8"/>
+      <path d="M 30,40 Q 30,-80 130,-80 Q 230,-80 230,40 Q 230,160 130,160 Q 30,160 30,40 Z M 90,40 Q 90,100 130,100 Q 170,100 170,40 Q 170,-20 130,-20 Q 90,-20 90,40 Z" fill="#FAFAF8"/>
+    </g>
+
+    <!-- Second b - shares stem with the first via overlap -->
+    <g transform="translate(60, -30)">
+      <rect x="-30" y="-200" width="60" height="400" fill="#FAFAF8"/>
+      <path d="M 30,40 Q 30,-80 130,-80 Q 230,-80 230,40 Q 230,160 130,160 Q 30,160 30,40 Z M 90,40 Q 90,100 130,100 Q 170,100 170,40 Q 170,-20 130,-20 Q 90,-20 90,40 Z" fill="#FAFAF8"/>
+    </g>
+
+    <!-- y descender hooks under the second b - terracotta accent -->
+    <path d="M 290,140
+             Q 290,200 240,220
+             Q 190,240 130,210
+             L 130,260
+             Q 200,290 270,260
+             Q 350,230 350,140 Z"
+          fill="#C97D60"/>
+  </g>
+
+  <!-- Wordmark below -->
+  <text x="512" y="940"
+        font-family="Montserrat, 'Helvetica Neue', sans-serif"
+        font-weight="600"
+        font-size="58"
+        fill="#FAFAF8"
+        text-anchor="middle"
+        letter-spacing="14">BODY BY YOU</text>
+</svg>
