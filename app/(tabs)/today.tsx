@@ -5,6 +5,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AdminButton } from '@/components/ui/admin-button';
 import { DateStrip } from '@/components/ui/date-strip';
 import { RecommendationCard } from '@/components/ui/recommendation-card';
 import { SessionCard } from '@/components/ui/session-card';
@@ -88,6 +89,7 @@ export default function TodayScreen() {
               </Text>
             </View>
           </Pressable>
+          <AdminButton />
           <Pressable
             hitSlop={8}
             style={[styles.bell, { backgroundColor: palette.surface }]}

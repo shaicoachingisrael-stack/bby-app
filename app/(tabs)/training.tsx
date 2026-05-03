@@ -6,6 +6,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActivityCard } from '@/components/ui/activity-card';
+import { AdminButton } from '@/components/ui/admin-button';
 import { RecommendationCard } from '@/components/ui/recommendation-card';
 import { SessionCard } from '@/components/ui/session-card';
 import { Colors, Fonts, Spacing } from '@/constants/theme';
@@ -81,6 +82,7 @@ export default function TrainingScreen() {
               </Text>
             </View>
           </Pressable>
+          <AdminButton />
           <Pressable hitSlop={8} style={[styles.bell, { backgroundColor: palette.surface }]}>
             <Bell size={18} color={palette.text} />
           </Pressable>
