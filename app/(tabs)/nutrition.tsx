@@ -1,82 +1,171 @@
-import { Coffee, Droplet, UtensilsCrossed } from 'lucide-react-native';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { Bell, Coffee, Cookie, Droplet, UtensilsCrossed } from 'lucide-react-native';
+import { useCallback } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActivityCard } from '@/components/ui/activity-card';
-import { AvatarButton } from '@/components/ui/avatar-button';
-import { HeroVideoCard } from '@/components/ui/hero-video-card';
-import { SectionTitle } from '@/components/ui/section-title';
-import { StatCard } from '@/components/ui/stat-card';
+import { RecommendationCard } from '@/components/ui/recommendation-card';
+import { SessionCard } from '@/components/ui/session-card';
 import { Colors, Fonts, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAuth } from '@/lib/auth-provider';
+import { useDayData } from '@/lib/use-day-data';
+import { useProfile } from '@/lib/use-profile';
 
 const NUTRITION_VIDEO = require('@/assets/videos/nutrition.mp4');
+const INTRO_VIDEO = require('@/assets/videos/intro.mp4');
 
 export default function NutritionScreen() {
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
+  const router = useRouter();
+  const { user } = useAuth();
+  const { profile } = useProfile();
+  const { data, refresh } = useDayData();
+
+  useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
+
+  const initial = (profile?.display_name || user?.email || '?')[0].toUpperCase();
+  const target = profile?.daily_kcal_target ?? 1980;
 
   return (
     <View style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView
         contentContainerStyle={{
-          paddingTop: insets.top + Spacing.lg,
-          paddingHorizontal: Spacing.xl,
+          paddingTop: insets.top + Spacing.md,
           paddingBottom: 140,
         }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.topRow}>
-          <Text style={[styles.eyebrow, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-            OBJECTIF · 1 980 KCAL
-          </Text>
-          <AvatarButton />
+        <View style={[styles.header, { paddingHorizontal: Spacing.xl }]}>
+          <Pressable
+            onPress={() => router.push('/account' as any)}
+            hitSlop={8}
+            style={styles.headerLeft}
+          >
+            <View style={[styles.avatar, { backgroundColor: palette.text }]}>
+              {profile?.avatar_url ? (
+                <Image
+                  source={{ uri: profile.avatar_url }}
+                  style={StyleSheet.absoluteFillObject}
+                  contentFit="cover"
+                />
+              ) : (
+                <Text style={[styles.avatarInitial, { color: palette.background, fontFamily: Fonts.sansBold }]}>
+                  {initial}
+                </Text>
+              )}
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.eyebrow, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+                {data.meals.total_kcal} / {target} kcal
+              </Text>
+              <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+                Nutrition
+              </Text>
+            </View>
+          </Pressable>
+          <Pressable hitSlop={8} style={[styles.bell, { backgroundColor: palette.surface }]}>
+            <Bell size={18} color={palette.text} />
+          </Pressable>
         </View>
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          Nutrition
-        </Text>
 
-        <View style={{ marginTop: Spacing.xl }}>
-          <HeroVideoCard
-            source={NUTRITION_VIDEO}
+        <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl }}>
+          <SessionCard
             eyebrow="RECETTE DU JOUR"
-            title="Bowl protéiné — saumon, riz, avocat"
-            meta="620 kcal · 42 g de protéines"
+            title="Bowl protéiné"
+            subtitle="Saumon, riz, avocat"
+            duration="20 min"
+            level="620 kcal"
+            videoSource={NUTRITION_VIDEO}
+            onPress={() => router.push('/meal-log?type=dejeuner' as any)}
           />
         </View>
 
-        <View style={{ marginTop: Spacing.xxl }}>
-          <SectionTitle title="Aujourd'hui" />
-          <View style={styles.statsRow}>
-            <StatCard value="540" label="Kcal pris" />
-            <StatCard value="38 g" label="Protéines" />
-            <StatCard value="1,2 L" label="Hydratation" />
+        <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>
+          <View style={styles.sectionRow}>
+            <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+              Mes repas du jour
+            </Text>
+            <Pressable hitSlop={8} onPress={() => router.push('/meal-log' as any)}>
+              <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
+                Ajouter
+              </Text>
+            </Pressable>
           </View>
-        </View>
-
-        <View style={{ marginTop: Spacing.xxl }}>
-          <SectionTitle title="Mes repas" action="Ajouter" />
-          <View style={{ gap: Spacing.md }}>
+          <View style={{ gap: Spacing.md, marginTop: Spacing.md }}>
             <ActivityCard
               icon={Coffee}
               title="Petit-déjeuner"
-              subtitle="540 kcal · 38 g de protéines"
-              status="done"
+              subtitle={
+                data.meals.petit_dejeuner.logged
+                  ? `${data.meals.petit_dejeuner.kcal} kcal · ${data.meals.petit_dejeuner.protein} g`
+                  : 'Pas encore enregistré'
+              }
+              status={data.meals.petit_dejeuner.logged ? 'done' : 'pending'}
+              onPress={() => router.push('/meal-log?type=petit_dejeuner' as any)}
             />
             <ActivityCard
               icon={UtensilsCrossed}
               title="Déjeuner"
-              subtitle="Bowl protéiné saumon · à venir"
-              status="pending"
+              subtitle={
+                data.meals.dejeuner.logged
+                  ? `${data.meals.dejeuner.kcal} kcal · ${data.meals.dejeuner.protein} g`
+                  : 'Pas encore enregistré'
+              }
+              status={data.meals.dejeuner.logged ? 'done' : 'pending'}
+              onPress={() => router.push('/meal-log?type=dejeuner' as any)}
+            />
+            <ActivityCard
+              icon={Cookie}
+              title="Dîner"
+              subtitle={
+                data.meals.diner.logged
+                  ? `${data.meals.diner.kcal} kcal · ${data.meals.diner.protein} g`
+                  : 'Pas encore enregistré'
+              }
+              status={data.meals.diner.logged ? 'done' : 'pending'}
+              onPress={() => router.push('/meal-log?type=diner' as any)}
             />
             <ActivityCard
               icon={Droplet}
               title="Hydratation"
-              subtitle="1,2 L sur 2,5 L objectif"
-              status="pending"
+              subtitle={`${data.hydration_ml} ml sur ${profile?.hydration_target_ml ?? 2500} ml`}
+              status={
+                data.hydration_ml >= (profile?.hydration_target_ml ?? 2500) ? 'done' : 'pending'
+              }
+              onPress={() => router.push('/hydration-log' as any)}
             />
           </View>
         </View>
+
+        <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>
+          <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+            Idées recettes
+          </Text>
+        </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: Spacing.xl, gap: Spacing.md, marginTop: Spacing.md }}
+        >
+          <RecommendationCard
+            videoSource={NUTRITION_VIDEO}
+            duration="10 min"
+            title="Bowl protéiné"
+            subtitle="620 kcal"
+            onPress={() => router.push('/meal-log?type=dejeuner' as any)}
+          />
+          <RecommendationCard
+            videoSource={INTRO_VIDEO}
+            duration="15 min"
+            title="Smoothie post-training"
+            subtitle="320 kcal"
+            onPress={() => router.push('/meal-log?type=collation' as any)}
+          />
+        </ScrollView>
       </ScrollView>
     </View>
   );
@@ -84,17 +173,36 @@ export default function NutritionScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  topRow: {
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: Spacing.md,
   },
-  eyebrow: { fontSize: 11, letterSpacing: 1.6, flex: 1 },
-  title: {
-    fontSize: 36,
-    lineHeight: 42,
-    letterSpacing: -0.6,
-    marginTop: Spacing.sm,
+  headerLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
   },
-  statsRow: { flexDirection: 'row', gap: Spacing.md },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  avatarInitial: { fontSize: 18 },
+  eyebrow: { fontSize: 13 },
+  title: { fontSize: 22, letterSpacing: -0.4, marginTop: 2 },
+  bell: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sectionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  section: { fontSize: 18, letterSpacing: -0.3 },
+  seeAll: { fontSize: 13 },
 });
