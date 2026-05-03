@@ -12,6 +12,7 @@ export type Profile = {
   daily_kcal_target: number | null;
   protein_target_g: number | null;
   hydration_target_ml: number | null;
+  onboarded_at: string | null;
 };
 
 export function useProfile() {

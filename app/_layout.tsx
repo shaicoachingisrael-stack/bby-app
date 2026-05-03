@@ -18,6 +18,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuthProvider, useAuth } from '@/lib/auth-provider';
+import { useProfile } from '@/lib/use-profile';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -27,25 +28,40 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function RootStack() {
   const colorScheme = useColorScheme();
-  const { session, loading } = useAuth();
+  const { session, loading: authLoading } = useAuth();
+  const { profile, loading: profileLoading } = useProfile();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
-    if (loading) return;
-    const inAuth = (segments[0] as string) === '(auth)';
-    if (!session && !inAuth) {
-      router.replace('/(auth)/welcome' as any);
-    } else if (session && inAuth) {
+    if (authLoading) return;
+
+    const root = (segments[0] as string) ?? '';
+    const inAuth = root === '(auth)';
+    const inOnboarding = root === '(onboarding)';
+
+    if (!session) {
+      if (!inAuth) router.replace('/(auth)/welcome' as any);
+      return;
+    }
+
+    // Wait until we know if the profile is loaded
+    if (profileLoading) return;
+
+    const needsOnboarding = !profile?.onboarded_at;
+    if (needsOnboarding) {
+      if (!inOnboarding) router.replace('/(onboarding)' as any);
+    } else if (inAuth || inOnboarding) {
       router.replace('/today');
     }
-  }, [session, loading, segments, router]);
+  }, [session, authLoading, profile, profileLoading, segments, router]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
           name="chat"
