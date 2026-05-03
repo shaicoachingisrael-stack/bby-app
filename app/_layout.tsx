@@ -18,7 +18,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuthProvider, useAuth } from '@/lib/auth-provider';
-import { useProfile } from '@/lib/use-profile';
+import { ProfileProvider, useProfile } from '@/lib/use-profile';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -114,7 +114,9 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <RootStack />
+      <ProfileProvider>
+        <RootStack />
+      </ProfileProvider>
     </AuthProvider>
   );
 }
