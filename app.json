@@ -44,6 +44,14 @@
         }
       ],
       "expo-video",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#0A0A0A",
+          "defaultChannel": "default"
+        }
+      ],
       "expo-apple-authentication",
       [
         "expo-image-picker",

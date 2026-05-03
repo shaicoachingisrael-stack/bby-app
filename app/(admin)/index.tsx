@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { ChevronLeft, ChevronRight, Dumbbell, FileText, Leaf, UtensilsCrossed } from 'lucide-react-native';
+import { Bell, ChevronLeft, ChevronRight, Dumbbell, FileText, Leaf, UtensilsCrossed } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -92,6 +92,13 @@ export default function AdminDashboard() {
             title="Mindset"
             count={counts.mindset}
             onPress={() => router.push('/(admin)/mindset' as any)}
+            palette={palette}
+          />
+          <Tile
+            icon={Bell}
+            title="Envoyer un push"
+            count="Notification à tes clientes"
+            onPress={() => router.push('/(admin)/push' as any)}
             palette={palette}
           />
         </View>

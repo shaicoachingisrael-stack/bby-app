@@ -19,6 +19,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuthProvider, useAuth } from '@/lib/auth-provider';
 import { ProfileProvider, useProfile } from '@/lib/use-profile';
+import { usePushSetup } from '@/lib/use-push-setup';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -32,6 +33,8 @@ function RootStack() {
   const { profile, loading: profileLoading } = useProfile();
   const segments = useSegments();
   const router = useRouter();
+
+  usePushSetup();
 
   useEffect(() => {
     if (authLoading) return;
