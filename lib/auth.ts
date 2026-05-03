@@ -85,6 +85,31 @@ export async function signInWithGoogle() {
   }
 }
 
+export async function signInWithEmail(email: string, password: string) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email.trim().toLowerCase(),
+    password,
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function signUpWithEmail(
+  email: string,
+  password: string,
+  displayName?: string,
+) {
+  const { data, error } = await supabase.auth.signUp({
+    email: email.trim().toLowerCase(),
+    password,
+    options: {
+      data: displayName ? { display_name: displayName } : undefined,
+    },
+  });
+  if (error) throw error;
+  return data;
+}
+
 export async function signOut() {
   try {
     await GoogleSignin.signOut();
