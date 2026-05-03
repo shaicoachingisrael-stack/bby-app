@@ -13,11 +13,11 @@ import {
 
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { FileKind, inferExt, pickMedia, uploadMedia } from '@/lib/upload';
+import { FileKind, inferExt, MediaBucket, pickMedia, uploadMedia } from '@/lib/upload';
 
 type Props = {
   kind: FileKind;
-  bucket: 'program-covers' | 'session-videos';
+  bucket: MediaBucket;
   pathPrefix: string; // e.g. `${programId}` or `${sessionId}`
   url: string | null;
   onChange: (newUrl: string | null) => void;

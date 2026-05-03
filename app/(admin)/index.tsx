@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { ChevronLeft, ChevronRight, Dumbbell, FileText, Sparkles } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight, Dumbbell, FileText, Leaf, UtensilsCrossed } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,14 +12,26 @@ export default function AdminDashboard() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
-  const [counts, setCounts] = useState({ programs: 0, sessions: 0 });
+  const [counts, setCounts] = useState({ programs: 0, sessions: 0, recipes: 0, mindset: 0 });
 
   const refresh = useCallback(async () => {
-    const [{ count: programs }, { count: sessions }] = await Promise.all([
+    const [
+      { count: programs },
+      { count: sessions },
+      { count: recipes },
+      { count: mindset },
+    ] = await Promise.all([
       supabase.from('programs').select('*', { count: 'exact', head: true }),
       supabase.from('sessions').select('*', { count: 'exact', head: true }),
+      supabase.from('recipes').select('*', { count: 'exact', head: true }),
+      supabase.from('mindset_content').select('*', { count: 'exact', head: true }),
     ]);
-    setCounts({ programs: programs ?? 0, sessions: sessions ?? 0 });
+    setCounts({
+      programs: programs ?? 0,
+      sessions: sessions ?? 0,
+      recipes: recipes ?? 0,
+      mindset: mindset ?? 0,
+    });
   }, []);
 
   useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
@@ -69,10 +81,17 @@ export default function AdminDashboard() {
             palette={palette}
           />
           <Tile
-            icon={Sparkles}
-            title="Recettes & Mindset"
-            count={'À venir'}
-            disabled
+            icon={UtensilsCrossed}
+            title="Recettes"
+            count={counts.recipes}
+            onPress={() => router.push('/(admin)/recipes' as any)}
+            palette={palette}
+          />
+          <Tile
+            icon={Leaf}
+            title="Mindset"
+            count={counts.mindset}
+            onPress={() => router.push('/(admin)/mindset' as any)}
             palette={palette}
           />
         </View>

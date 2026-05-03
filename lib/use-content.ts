@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { supabase } from './supabase';
-import type { Program, Session } from './types';
+import type { MindsetContent, Program, Recipe, Session } from './types';
 
 // Fetch all programs (catalog read is open to authenticated users)
 export function usePrograms() {
@@ -106,4 +106,86 @@ export function useSession(id: string | undefined) {
   }, [refresh]);
 
   return { session, loading, refresh };
+}
+
+// Recipes catalog
+export function useRecipes() {
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('recipes')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) console.warn('recipes fetch', error);
+    setRecipes((data as Recipe[]) ?? []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
+  return { recipes, loading, refresh };
+}
+
+export function useRecipe(id: string | undefined) {
+  const [recipe, setRecipe] = useState<Recipe | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = useCallback(async () => {
+    if (!id) { setRecipe(null); setLoading(false); return; }
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('recipes')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (error) console.warn('recipe fetch', error);
+    setRecipe((data as Recipe | null) ?? null);
+    setLoading(false);
+  }, [id]);
+
+  useEffect(() => { refresh(); }, [refresh]);
+  return { recipe, loading, refresh };
+}
+
+// Mindset content catalog
+export function useMindsetContent() {
+  const [items, setItems] = useState<MindsetContent[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('mindset_content')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) console.warn('mindset_content fetch', error);
+    setItems((data as MindsetContent[]) ?? []);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { refresh(); }, [refresh]);
+  return { items, loading, refresh };
+}
+
+export function useMindsetItem(id: string | undefined) {
+  const [item, setItem] = useState<MindsetContent | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = useCallback(async () => {
+    if (!id) { setItem(null); setLoading(false); return; }
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('mindset_content')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (error) console.warn('mindset_content fetch', error);
+    setItem((data as MindsetContent | null) ?? null);
+    setLoading(false);
+  }, [id]);
+
+  useEffect(() => { refresh(); }, [refresh]);
+  return { item, loading, refresh };
 }

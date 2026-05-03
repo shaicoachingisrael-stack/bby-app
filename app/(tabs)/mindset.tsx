@@ -11,6 +11,7 @@ import { SessionCard } from '@/components/ui/session-card';
 import { Colors, Fonts, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
+import { useMindsetContent } from '@/lib/use-content';
 import { useDayData } from '@/lib/use-day-data';
 import { useProfile } from '@/lib/use-profile';
 
@@ -24,8 +25,17 @@ export default function MindsetScreen() {
   const { user } = useAuth();
   const { profile } = useProfile();
   const { data, refresh } = useDayData();
+  const { items: mindsetItems, refresh: refreshMindset } = useMindsetContent();
 
-  useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+      refreshMindset();
+    }, [refresh, refreshMindset]),
+  );
+
+  const featured = mindsetItems[0];
+  const others = mindsetItems.slice(1, 5);
 
   const initial = (profile?.display_name || user?.email || '?')[0].toUpperCase();
 
@@ -73,12 +83,24 @@ export default function MindsetScreen() {
 
         <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl }}>
           <SessionCard
-            eyebrow="MÉDITATION"
-            title="Respiration consciente"
-            subtitle="Apaiser le mental"
-            duration="5 min"
-            videoSource={INTRO_VIDEO}
-            onPress={() => router.push('/mindset-log?kind=meditation_done' as any)}
+            eyebrow={
+              featured
+                ? featured.kind === 'meditation'
+                  ? 'MÉDITATION'
+                  : featured.kind === 'article'
+                    ? 'ARTICLE'
+                    : 'AFFIRMATION'
+                : 'MINDSET'
+            }
+            title={featured?.title ?? 'Bientôt'}
+            subtitle={featured?.body?.split('\n')[0] ?? 'Demande à ta coach de publier du mindset'}
+            duration={featured?.duration_min ? `${featured.duration_min} min` : undefined}
+            videoSource={featured?.cover_url ?? INTRO_VIDEO}
+            onPress={() =>
+              featured
+                ? router.push(`/mindset-log?kind=${featured.kind === 'meditation' ? 'meditation_done' : featured.kind}` as any)
+                : router.push('/mindset-log' as any)
+            }
           />
         </View>
 
@@ -119,20 +141,35 @@ export default function MindsetScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: Spacing.xl, gap: Spacing.md, marginTop: Spacing.md }}
         >
-          <RecommendationCard
-            videoSource={INTRO_VIDEO}
-            duration="10 min"
-            title="Body scan"
-            subtitle="Méditation guidée"
-            onPress={() => router.push('/mindset-log?kind=meditation_done' as any)}
-          />
-          <RecommendationCard
-            videoSource={NUTRITION_VIDEO}
-            duration="3 min"
-            title="Affirmations"
-            subtitle="Renforcer la confiance"
-            onPress={() => router.push('/mindset-log?kind=intention' as any)}
-          />
+          {others.length === 0 ? (
+            <RecommendationCard
+              videoSource={INTRO_VIDEO}
+              duration="—"
+              title="Bientôt"
+              subtitle="Du contenu arrive"
+            />
+          ) : (
+            others.map((m) => (
+              <RecommendationCard
+                key={m.id}
+                videoSource={m.cover_url ?? INTRO_VIDEO}
+                duration={m.duration_min ? `${m.duration_min} min` : '—'}
+                title={m.title}
+                subtitle={
+                  m.kind === 'meditation'
+                    ? 'Méditation'
+                    : m.kind === 'article'
+                      ? 'Article'
+                      : 'Affirmation'
+                }
+                onPress={() =>
+                  router.push(
+                    `/mindset-log?kind=${m.kind === 'meditation' ? 'meditation_done' : m.kind}` as any,
+                  )
+                }
+              />
+            ))
+          )}
         </ScrollView>
       </ScrollView>
     </View>

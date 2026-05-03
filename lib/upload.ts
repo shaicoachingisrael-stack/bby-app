@@ -38,8 +38,14 @@ export async function pickMedia(kind: FileKind): Promise<PickedFile | null> {
   };
 }
 
+export type MediaBucket =
+  | 'program-covers'
+  | 'session-videos'
+  | 'recipe-media'
+  | 'mindset-media';
+
 export async function uploadMedia(
-  bucket: 'program-covers' | 'session-videos',
+  bucket: MediaBucket,
   path: string,
   picked: PickedFile,
 ): Promise<string> {

@@ -11,6 +11,7 @@ import { SessionCard } from '@/components/ui/session-card';
 import { Colors, Fonts, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
+import { useRecipes } from '@/lib/use-content';
 import { useDayData } from '@/lib/use-day-data';
 import { useProfile } from '@/lib/use-profile';
 
@@ -24,8 +25,17 @@ export default function NutritionScreen() {
   const { user } = useAuth();
   const { profile } = useProfile();
   const { data, refresh } = useDayData();
+  const { recipes, refresh: refreshRecipes } = useRecipes();
 
-  useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+      refreshRecipes();
+    }, [refresh, refreshRecipes]),
+  );
+
+  const featuredRecipe = recipes[0];
+  const otherRecipes = recipes.slice(1, 5);
 
   const initial = (profile?.display_name || user?.email || '?')[0].toUpperCase();
   const target = profile?.daily_kcal_target ?? 1980;
@@ -74,13 +84,17 @@ export default function NutritionScreen() {
 
         <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl }}>
           <SessionCard
-            eyebrow="RECETTE DU JOUR"
-            title="Bowl protéiné"
-            subtitle="Saumon, riz, avocat"
-            duration="20 min"
-            level="620 kcal"
-            videoSource={NUTRITION_VIDEO}
-            onPress={() => router.push('/meal-log?type=dejeuner' as any)}
+            eyebrow={featuredRecipe ? 'RECETTE DU JOUR' : 'RECETTES'}
+            title={featuredRecipe?.title ?? 'Bientôt'}
+            subtitle={featuredRecipe?.description ?? 'Demande à ta coach de publier des recettes'}
+            duration={featuredRecipe?.prep_min ? `${featuredRecipe.prep_min} min` : undefined}
+            level={featuredRecipe?.kcal ? `${featuredRecipe.kcal} kcal` : undefined}
+            videoSource={featuredRecipe?.video_url ?? featuredRecipe?.cover_url ?? NUTRITION_VIDEO}
+            onPress={() =>
+              featuredRecipe
+                ? router.push(`/meal-log?type=${featuredRecipe.meal_type ?? 'dejeuner'}` as any)
+                : router.push('/meal-log' as any)
+            }
           />
         </View>
 
@@ -151,20 +165,25 @@ export default function NutritionScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: Spacing.xl, gap: Spacing.md, marginTop: Spacing.md }}
         >
-          <RecommendationCard
-            videoSource={NUTRITION_VIDEO}
-            duration="10 min"
-            title="Bowl protéiné"
-            subtitle="620 kcal"
-            onPress={() => router.push('/meal-log?type=dejeuner' as any)}
-          />
-          <RecommendationCard
-            videoSource={INTRO_VIDEO}
-            duration="15 min"
-            title="Smoothie post-training"
-            subtitle="320 kcal"
-            onPress={() => router.push('/meal-log?type=collation' as any)}
-          />
+          {otherRecipes.length === 0 ? (
+            <RecommendationCard
+              videoSource={INTRO_VIDEO}
+              duration="—"
+              title="Bientôt"
+              subtitle="Du contenu arrive"
+            />
+          ) : (
+            otherRecipes.map((r) => (
+              <RecommendationCard
+                key={r.id}
+                videoSource={r.video_url ?? r.cover_url ?? NUTRITION_VIDEO}
+                duration={r.prep_min ? `${r.prep_min} min` : '—'}
+                title={r.title}
+                subtitle={r.kcal ? `${r.kcal} kcal` : 'Recette'}
+                onPress={() => router.push(`/meal-log?type=${r.meal_type ?? 'dejeuner'}` as any)}
+              />
+            ))
+          )}
         </ScrollView>
       </ScrollView>
     </View>
