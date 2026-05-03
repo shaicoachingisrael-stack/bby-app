@@ -1,6 +1,7 @@
+import * as Crypto from 'expo-crypto';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ChevronLeft, Trash2 } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -15,6 +16,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { MediaUploader } from '@/components/ui/media-uploader';
 import { Segmented } from '@/components/ui/segmented';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -36,6 +38,8 @@ export default function ProgramEditScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
   const id = params.id;
   const isNew = !id;
+  // Generate a stable UUID for new programs so the cover upload path is well-defined.
+  const programId = useMemo(() => id ?? Crypto.randomUUID(), [id]);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -83,10 +87,10 @@ export default function ProgramEditScreen() {
         description: description.trim() || null,
         duration_weeks: num(duration),
         level,
-        cover_url: coverUrl.trim() || null,
+        cover_url: coverUrl?.trim() || null,
       };
       if (isNew) {
-        const { error } = await supabase.from('programs').insert(payload);
+        const { error } = await supabase.from('programs').insert({ id: programId, ...payload });
         if (error) throw error;
       } else {
         const { error } = await supabase.from('programs').update(payload).eq('id', id!);
@@ -206,15 +210,13 @@ export default function ProgramEditScreen() {
           />
         </Field>
 
-        <Field label="URL de la cover (optionnel)" palette={palette}>
-          <TextInput
-            value={coverUrl}
-            onChangeText={setCoverUrl}
-            placeholder="https://..."
-            placeholderTextColor={palette.textSecondary}
-            autoCapitalize="none"
-            autoCorrect={false}
-            style={[styles.input, inputStyle(palette)]}
+        <Field label="Image de couverture" palette={palette}>
+          <MediaUploader
+            kind="image"
+            bucket="program-covers"
+            pathPrefix={programId}
+            url={coverUrl || null}
+            onChange={(u) => setCoverUrl(u ?? '')}
           />
         </Field>
 

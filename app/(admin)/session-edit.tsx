@@ -1,6 +1,7 @@
+import * as Crypto from 'expo-crypto';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Check, ChevronLeft, Trash2 } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -15,6 +16,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { MediaUploader } from '@/components/ui/media-uploader';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { supabase } from '@/lib/supabase';
@@ -27,6 +29,7 @@ export default function SessionEditScreen() {
   const params = useLocalSearchParams<{ id?: string; programId?: string }>();
   const id = params.id;
   const isNew = !id;
+  const sessionId = useMemo(() => id ?? Crypto.randomUUID(), [id]);
 
   const [programs, setPrograms] = useState<Program[]>([]);
   const [programId, setProgramId] = useState<string | null>(params.programId ?? null);
@@ -87,11 +90,11 @@ export default function SessionEditScreen() {
         title: title.trim(),
         description: description.trim() || null,
         duration_min: num(duration),
-        video_url: videoUrl.trim() || null,
+        video_url: videoUrl?.trim() || null,
         order_index: num(orderIndex) ?? 0,
       };
       if (isNew) {
-        const { error } = await supabase.from('sessions').insert(payload);
+        const { error } = await supabase.from('sessions').insert({ id: sessionId, ...payload });
         if (error) throw error;
       } else {
         const { error } = await supabase.from('sessions').update(payload).eq('id', id!);
@@ -268,15 +271,13 @@ export default function SessionEditScreen() {
           </View>
         </View>
 
-        <Field label="URL vidéo" palette={palette}>
-          <TextInput
-            value={videoUrl}
-            onChangeText={setVideoUrl}
-            placeholder="https://... (Cloudflare Stream, Vimeo, etc.)"
-            placeholderTextColor={palette.textSecondary}
-            autoCapitalize="none"
-            autoCorrect={false}
-            style={[styles.input, inputStyle(palette)]}
+        <Field label="Vidéo" palette={palette}>
+          <MediaUploader
+            kind="video"
+            bucket="session-videos"
+            pathPrefix={sessionId}
+            url={videoUrl || null}
+            onChange={(u) => setVideoUrl(u ?? '')}
           />
         </Field>
 

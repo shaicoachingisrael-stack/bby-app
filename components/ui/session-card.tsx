@@ -11,7 +11,7 @@ type Props = {
   subtitle?: string;
   duration?: string;
   level?: string;
-  videoSource?: number;
+  videoSource?: number | string | null;
   onPress?: () => void;
 };
 

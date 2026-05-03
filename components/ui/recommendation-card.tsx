@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 
 type Props = {
-  videoSource: number;
+  videoSource: number | string;
   duration: string;
   title: string;
   subtitle: string;

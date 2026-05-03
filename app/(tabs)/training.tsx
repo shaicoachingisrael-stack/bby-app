@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import { Bell, Clock, Flame, History } from 'lucide-react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { Bell, Dumbbell } from 'lucide-react-native';
+import { useCallback } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -10,10 +11,17 @@ import { SessionCard } from '@/components/ui/session-card';
 import { Colors, Fonts, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
+import { usePrograms, useSessions, useTodaySession } from '@/lib/use-content';
 import { useProfile } from '@/lib/use-profile';
 
 const EXERCISE_VIDEO = require('@/assets/videos/exercise.mp4');
 const INTRO_VIDEO = require('@/assets/videos/intro.mp4');
+
+const LEVEL_LABELS: Record<string, string> = {
+  debutant: 'Débutante',
+  intermediaire: 'Intermédiaire',
+  avance: 'Avancée',
+};
 
 export default function TrainingScreen() {
   const insets = useSafeAreaInsets();
@@ -21,8 +29,20 @@ export default function TrainingScreen() {
   const router = useRouter();
   const { user } = useAuth();
   const { profile } = useProfile();
+  const { programs, refresh: refreshPrograms } = usePrograms();
+  const { sessions, refresh: refreshSessions } = useSessions();
+  const { session: todaySession, refresh: refreshToday } = useTodaySession();
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshPrograms();
+      refreshSessions();
+      refreshToday();
+    }, [refreshPrograms, refreshSessions, refreshToday]),
+  );
 
   const initial = (profile?.display_name || user?.email || '?')[0].toUpperCase();
+  const recos = sessions.slice(0, 6);
 
   return (
     <View style={[styles.container, { backgroundColor: palette.background }]}>
@@ -54,7 +74,7 @@ export default function TrainingScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={[styles.eyebrow, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                Programme · Semaine 3
+                {programs.length} {programs.length > 1 ? 'programmes' : 'programme'}
               </Text>
               <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
                 Training
@@ -68,81 +88,72 @@ export default function TrainingScreen() {
 
         <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl }}>
           <SessionCard
-            eyebrow="REPRENDRE"
-            title="Full body"
-            subtitle="Glutes & core"
-            duration="35 min"
-            level="Intermédiaire"
-            videoSource={EXERCISE_VIDEO}
-            onPress={() => router.push('/session/today' as any)}
+            eyebrow={todaySession ? 'REPRENDRE' : 'AUCUNE SÉANCE'}
+            title={todaySession?.title ?? 'Bientôt'}
+            subtitle={todaySession?.description ?? 'Demande à ta coach de publier du contenu'}
+            duration={todaySession?.duration_min ? `${todaySession.duration_min} min` : undefined}
+            videoSource={todaySession?.video_url ?? EXERCISE_VIDEO}
+            onPress={() =>
+              todaySession?.id ? router.push(`/session/${todaySession.id}` as any) : null
+            }
           />
         </View>
 
-        <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>
-          <View style={styles.sectionRow}>
-            <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-              Ma bibliothèque
-            </Text>
-            <Pressable hitSlop={8} onPress={() => router.push('/training' as any)}>
-              <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-                Voir tout
+        {programs.length > 0 && (
+          <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>
+            <View style={styles.sectionRow}>
+              <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+                Mes programmes
               </Text>
-            </Pressable>
+            </View>
+            <View style={{ gap: Spacing.md, marginTop: Spacing.md }}>
+              {programs.map((p) => (
+                <ActivityCard
+                  key={p.id}
+                  icon={Dumbbell}
+                  title={p.title}
+                  subtitle={
+                    [
+                      p.level ? LEVEL_LABELS[p.level] ?? p.level : null,
+                      p.duration_weeks ? `${p.duration_weeks} sem.` : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ') || 'Programme'
+                  }
+                  onPress={() => router.push(`/program/${p.id}` as any)}
+                />
+              ))}
+            </View>
           </View>
-          <View style={{ gap: Spacing.md, marginTop: Spacing.md }}>
-            <ActivityCard
-              icon={Flame}
-              title="HIIT brûle-graisses"
-              subtitle="20 min · 8 séances"
-              onPress={() => router.push('/session/hiit' as any)}
-            />
-            <ActivityCard
-              icon={Clock}
-              title="Mobilité matinale"
-              subtitle="10 min · 15 séances"
-              onPress={() => router.push('/session/mobility' as any)}
-            />
-            <ActivityCard
-              icon={History}
-              title="Historique complet"
-              subtitle="Tes 30 dernières séances"
-              onPress={() => router.push('/account' as any)}
-            />
-          </View>
-        </View>
+        )}
 
-        <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>
-          <View style={styles.sectionRow}>
-            <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-              Recommandé
-            </Text>
-            <Pressable hitSlop={8}>
-              <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-                Voir tout
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: Spacing.xl, gap: Spacing.md, marginTop: Spacing.md }}
-        >
-          <RecommendationCard
-            videoSource={INTRO_VIDEO}
-            duration="20 min"
-            title="Morning Stretch"
-            subtitle="Par Sérénité"
-            onPress={() => router.push('/session/morning-stretch' as any)}
-          />
-          <RecommendationCard
-            videoSource={EXERCISE_VIDEO}
-            duration="25 min"
-            title="HIIT brûle-graisses"
-            subtitle="Par Training"
-            onPress={() => router.push('/session/hiit' as any)}
-          />
-        </ScrollView>
+        {recos.length > 0 && (
+          <>
+            <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>
+              <View style={styles.sectionRow}>
+                <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+                  Toutes les séances
+                </Text>
+              </View>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: Spacing.xl, gap: Spacing.md, marginTop: Spacing.md }}
+            >
+              {recos.map((s) => (
+                <RecommendationCard
+                  key={s.id}
+                  videoSource={s.video_url ?? INTRO_VIDEO}
+                  duration={s.duration_min ? `${s.duration_min} min` : '—'}
+                  title={s.title}
+                  subtitle={s.description ?? 'Séance'}
+                  onPress={() => router.push(`/session/${s.id}` as any)}
+                />
+              ))}
+            </ScrollView>
+          </>
+        )}
       </ScrollView>
     </View>
   );
@@ -181,5 +192,4 @@ const styles = StyleSheet.create({
   },
   sectionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   section: { fontSize: 18, letterSpacing: -0.3 },
-  seeAll: { fontSize: 13 },
 });

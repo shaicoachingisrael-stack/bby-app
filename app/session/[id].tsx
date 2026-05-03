@@ -16,20 +16,24 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
+import { useSession } from '@/lib/use-content';
 import { supabase } from '@/lib/supabase';
 
-const EXERCISE_VIDEO = require('@/assets/videos/exercise.mp4');
+const FALLBACK_VIDEO = require('@/assets/videos/exercise.mp4');
 
 export default function SessionDetailScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const { user } = useAuth();
-  useLocalSearchParams<{ id?: string }>();
+  const params = useLocalSearchParams<{ id?: string }>();
+  const id = params.id;
+  const { session, loading } = useSession(id);
   const [completing, setCompleting] = useState(false);
   const [favorite, setFavorite] = useState(false);
 
-  const player = useVideoPlayer(EXERCISE_VIDEO, (p) => {
+  const videoSource = session?.video_url ?? FALLBACK_VIDEO;
+  const player = useVideoPlayer(videoSource, (p) => {
     p.loop = true;
     p.muted = true;
     p.play();
@@ -42,7 +46,7 @@ export default function SessionDetailScreen() {
       const now = new Date().toISOString();
       const { error } = await supabase.from('session_completions').insert({
         user_id: user.id,
-        session_id: null as any,
+        session_id: session?.id ?? null,
         started_at: now,
         completed_at: now,
         perceived_difficulty: 3,
@@ -58,9 +62,20 @@ export default function SessionDetailScreen() {
     }
   }
 
+  if (loading && !session) {
+    return (
+      <View style={[styles.flex, { backgroundColor: palette.background, alignItems: 'center', justifyContent: 'center' }]}>
+        <ActivityIndicator color={palette.text} />
+      </View>
+    );
+  }
+
+  const title = session?.title ?? 'Séance';
+  const subtitle = session?.description ?? '';
+  const duration = session?.duration_min ? `${session.duration_min} min` : '—';
+
   return (
     <View style={[styles.flex, { backgroundColor: palette.background }]}>
-      {/* Hero video */}
       <View style={styles.hero}>
         <VideoView
           player={player}
@@ -70,7 +85,6 @@ export default function SessionDetailScreen() {
         />
         <View style={styles.heroOverlay} />
 
-        {/* Top buttons */}
         <View style={[styles.topButtons, { paddingTop: insets.top + Spacing.sm }]}>
           <Pressable
             onPress={() => router.back()}
@@ -99,14 +113,12 @@ export default function SessionDetailScreen() {
           </Pressable>
         </View>
 
-        {/* Title overlay (bottom of hero) */}
         <View style={styles.heroTitle}>
-          <Text style={styles.heroTitleMain}>Full body</Text>
-          <Text style={styles.heroTitleSub}>Glutes & core</Text>
+          <Text style={styles.heroTitleMain}>{title}</Text>
+          {subtitle ? <Text style={styles.heroTitleSub}>{subtitle}</Text> : null}
         </View>
       </View>
 
-      {/* Content sheet */}
       <View style={[styles.sheet, { backgroundColor: palette.background }]}>
         <View style={[styles.handle, { backgroundColor: palette.border }]} />
         <ScrollView
@@ -117,29 +129,6 @@ export default function SessionDetailScreen() {
           }}
           showsVerticalScrollIndicator={false}
         >
-          {/* Coach card */}
-          <View style={[styles.coach, { backgroundColor: palette.surface }]}>
-            <View style={[styles.coachAvatar, { backgroundColor: palette.text }]}>
-              <Text style={[styles.coachAvatarLetter, { color: palette.background, fontFamily: Fonts.sansBold }]}>
-                C
-              </Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.coachName, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                Camille B.
-              </Text>
-              <Text style={[styles.coachRole, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                Coach sportive & mindset
-              </Text>
-            </View>
-            <Pressable hitSlop={8}>
-              <Text style={[styles.coachLink, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                Voir profil
-              </Text>
-            </Pressable>
-          </View>
-
-          {/* Meta */}
           <View style={styles.metaRow}>
             <View style={[styles.metaCard, { backgroundColor: palette.surface }]}>
               <Clock size={18} color={palette.text} />
@@ -148,7 +137,7 @@ export default function SessionDetailScreen() {
                   Durée
                 </Text>
                 <Text style={[styles.metaValue, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                  35 min
+                  {duration}
                 </Text>
               </View>
             </View>
@@ -159,22 +148,23 @@ export default function SessionDetailScreen() {
                   Niveau
                 </Text>
                 <Text style={[styles.metaValue, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                  Intermédiaire
+                  Tous
                 </Text>
               </View>
             </View>
           </View>
 
-          {/* Description */}
-          <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-            Description
-          </Text>
-          <Text style={[styles.desc, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-            Un entraînement complet pour renforcer l'ensemble du corps,
-            tonifier les fessiers et travailler le gainage en profondeur.
-          </Text>
+          {session?.description ? (
+            <>
+              <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+                Description
+              </Text>
+              <Text style={[styles.desc, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+                {session.description}
+              </Text>
+            </>
+          ) : null}
 
-          {/* Matériel */}
           <View style={styles.materialRow}>
             <View style={[styles.materialIcon, { backgroundColor: palette.surface }]}>
               <Dumbbell size={18} color={palette.text} />
@@ -190,7 +180,6 @@ export default function SessionDetailScreen() {
           </View>
         </ScrollView>
 
-        {/* CTA */}
         <View style={[styles.cta, { paddingBottom: insets.bottom + Spacing.md, backgroundColor: palette.background }]}>
           <Pressable
             onPress={handleStart}
@@ -281,24 +270,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: Spacing.sm,
   },
-  coach: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    padding: Spacing.lg,
-    borderRadius: Radius.lg,
-  },
-  coachAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  coachAvatarLetter: { fontSize: 16 },
-  coachName: { fontSize: 15 },
-  coachRole: { fontSize: 12, marginTop: 2 },
-  coachLink: { fontSize: 13 },
   metaRow: {
     flexDirection: 'row',
     gap: Spacing.md,

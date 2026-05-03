@@ -11,6 +11,7 @@ import { SessionCard } from '@/components/ui/session-card';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
+import { useSessions, useTodaySession } from '@/lib/use-content';
 import { useDayData } from '@/lib/use-day-data';
 import { useProfile } from '@/lib/use-profile';
 
@@ -30,9 +31,17 @@ export default function TodayScreen() {
   const { user } = useAuth();
   const { profile } = useProfile();
   const { refresh } = useDayData();
+  const { session: todaySession, refresh: refreshToday } = useTodaySession();
+  const { sessions: catalog, refresh: refreshCatalog } = useSessions();
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+      refreshToday();
+      refreshCatalog();
+    }, [refresh, refreshToday, refreshCatalog]),
+  );
 
   const firstName = (profile?.display_name || user?.email?.split('@')[0] || '').split(' ')[0];
   const initial = (firstName || '?')[0].toUpperCase();
@@ -105,12 +114,15 @@ export default function TodayScreen() {
         <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl }}>
           <SessionCard
             eyebrow="SÉANCE DU JOUR"
-            title="Full body"
-            subtitle="Glutes & core"
-            duration="35 min"
-            level="Intermédiaire"
-            videoSource={TRAINING_VIDEO}
-            onPress={() => router.push('/session/today' as any)}
+            title={todaySession?.title ?? 'Aucune séance'}
+            subtitle={todaySession?.description ?? 'Demande à ta coach de publier du contenu'}
+            duration={todaySession?.duration_min ? `${todaySession.duration_min} min` : undefined}
+            videoSource={todaySession?.video_url ?? TRAINING_VIDEO}
+            onPress={() =>
+              todaySession?.id
+                ? router.push(`/session/${todaySession.id}` as any)
+                : null
+            }
           />
         </View>
 
@@ -139,27 +151,25 @@ export default function TodayScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: Spacing.xl, gap: Spacing.md, marginTop: Spacing.md }}
         >
-          <RecommendationCard
-            videoSource={INTRO_VIDEO}
-            duration="20 min"
-            title="Morning Stretch"
-            subtitle="Par Sérénité"
-            onPress={() => router.push('/session/morning-stretch' as any)}
-          />
-          <RecommendationCard
-            videoSource={NUTRITION_VIDEO}
-            duration="10 min"
-            title="Recette healthy"
-            subtitle="Par Nutrition"
-            onPress={() => router.push('/meal-log?type=dejeuner' as any)}
-          />
-          <RecommendationCard
-            videoSource={TRAINING_VIDEO}
-            duration="25 min"
-            title="HIIT brûle-graisses"
-            subtitle="Par Training"
-            onPress={() => router.push('/session/hiit' as any)}
-          />
+          {catalog.length === 0 ? (
+            <RecommendationCard
+              videoSource={INTRO_VIDEO}
+              duration="—"
+              title="Bientôt"
+              subtitle="Du contenu arrive"
+            />
+          ) : (
+            catalog.slice(0, 6).map((s) => (
+              <RecommendationCard
+                key={s.id}
+                videoSource={s.video_url ?? INTRO_VIDEO}
+                duration={s.duration_min ? `${s.duration_min} min` : '—'}
+                title={s.title}
+                subtitle={s.description ?? 'Séance'}
+                onPress={() => router.push(`/session/${s.id}` as any)}
+              />
+            ))
+          )}
         </ScrollView>
       </ScrollView>
     </View>
