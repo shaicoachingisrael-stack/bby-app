@@ -1,147 +1,208 @@
+import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Apple, Brain, Dumbbell } from 'lucide-react-native';
-import { useCallback } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Bell } from 'lucide-react-native';
+import { useCallback, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ActivityCard } from '@/components/ui/activity-card';
-import { AvatarButton } from '@/components/ui/avatar-button';
-import { HeroVideoCard } from '@/components/ui/hero-video-card';
-import { SectionTitle } from '@/components/ui/section-title';
-import { StatCard } from '@/components/ui/stat-card';
-import { Colors, Fonts, Spacing } from '@/constants/theme';
+import { DateStrip } from '@/components/ui/date-strip';
+import { RecommendationCard } from '@/components/ui/recommendation-card';
+import { SessionCard } from '@/components/ui/session-card';
+import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAuth } from '@/lib/auth-provider';
 import { useDayData } from '@/lib/use-day-data';
+import { useProfile } from '@/lib/use-profile';
 
 const TRAINING_VIDEO = require('@/assets/videos/exercise.mp4');
+const NUTRITION_VIDEO = require('@/assets/videos/nutrition.mp4');
+const INTRO_VIDEO = require('@/assets/videos/intro.mp4');
 
-function formatToday() {
-  const formatter = new Intl.DateTimeFormat('fr-FR', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-  });
-  return formatter.format(new Date());
-}
+const MONTHS = [
+  'Janvier','Février','Mars','Avril','Mai','Juin',
+  'Juillet','Août','Septembre','Octobre','Novembre','Décembre',
+];
 
 export default function TodayScreen() {
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const router = useRouter();
-  const { data, refresh } = useDayData();
+  const { user } = useAuth();
+  const { profile } = useProfile();
+  const { refresh } = useDayData();
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  useFocusEffect(
-    useCallback(() => {
-      refresh();
-    }, [refresh]),
-  );
+  useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
 
-  const breakfast = data.meals.petit_dejeuner;
-  const intentionText = data.mindset_intention ?? 'Note ton intention du jour';
+  const firstName = (profile?.display_name || user?.email?.split('@')[0] || '').split(' ')[0];
+  const initial = (firstName || '?')[0].toUpperCase();
+  const monthLabel = `${MONTHS[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
 
   return (
     <View style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView
         contentContainerStyle={{
-          paddingTop: insets.top + Spacing.lg,
-          paddingHorizontal: Spacing.xl,
+          paddingTop: insets.top + Spacing.md,
           paddingBottom: 140,
         }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.topRow}>
-          <Text style={[styles.eyebrow, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-            {formatToday().toUpperCase()}
-          </Text>
-          <AvatarButton />
+        {/* Header */}
+        <View style={[styles.header, { paddingHorizontal: Spacing.xl }]}>
+          <Pressable
+            onPress={() => router.push('/account' as any)}
+            hitSlop={8}
+            style={styles.headerLeft}
+          >
+            <View style={[styles.avatar, { backgroundColor: palette.text }]}>
+              {profile?.avatar_url ? (
+                <Image
+                  source={{ uri: profile.avatar_url }}
+                  style={StyleSheet.absoluteFillObject}
+                  contentFit="cover"
+                />
+              ) : (
+                <Text style={[styles.avatarInitial, { color: palette.background, fontFamily: Fonts.sansBold }]}>
+                  {initial}
+                </Text>
+              )}
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.hello, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+                Hello, {firstName ? capitalize(firstName) : 'toi'}
+              </Text>
+              <Text
+                style={[styles.helloTitle, { color: palette.text, fontFamily: Fonts.displayBold }]}
+                numberOfLines={1}
+              >
+                Belle journée !
+              </Text>
+            </View>
+          </Pressable>
+          <Pressable
+            hitSlop={8}
+            style={[styles.bell, { backgroundColor: palette.surface }]}
+            accessibilityLabel="Notifications"
+          >
+            <Bell size={18} color={palette.text} />
+          </Pressable>
         </View>
-        <Text style={[styles.greeting, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          Bonjour 👋
-        </Text>
-        <Text style={[styles.intro, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          Voici ton plan du jour. Une séance, trois repas, une intention.
-        </Text>
 
-        <View style={{ marginTop: Spacing.xl }}>
-          <HeroVideoCard
-            source={TRAINING_VIDEO}
+        {/* Calendar */}
+        <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl }}>
+          <Text style={[styles.month, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+            {monthLabel}
+          </Text>
+          <Text style={[styles.monthHint, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+            Sélectionne une date
+          </Text>
+        </View>
+        <View style={{ marginTop: Spacing.md }}>
+          <DateStrip value={selectedDate} onChange={setSelectedDate} />
+        </View>
+
+        {/* Séance du jour */}
+        <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl }}>
+          <SessionCard
             eyebrow="SÉANCE DU JOUR"
-            title="Full body — focus glutes & core"
-            meta="35 min · Niveau intermédiaire"
+            title="Full body"
+            subtitle="Glutes & core"
+            duration="35 min"
+            level="Intermédiaire"
+            videoSource={TRAINING_VIDEO}
             onPress={() => router.push('/session/today' as any)}
           />
         </View>
 
-        <View style={{ marginTop: Spacing.xxl }}>
-          <SectionTitle title="Cette semaine" />
-          <View style={styles.statsRow}>
-            <StatCard value={data.session_completed_today ? '1' : '0'} label="Séance" />
-            <StatCard value={`${data.meals.total_kcal}`} label="Kcal" />
-            <StatCard value={`${Math.round(data.hydration_ml / 100) / 10} L`} label="Hydratation" />
-          </View>
+        {/* Mindset du jour */}
+        <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.md }}>
+          <SessionCard
+            eyebrow="COACHING"
+            title="Mindset du jour"
+            subtitle="5 min de lecture"
+            videoSource={INTRO_VIDEO}
+            onPress={() => router.push('/mindset-log?kind=journal' as any)}
+          />
         </View>
 
-        <View style={{ marginTop: Spacing.xxl }}>
-          <SectionTitle title="Ma journée" />
-          <View style={{ gap: Spacing.md }}>
-            <ActivityCard
-              icon={Dumbbell}
-              title="Full body — 35 min"
-              subtitle={data.session_completed_today ? 'Terminée. Bravo.' : 'Séance prévue · 09:00'}
-              status={data.session_completed_today ? 'done' : 'pending'}
-              onPress={() => router.push('/session/today' as any)}
-            />
-            <ActivityCard
-              icon={Apple}
-              title={breakfast.logged ? 'Petit-déjeuner enregistré' : 'Logger un repas'}
-              subtitle={
-                breakfast.logged
-                  ? `${breakfast.kcal} kcal · ${breakfast.protein} g de protéines`
-                  : 'Ajoute ton repas en quelques secondes'
-              }
-              status={breakfast.logged ? 'done' : 'pending'}
-              onPress={() => router.push('/meal-log?type=petit_dejeuner' as any)}
-            />
-            <ActivityCard
-              icon={Brain}
-              title="Intention du jour"
-              subtitle={intentionText}
-              status={data.mindset_intention ? 'done' : 'pending'}
-              onPress={() => router.push('/mindset-log?kind=intention' as any)}
-            />
-          </View>
+        {/* Recommandé pour vous */}
+        <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+          <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+            Recommandé pour vous
+          </Text>
+          <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
+            Voir tout
+          </Text>
         </View>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: Spacing.xl, gap: Spacing.md, marginTop: Spacing.md }}
+        >
+          <RecommendationCard
+            videoSource={INTRO_VIDEO}
+            duration="20 min"
+            title="Morning Stretch"
+            subtitle="Par Sérénité"
+            onPress={() => router.push('/session/morning-stretch' as any)}
+          />
+          <RecommendationCard
+            videoSource={NUTRITION_VIDEO}
+            duration="10 min"
+            title="Recette healthy"
+            subtitle="Par Nutrition"
+            onPress={() => router.push('/meal-log?type=dejeuner' as any)}
+          />
+          <RecommendationCard
+            videoSource={TRAINING_VIDEO}
+            duration="25 min"
+            title="HIIT brûle-graisses"
+            subtitle="Par Training"
+            onPress={() => router.push('/session/hiit' as any)}
+          />
+        </ScrollView>
       </ScrollView>
     </View>
   );
 }
 
+function capitalize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  topRow: {
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  eyebrow: {
-    fontSize: 11,
-    letterSpacing: 1.6,
-    flex: 1,
-  },
-  greeting: {
-    fontSize: 36,
-    lineHeight: 42,
-    letterSpacing: -0.6,
-    marginTop: Spacing.sm,
-  },
-  intro: {
-    fontSize: 15,
-    lineHeight: 22,
-    marginTop: Spacing.sm,
-    maxWidth: '92%',
-  },
-  statsRow: {
-    flexDirection: 'row',
     gap: Spacing.md,
   },
+  headerLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  avatarInitial: { fontSize: 18 },
+  hello: { fontSize: 13 },
+  helloTitle: { fontSize: 18, letterSpacing: -0.3, marginTop: 2 },
+  bell: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  month: { fontSize: 18, letterSpacing: -0.3 },
+  monthHint: { fontSize: 13, marginTop: 2 },
+  section: { fontSize: 18, letterSpacing: -0.3 },
+  seeAll: { fontSize: 13 },
 });

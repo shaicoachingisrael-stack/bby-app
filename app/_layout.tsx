@@ -35,7 +35,7 @@ function RootStack() {
     if (loading) return;
     const inAuth = (segments[0] as string) === '(auth)';
     if (!session && !inAuth) {
-      router.replace('/(auth)/login' as any);
+      router.replace('/(auth)/welcome' as any);
     } else if (session && inAuth) {
       router.replace('/today');
     }

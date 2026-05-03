@@ -1,6 +1,6 @@
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Check, ChevronLeft, Clock, Flame } from 'lucide-react-native';
+import { BarChart3, ChevronLeft, Clock, Dumbbell, Heart } from 'lucide-react-native';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -20,21 +20,14 @@ import { supabase } from '@/lib/supabase';
 
 const EXERCISE_VIDEO = require('@/assets/videos/exercise.mp4');
 
-const MOCK_EXERCISES = [
-  { name: 'Squats lestés', detail: '4 × 12 reps' },
-  { name: 'Hip thrust', detail: '4 × 10 reps' },
-  { name: 'Fentes bulgares', detail: '3 × 10 / jambe' },
-  { name: 'Plank dynamique', detail: '3 × 45 s' },
-  { name: 'Russian twists', detail: '3 × 20' },
-];
-
 export default function SessionDetailScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const { user } = useAuth();
-  const params = useLocalSearchParams<{ id?: string }>();
+  useLocalSearchParams<{ id?: string }>();
   const [completing, setCompleting] = useState(false);
+  const [favorite, setFavorite] = useState(false);
 
   const player = useVideoPlayer(EXERCISE_VIDEO, (p) => {
     p.loop = true;
@@ -42,12 +35,10 @@ export default function SessionDetailScreen() {
     p.play();
   });
 
-  async function handleComplete() {
+  async function handleStart() {
     if (!user) return;
     setCompleting(true);
     try {
-      // For now, persist a generic completion without a session_id reference.
-      // Later, when programs/sessions are seeded in the DB, we'll use real IDs.
       const now = new Date().toISOString();
       const { error } = await supabase.from('session_completions').insert({
         user_id: user.id,
@@ -56,11 +47,8 @@ export default function SessionDetailScreen() {
         completed_at: now,
         perceived_difficulty: 3,
       });
-      if (error) {
-        // session_id NOT NULL -> fall back gracefully without crashing
-        console.warn('completion insert error', error);
-      }
-      Alert.alert('Bravo', 'Séance marquée comme terminée.', [
+      if (error) console.warn('completion insert error', error);
+      Alert.alert('Bravo', 'Séance enregistrée.', [
         { text: 'OK', onPress: () => router.back() },
       ]);
     } catch (e: any) {
@@ -72,172 +60,281 @@ export default function SessionDetailScreen() {
 
   return (
     <View style={[styles.flex, { backgroundColor: palette.background }]}>
-      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <ChevronLeft size={24} color={palette.text} />
-          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-            Retour
-          </Text>
-        </Pressable>
-      </View>
+      {/* Hero video */}
+      <View style={styles.hero}>
+        <VideoView
+          player={player}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          nativeControls={false}
+        />
+        <View style={styles.heroOverlay} />
 
-      <ScrollView
-        contentContainerStyle={{
-          paddingBottom: insets.bottom + 120,
-        }}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.hero}>
-          <VideoView
-            player={player}
-            style={StyleSheet.absoluteFill}
-            contentFit="cover"
-            nativeControls={false}
-          />
-          <View style={styles.heroOverlay} />
-          <View style={styles.heroContent}>
-            <Text style={styles.heroEyebrow}>SÉANCE DU JOUR</Text>
-            <Text style={styles.heroTitle}>Full body — focus glutes & core</Text>
-          </View>
+        {/* Top buttons */}
+        <View style={[styles.topButtons, { paddingTop: insets.top + Spacing.sm }]}>
+          <Pressable
+            onPress={() => router.back()}
+            hitSlop={10}
+            style={({ pressed }) => [
+              styles.iconBtn,
+              { backgroundColor: Palette.albatre, opacity: pressed ? 0.8 : 1 },
+            ]}
+          >
+            <ChevronLeft size={20} color={Palette.encre} />
+          </Pressable>
+
+          <Pressable
+            onPress={() => setFavorite((f) => !f)}
+            hitSlop={10}
+            style={({ pressed }) => [
+              styles.iconBtn,
+              { backgroundColor: Palette.albatre, opacity: pressed ? 0.8 : 1 },
+            ]}
+          >
+            <Heart
+              size={20}
+              color={Palette.encre}
+              fill={favorite ? Palette.encre : 'transparent'}
+            />
+          </Pressable>
         </View>
 
-        <View style={{ paddingHorizontal: Spacing.xl, paddingTop: Spacing.xl, gap: Spacing.lg }}>
-          <View style={styles.metaRow}>
-            <Meta icon={Clock} label="35 min" palette={palette} />
-            <Meta icon={Flame} label="≈ 320 kcal" palette={palette} />
-            <Meta icon={Check} label="Intermédiaire" palette={palette} />
+        {/* Title overlay (bottom of hero) */}
+        <View style={styles.heroTitle}>
+          <Text style={styles.heroTitleMain}>Full body</Text>
+          <Text style={styles.heroTitleSub}>Glutes & core</Text>
+        </View>
+      </View>
+
+      {/* Content sheet */}
+      <View style={[styles.sheet, { backgroundColor: palette.background }]}>
+        <View style={[styles.handle, { backgroundColor: palette.border }]} />
+        <ScrollView
+          contentContainerStyle={{
+            paddingHorizontal: Spacing.xl,
+            paddingTop: Spacing.lg,
+            paddingBottom: insets.bottom + 100,
+          }}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Coach card */}
+          <View style={[styles.coach, { backgroundColor: palette.surface }]}>
+            <View style={[styles.coachAvatar, { backgroundColor: palette.text }]}>
+              <Text style={[styles.coachAvatarLetter, { color: palette.background, fontFamily: Fonts.sansBold }]}>
+                C
+              </Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.coachName, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+                Camille B.
+              </Text>
+              <Text style={[styles.coachRole, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+                Coach sportive & mindset
+              </Text>
+            </View>
+            <Pressable hitSlop={8}>
+              <Text style={[styles.coachLink, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+                Voir profil
+              </Text>
+            </Pressable>
           </View>
 
-          <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-            Exercices
-          </Text>
-
-          {MOCK_EXERCISES.map((ex, i) => (
-            <View
-              key={ex.name}
-              style={[styles.exerciseRow, { backgroundColor: palette.surface }]}
-            >
-              <Text style={[styles.exerciseIndex, { color: palette.textSecondary, fontFamily: Fonts.sansSemibold }]}>
-                {String(i + 1).padStart(2, '0')}
-              </Text>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.exerciseName, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                  {ex.name}
+          {/* Meta */}
+          <View style={styles.metaRow}>
+            <View style={[styles.metaCard, { backgroundColor: palette.surface }]}>
+              <Clock size={18} color={palette.text} />
+              <View>
+                <Text style={[styles.metaLabel, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+                  Durée
                 </Text>
-                <Text style={[styles.exerciseDetail, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                  {ex.detail}
+                <Text style={[styles.metaValue, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+                  35 min
                 </Text>
               </View>
             </View>
-          ))}
+            <View style={[styles.metaCard, { backgroundColor: palette.surface }]}>
+              <BarChart3 size={18} color={palette.text} />
+              <View>
+                <Text style={[styles.metaLabel, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+                  Niveau
+                </Text>
+                <Text style={[styles.metaValue, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+                  Intermédiaire
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Description */}
+          <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+            Description
+          </Text>
+          <Text style={[styles.desc, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+            Un entraînement complet pour renforcer l'ensemble du corps,
+            tonifier les fessiers et travailler le gainage en profondeur.
+          </Text>
+
+          {/* Matériel */}
+          <View style={styles.materialRow}>
+            <View style={[styles.materialIcon, { backgroundColor: palette.surface }]}>
+              <Dumbbell size={18} color={palette.text} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.materialLabel, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+                Matériel
+              </Text>
+              <Text style={[styles.materialValue, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+                Tapis, élastique, haltères (optionnel)
+              </Text>
+            </View>
+          </View>
+        </ScrollView>
+
+        {/* CTA */}
+        <View style={[styles.cta, { paddingBottom: insets.bottom + Spacing.md, backgroundColor: palette.background }]}>
+          <Pressable
+            onPress={handleStart}
+            disabled={completing}
+            style={({ pressed }) => [
+              styles.ctaButton,
+              {
+                backgroundColor: palette.text,
+                opacity: pressed || completing ? 0.85 : 1,
+              },
+            ]}
+          >
+            {completing ? (
+              <ActivityIndicator color={palette.background} />
+            ) : (
+              <Text
+                style={[
+                  styles.ctaText,
+                  { color: palette.background, fontFamily: Fonts.sansSemibold },
+                ]}
+              >
+                Démarrer la séance
+              </Text>
+            )}
+          </Pressable>
         </View>
-      </ScrollView>
-
-      <View style={[styles.cta, { paddingBottom: insets.bottom + Spacing.lg, backgroundColor: palette.background }]}>
-        <Pressable
-          onPress={handleComplete}
-          disabled={completing}
-          style={({ pressed }) => [
-            styles.ctaButton,
-            { backgroundColor: palette.text, opacity: pressed || completing ? 0.85 : 1 },
-          ]}
-        >
-          {completing ? (
-            <ActivityIndicator color={palette.background} />
-          ) : (
-            <Text style={[styles.ctaText, { color: palette.background, fontFamily: Fonts.sansSemibold }]}>
-              Marquer comme terminée
-            </Text>
-          )}
-        </Pressable>
       </View>
-    </View>
-  );
-}
-
-function Meta({ icon: Icon, label, palette }: any) {
-  return (
-    <View style={[styles.meta, { backgroundColor: palette.surface }]}>
-      <Icon size={14} color={palette.text} />
-      <Text style={[styles.metaText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-        {label}
-      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.sm,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-  },
-  back: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(250,250,248,0.9)',
-    borderRadius: Radius.pill,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 6,
-  },
-  backText: { fontSize: 14, marginLeft: 2 },
   hero: {
     height: 460,
-    backgroundColor: Palette.gray[300],
+    backgroundColor: Palette.gray[200],
     overflow: 'hidden',
   },
   heroOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(10,10,10,0.32)',
+    backgroundColor: 'rgba(10,10,10,0.18)',
   },
-  heroContent: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    padding: Spacing.xl,
-    gap: Spacing.sm,
+  topButtons: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.xl,
   },
-  heroEyebrow: {
-    color: Palette.albatre,
-    fontSize: 11,
-    letterSpacing: 1.6,
-    opacity: 0.9,
+  iconBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   heroTitle: {
+    position: 'absolute',
+    left: Spacing.xl,
+    bottom: Spacing.xxl,
+  },
+  heroTitleMain: {
+    fontSize: 38,
     color: Palette.albatre,
-    fontSize: 30,
-    lineHeight: 34,
-    letterSpacing: -0.5,
     fontWeight: '700',
-    maxWidth: '90%',
+    letterSpacing: -0.6,
   },
-  metaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
-  meta: {
+  heroTitleSub: {
+    fontSize: 18,
+    color: Palette.albatre,
+    opacity: 0.95,
+    marginTop: 4,
+  },
+  sheet: {
+    flex: 1,
+    marginTop: -32,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingTop: Spacing.sm,
+  },
+  handle: {
+    width: 44,
+    height: 4,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginTop: 10,
+    marginBottom: Spacing.sm,
+  },
+  coach: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: 8,
-    borderRadius: Radius.pill,
+    gap: Spacing.md,
+    padding: Spacing.lg,
+    borderRadius: Radius.lg,
   },
-  metaText: { fontSize: 12 },
-  section: { fontSize: 22, letterSpacing: -0.4, marginTop: Spacing.md },
-  exerciseRow: {
+  coachAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  coachAvatarLetter: { fontSize: 16 },
+  coachName: { fontSize: 15 },
+  coachRole: { fontSize: 12, marginTop: 2 },
+  coachLink: { fontSize: 13 },
+  metaRow: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    marginTop: Spacing.md,
+  },
+  metaCard: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.lg,
+    gap: Spacing.md,
     padding: Spacing.lg,
     borderRadius: Radius.md,
   },
-  exerciseIndex: { fontSize: 12, letterSpacing: 0.4, width: 26 },
-  exerciseName: { fontSize: 15 },
-  exerciseDetail: { fontSize: 13, marginTop: 2 },
+  metaLabel: { fontSize: 11 },
+  metaValue: { fontSize: 14, marginTop: 2 },
+  section: {
+    fontSize: 18,
+    letterSpacing: -0.3,
+    marginTop: Spacing.xl,
+  },
+  desc: { fontSize: 14, lineHeight: 22, marginTop: 8 },
+  materialRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    marginTop: Spacing.xl,
+  },
+  materialIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  materialLabel: { fontSize: 14 },
+  materialValue: { fontSize: 13, marginTop: 2 },
   cta: {
     position: 'absolute',
     left: 0,
@@ -248,7 +345,7 @@ const styles = StyleSheet.create({
   },
   ctaButton: {
     height: 56,
-    borderRadius: Radius.md,
+    borderRadius: Radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },

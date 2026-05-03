@@ -1,18 +1,26 @@
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
-import { Calendar, Dumbbell, Apple, Sparkles, MessageCircle } from 'lucide-react-native';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Apple, Dumbbell, Home, Leaf, Sparkles } from 'lucide-react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Colors, Palette, Radius, Spacing } from '@/constants/theme';
+import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const ICONS = {
-  today: Calendar,
+  today: Home,
   training: Dumbbell,
   nutrition: Apple,
-  mindset: Sparkles,
+  mindset: Leaf,
 } as const;
+
+const LABELS: Record<string, string> = {
+  today: "Aujourd'hui",
+  training: 'Training',
+  nutrition: 'Nutrition',
+  mindset: 'Mindset',
+};
 
 export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
@@ -20,54 +28,74 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
   const palette = Colors[scheme];
   const router = useRouter();
 
-  const bottom = Math.max(insets.bottom, Spacing.lg);
+  const bottom = Math.max(insets.bottom, Spacing.md);
 
   return (
     <View pointerEvents="box-none" style={[styles.container, { bottom }]}>
-      <View
-        style={[
-          styles.tabBar,
-          {
-            backgroundColor: scheme === 'dark' ? Palette.gray[700] : Palette.encre,
-            shadowColor: Palette.encre,
-          },
-        ]}
-      >
-        {state.routes.map((route, index) => {
-          const Icon = ICONS[route.name as keyof typeof ICONS];
-          if (!Icon) return null;
-          const isFocused = state.index === index;
-          const { options } = descriptors[route.key];
+      <View style={[styles.tabPill, { borderColor: palette.border }]}>
+        <BlurView
+          intensity={scheme === 'dark' ? 40 : 60}
+          tint={scheme === 'dark' ? 'dark' : 'light'}
+          style={StyleSheet.absoluteFill}
+        />
+        <View
+          style={[
+            styles.tabBg,
+            {
+              backgroundColor:
+                scheme === 'dark' ? 'rgba(20,20,18,0.7)' : 'rgba(250,250,248,0.82)',
+            },
+          ]}
+        />
 
-          const onPress = () => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true,
-            });
-            if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name);
-            }
-          };
+        <View style={styles.tabRow}>
+          {state.routes.map((route, index) => {
+            const Icon = ICONS[route.name as keyof typeof ICONS];
+            if (!Icon) return null;
+            const isFocused = state.index === index;
+            const { options } = descriptors[route.key];
 
-          return (
-            <Pressable
-              key={route.key}
-              accessibilityRole="button"
-              accessibilityState={isFocused ? { selected: true } : {}}
-              accessibilityLabel={options.tabBarAccessibilityLabel}
-              onPress={onPress}
-              style={styles.tabButton}
-              hitSlop={8}
-            >
-              <Icon
-                size={22}
-                color={isFocused ? Palette.albatre : Palette.gray[400]}
-                strokeWidth={isFocused ? 2.4 : 1.8}
-              />
-            </Pressable>
-          );
-        })}
+            const onPress = () => {
+              const event = navigation.emit({
+                type: 'tabPress',
+                target: route.key,
+                canPreventDefault: true,
+              });
+              if (!isFocused && !event.defaultPrevented) {
+                navigation.navigate(route.name);
+              }
+            };
+
+            return (
+              <Pressable
+                key={route.key}
+                accessibilityRole="button"
+                accessibilityState={isFocused ? { selected: true } : {}}
+                accessibilityLabel={options.tabBarAccessibilityLabel ?? LABELS[route.name]}
+                onPress={onPress}
+                style={styles.tabButton}
+                hitSlop={8}
+              >
+                <Icon
+                  size={22}
+                  color={isFocused ? palette.text : palette.textSecondary}
+                  strokeWidth={isFocused ? 2.2 : 1.8}
+                />
+                <Text
+                  style={[
+                    styles.tabLabel,
+                    {
+                      color: isFocused ? palette.text : palette.textSecondary,
+                      fontFamily: isFocused ? Fonts.sansSemibold : Fonts.sansMedium,
+                    },
+                  ]}
+                >
+                  {LABELS[route.name]}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
 
       <Pressable
@@ -77,13 +105,15 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
         style={({ pressed }) => [
           styles.fab,
           {
-            backgroundColor: palette.background,
-            shadowColor: Palette.encre,
+            backgroundColor: palette.text,
             transform: [{ scale: pressed ? 0.94 : 1 }],
           },
         ]}
       >
-        <MessageCircle size={24} color={palette.text} strokeWidth={2} />
+        <Sparkles size={20} color={palette.background} strokeWidth={2} />
+        <Text style={[styles.fabLabel, { color: palette.background, fontFamily: Fonts.sansMedium }]}>
+          Coach IA
+        </Text>
       </Pressable>
     </View>
   );
@@ -95,39 +125,43 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     flexDirection: 'row',
+    alignItems: 'flex-end',
     justifyContent: 'center',
-    alignItems: 'center',
     paddingHorizontal: Spacing.lg,
     gap: Spacing.md,
   },
-  tabBar: {
+  tabPill: {
+    flex: 1,
+    height: 76,
+    borderRadius: Radius.xl,
+    overflow: 'hidden',
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  tabBg: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  tabRow: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
-    height: 64,
-    borderRadius: Radius.pill,
-    paddingHorizontal: Spacing.md,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.18,
-    shadowRadius: 20,
-    elevation: 12,
+    paddingHorizontal: Spacing.sm,
   },
   tabButton: {
     flex: 1,
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 4,
   },
+  tabLabel: { fontSize: 10, letterSpacing: 0.2 },
   fab: {
-    width: 64,
-    height: 64,
-    borderRadius: Radius.pill,
+    width: 70,
+    height: 76,
+    borderRadius: Radius.xl,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.18,
-    shadowRadius: 20,
-    elevation: 12,
+    gap: 4,
+    paddingHorizontal: 6,
   },
+  fabLabel: { fontSize: 9, letterSpacing: 0.2 },
 });
