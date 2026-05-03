@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -13,6 +14,8 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { LEGAL_URLS } from '@/lib/legal';
 
 import {
   signInWithApple,
@@ -249,7 +252,21 @@ export default function LoginScreen() {
         </View>
 
         <Text style={[styles.legal, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          En continuant, tu acceptes nos conditions et notre politique de confidentialité.
+          En continuant, tu acceptes nos{' '}
+          <Text
+            onPress={() => Linking.openURL(LEGAL_URLS.terms)}
+            style={{ color: palette.text, textDecorationLine: 'underline' }}
+          >
+            conditions
+          </Text>
+          {' '}et notre{' '}
+          <Text
+            onPress={() => Linking.openURL(LEGAL_URLS.privacy)}
+            style={{ color: palette.text, textDecorationLine: 'underline' }}
+          >
+            politique de confidentialité
+          </Text>
+          .
         </Text>
       </ScrollView>
     </KeyboardAvoidingView>

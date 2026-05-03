@@ -1,15 +1,18 @@
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { ChevronLeft, LogOut, Pencil, Settings, Trash2 } from 'lucide-react-native';
+import { ChevronLeft, FileText, LogOut, Pencil, Settings, Shield, Trash2 } from 'lucide-react-native';
 import { useCallback } from 'react';
 import {
   Alert,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+
+import { LEGAL_URLS } from '@/lib/legal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SectionTitle } from '@/components/ui/section-title';
@@ -260,6 +263,42 @@ export default function AccountScreen() {
             <Trash2 size={18} color={Palette.albatre} />
             <Text style={[styles.actionText, { color: Palette.albatre, fontFamily: Fonts.sansSemibold }]}>
               Supprimer mon compte
+            </Text>
+          </Pressable>
+        </View>
+
+        <View style={{ marginTop: Spacing.xxl, gap: Spacing.md }}>
+          <SectionTitle title="Légal" />
+          <Pressable
+            onPress={() => Linking.openURL(LEGAL_URLS.privacy)}
+            style={({ pressed }) => [
+              styles.actionButton,
+              {
+                backgroundColor: palette.surface,
+                borderColor: palette.border,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}
+          >
+            <Shield size={18} color={palette.text} />
+            <Text style={[styles.actionText, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+              Politique de confidentialité
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => Linking.openURL(LEGAL_URLS.terms)}
+            style={({ pressed }) => [
+              styles.actionButton,
+              {
+                backgroundColor: palette.surface,
+                borderColor: palette.border,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}
+          >
+            <FileText size={18} color={palette.text} />
+            <Text style={[styles.actionText, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+              Conditions générales d'utilisation
             </Text>
           </Pressable>
         </View>
