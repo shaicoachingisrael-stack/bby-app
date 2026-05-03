@@ -43,6 +43,10 @@ app-example
 /ios
 /android
 
+# Supabase CLI temp files
+/supabase/.temp/
+/supabase/.branches/
+
 # OAuth client credentials (never commit, even in private repo)
 /client_*.plist
 /client_*.json
