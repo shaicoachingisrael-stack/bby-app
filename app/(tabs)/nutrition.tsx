@@ -91,7 +91,8 @@ export default function NutritionScreen() {
             subtitle={featuredRecipe?.description ?? 'Demande à ta coach de publier des recettes'}
             duration={featuredRecipe?.prep_min ? `${featuredRecipe.prep_min} min` : undefined}
             level={featuredRecipe?.kcal ? `${featuredRecipe.kcal} kcal` : undefined}
-            videoSource={featuredRecipe?.video_url ?? featuredRecipe?.cover_url ?? NUTRITION_VIDEO}
+            videoSource={featuredRecipe ? featuredRecipe.video_url : NUTRITION_VIDEO}
+            imageSource={featuredRecipe?.cover_url ?? null}
             onPress={() =>
               featuredRecipe
                 ? router.push(`/meal-log?type=${featuredRecipe.meal_type ?? 'dejeuner'}` as any)
@@ -178,7 +179,8 @@ export default function NutritionScreen() {
             otherRecipes.map((r) => (
               <RecommendationCard
                 key={r.id}
-                videoSource={r.video_url ?? r.cover_url ?? NUTRITION_VIDEO}
+                videoSource={r.video_url ?? null}
+                imageSource={r.cover_url ?? null}
                 duration={r.prep_min ? `${r.prep_min} min` : '—'}
                 title={r.title}
                 subtitle={r.kcal ? `${r.kcal} kcal` : 'Recette'}

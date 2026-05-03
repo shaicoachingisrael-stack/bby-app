@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { Clock } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -5,18 +6,28 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 
 type Props = {
-  videoSource: number | string;
+  videoSource?: number | string | null;
+  imageSource?: string | null;
   duration: string;
   title: string;
   subtitle: string;
   onPress?: () => void;
 };
 
-export function RecommendationCard({ videoSource, duration, title, subtitle, onPress }: Props) {
-  const player = useVideoPlayer(videoSource, (p) => {
-    p.loop = true;
-    p.muted = true;
-    p.play();
+export function RecommendationCard({
+  videoSource,
+  imageSource,
+  duration,
+  title,
+  subtitle,
+  onPress,
+}: Props) {
+  const player = useVideoPlayer(videoSource ?? null, (p) => {
+    if (videoSource) {
+      p.loop = true;
+      p.muted = true;
+      p.play();
+    }
   });
 
   return (
@@ -24,12 +35,20 @@ export function RecommendationCard({ videoSource, duration, title, subtitle, onP
       onPress={onPress}
       style={({ pressed }) => [styles.card, { opacity: pressed ? 0.9 : 1 }]}
     >
-      <VideoView
-        player={player}
-        style={StyleSheet.absoluteFill}
-        contentFit="cover"
-        nativeControls={false}
-      />
+      {videoSource ? (
+        <VideoView
+          player={player}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+          nativeControls={false}
+        />
+      ) : imageSource ? (
+        <Image
+          source={{ uri: imageSource }}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+        />
+      ) : null}
       <View style={styles.overlay} />
       <View style={styles.content}>
         <View style={styles.duration}>

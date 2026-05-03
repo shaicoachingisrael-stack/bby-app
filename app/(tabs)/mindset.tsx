@@ -97,7 +97,8 @@ export default function MindsetScreen() {
             title={featured?.title ?? 'Bientôt'}
             subtitle={featured?.body?.split('\n')[0] ?? 'Demande à ta coach de publier du mindset'}
             duration={featured?.duration_min ? `${featured.duration_min} min` : undefined}
-            videoSource={featured?.cover_url ?? INTRO_VIDEO}
+            videoSource={featured ? null : INTRO_VIDEO}
+            imageSource={featured?.cover_url ?? null}
             onPress={() =>
               featured
                 ? router.push(`/mindset-log?kind=${featured.kind === 'meditation' ? 'meditation_done' : featured.kind}` as any)
@@ -154,7 +155,8 @@ export default function MindsetScreen() {
             others.map((m) => (
               <RecommendationCard
                 key={m.id}
-                videoSource={m.cover_url ?? INTRO_VIDEO}
+                videoSource={null}
+                imageSource={m.cover_url ?? null}
                 duration={m.duration_min ? `${m.duration_min} min` : '—'}
                 title={m.title}
                 subtitle={

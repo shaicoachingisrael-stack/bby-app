@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { Clock, Play } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -12,6 +13,7 @@ type Props = {
   duration?: string;
   level?: string;
   videoSource?: number | string | null;
+  imageSource?: string | null;
   onPress?: () => void;
 };
 
@@ -22,6 +24,7 @@ export function SessionCard({
   duration,
   level,
   videoSource,
+  imageSource,
   onPress,
 }: Props) {
   const palette = Colors[useColorScheme() ?? 'light'];
@@ -83,14 +86,20 @@ export function SessionCard({
       </View>
 
       <View style={styles.right}>
-        {videoSource && (
+        {videoSource ? (
           <VideoView
             player={player}
             style={StyleSheet.absoluteFill}
             contentFit="cover"
             nativeControls={false}
           />
-        )}
+        ) : imageSource ? (
+          <Image
+            source={{ uri: imageSource }}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+          />
+        ) : null}
         <View style={styles.playBadge}>
           <Play size={14} color={Palette.albatre} fill={Palette.albatre} />
         </View>
