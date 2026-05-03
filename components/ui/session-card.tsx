@@ -100,9 +100,11 @@ export function SessionCard({
             contentFit="cover"
           />
         ) : null}
-        <View style={styles.playBadge}>
-          <Play size={14} color={Palette.albatre} fill={Palette.albatre} />
-        </View>
+        {videoSource && (
+          <View style={styles.playBadge}>
+            <Play size={14} color={Palette.albatre} fill={Palette.albatre} />
+          </View>
+        )}
       </View>
     </Pressable>
   );
