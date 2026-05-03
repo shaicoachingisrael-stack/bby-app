@@ -113,6 +113,7 @@ export default function TrainingScreen() {
                 <ActivityCard
                   key={p.id}
                   icon={Dumbbell}
+                  imageSource={p.cover_url ?? null}
                   title={p.title}
                   subtitle={
                     [

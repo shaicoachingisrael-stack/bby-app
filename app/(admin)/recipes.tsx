@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react-native';
 import { useCallback } from 'react';
@@ -81,6 +82,15 @@ export default function RecipesAdminScreen() {
                   { backgroundColor: palette.surface, opacity: pressed ? 0.9 : 1 },
                 ]}
               >
+                {r.cover_url ? (
+                  <Image
+                    source={{ uri: r.cover_url }}
+                    style={[styles.thumb, { backgroundColor: palette.background }]}
+                    contentFit="cover"
+                  />
+                ) : (
+                  <View style={[styles.thumb, { backgroundColor: palette.background }]} />
+                )}
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
                     {r.title}
@@ -125,4 +135,5 @@ const styles = StyleSheet.create({
   },
   rowTitle: { fontSize: 15 },
   rowMeta: { fontSize: 13, marginTop: 2 },
+  thumb: { width: 44, height: 44, borderRadius: Radius.sm, overflow: 'hidden' },
 });

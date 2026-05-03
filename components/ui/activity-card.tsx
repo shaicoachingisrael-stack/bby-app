@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { LucideIcon } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -9,10 +10,18 @@ type Props = {
   title: string;
   subtitle: string;
   status?: 'pending' | 'done' | 'skipped';
+  imageSource?: string | null;
   onPress?: () => void;
 };
 
-export function ActivityCard({ icon: Icon, title, subtitle, status = 'pending', onPress }: Props) {
+export function ActivityCard({
+  icon: Icon,
+  title,
+  subtitle,
+  status = 'pending',
+  imageSource,
+  onPress,
+}: Props) {
   const palette = Colors[useColorScheme() ?? 'light'];
 
   return (
@@ -26,16 +35,30 @@ export function ActivityCard({ icon: Icon, title, subtitle, status = 'pending', 
         },
       ]}
     >
-      <View style={[styles.iconWrap, { backgroundColor: palette.background }]}>
-        <Icon size={20} color={palette.text} strokeWidth={1.8} />
+      <View
+        style={[
+          styles.iconWrap,
+          {
+            backgroundColor: imageSource ? palette.text : palette.background,
+            overflow: 'hidden',
+          },
+        ]}
+      >
+        {imageSource ? (
+          <Image
+            source={{ uri: imageSource }}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+          />
+        ) : (
+          <Icon size={20} color={palette.text} strokeWidth={1.8} />
+        )}
       </View>
       <View style={styles.body}>
         <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
           {title}
         </Text>
-        <Text
-          style={[styles.subtitle, { color: palette.textSecondary, fontFamily: Fonts.sans }]}
-        >
+        <Text style={[styles.subtitle, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
           {subtitle}
         </Text>
       </View>
