@@ -28,6 +28,7 @@ yarn-error.*
 
 # macOS
 .DS_Store
+._*
 *.pem
 
 # local env files
@@ -41,3 +42,14 @@ app-example
 # generated native folders
 /ios
 /android
+
+# OAuth client credentials (never commit, even in private repo)
+/client_*.plist
+/client_*.json
+/GoogleService-Info.plist
+/google-services.json
+/AuthKey_*.p8
+
+# screenshots dropped in repo root by mistake
+/Capture*.png
+/Screen*.png
