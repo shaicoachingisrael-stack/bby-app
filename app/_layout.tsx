@@ -59,6 +59,19 @@ function RootStack() {
           name="edit-profile"
           options={{ presentation: 'modal', headerShown: false }}
         />
+        <Stack.Screen
+          name="meal-log"
+          options={{ presentation: 'modal', headerShown: false }}
+        />
+        <Stack.Screen
+          name="hydration-log"
+          options={{ presentation: 'modal', headerShown: false }}
+        />
+        <Stack.Screen
+          name="mindset-log"
+          options={{ presentation: 'modal', headerShown: false }}
+        />
+        <Stack.Screen name="session/[id]" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

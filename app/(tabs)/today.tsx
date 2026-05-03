@@ -1,4 +1,6 @@
+import { useFocusEffect, useRouter } from 'expo-router';
 import { Apple, Brain, Dumbbell } from 'lucide-react-native';
+import { useCallback } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,6 +11,7 @@ import { SectionTitle } from '@/components/ui/section-title';
 import { StatCard } from '@/components/ui/stat-card';
 import { Colors, Fonts, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useDayData } from '@/lib/use-day-data';
 
 const TRAINING_VIDEO = require('@/assets/videos/exercise.mp4');
 
@@ -24,6 +27,17 @@ function formatToday() {
 export default function TodayScreen() {
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
+  const router = useRouter();
+  const { data, refresh } = useDayData();
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh]),
+  );
+
+  const breakfast = data.meals.petit_dejeuner;
+  const intentionText = data.mindset_intention ?? 'Note ton intention du jour';
 
   return (
     <View style={[styles.container, { backgroundColor: palette.background }]}>
@@ -54,38 +68,46 @@ export default function TodayScreen() {
             eyebrow="SÉANCE DU JOUR"
             title="Full body — focus glutes & core"
             meta="35 min · Niveau intermédiaire"
+            onPress={() => router.push('/session/today' as any)}
           />
         </View>
 
         <View style={{ marginTop: Spacing.xxl }}>
           <SectionTitle title="Cette semaine" />
           <View style={styles.statsRow}>
-            <StatCard value="3" label="Séances" />
-            <StatCard value="6 j" label="Série" />
-            <StatCard value="82 %" label="Constance" />
+            <StatCard value={data.session_completed_today ? '1' : '0'} label="Séance" />
+            <StatCard value={`${data.meals.total_kcal}`} label="Kcal" />
+            <StatCard value={`${Math.round(data.hydration_ml / 100) / 10} L`} label="Hydratation" />
           </View>
         </View>
 
         <View style={{ marginTop: Spacing.xxl }}>
-          <SectionTitle title="Ma journée" action="Tout voir" />
+          <SectionTitle title="Ma journée" />
           <View style={{ gap: Spacing.md }}>
             <ActivityCard
               icon={Dumbbell}
               title="Full body — 35 min"
-              subtitle="Séance prévue · 09:00"
-              status="pending"
+              subtitle={data.session_completed_today ? 'Terminée. Bravo.' : 'Séance prévue · 09:00'}
+              status={data.session_completed_today ? 'done' : 'pending'}
+              onPress={() => router.push('/session/today' as any)}
             />
             <ActivityCard
               icon={Apple}
-              title="Petit-déjeuner protéiné"
-              subtitle="540 kcal · 38 g de protéines"
-              status="done"
+              title={breakfast.logged ? 'Petit-déjeuner enregistré' : 'Logger un repas'}
+              subtitle={
+                breakfast.logged
+                  ? `${breakfast.kcal} kcal · ${breakfast.protein} g de protéines`
+                  : 'Ajoute ton repas en quelques secondes'
+              }
+              status={breakfast.logged ? 'done' : 'pending'}
+              onPress={() => router.push('/meal-log?type=petit_dejeuner' as any)}
             />
             <ActivityCard
               icon={Brain}
               title="Intention du jour"
-              subtitle="« Je fais ce qui est bon pour moi. »"
-              status="pending"
+              subtitle={intentionText}
+              status={data.mindset_intention ? 'done' : 'pending'}
+              onPress={() => router.push('/mindset-log?kind=intention' as any)}
             />
           </View>
         </View>
