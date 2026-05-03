@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { ChevronLeft, LogOut, Pencil, Trash2 } from 'lucide-react-native';
+import { ChevronLeft, LogOut, Pencil, Settings, Trash2 } from 'lucide-react-native';
 import {
   Alert,
   Pressable,
@@ -198,6 +198,28 @@ export default function AccountScreen() {
             />
           </View>
         </View>
+
+        {profile?.is_admin && (
+          <View style={{ marginTop: Spacing.xxl, gap: Spacing.md }}>
+            <SectionTitle title="Coach" />
+            <Pressable
+              onPress={() => router.push('/(admin)' as any)}
+              style={({ pressed }) => [
+                styles.actionButton,
+                {
+                  backgroundColor: palette.surface,
+                  borderColor: palette.border,
+                  opacity: pressed ? 0.85 : 1,
+                },
+              ]}
+            >
+              <Settings size={18} color={palette.text} />
+              <Text style={[styles.actionText, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+                Panneau admin
+              </Text>
+            </Pressable>
+          </View>
+        )}
 
         <View style={{ marginTop: Spacing.xxl, gap: Spacing.md }}>
           <SectionTitle title="Compte" />

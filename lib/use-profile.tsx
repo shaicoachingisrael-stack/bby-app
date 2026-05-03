@@ -20,6 +20,7 @@ export type Profile = {
   protein_target_g: number | null;
   hydration_target_ml: number | null;
   onboarded_at: string | null;
+  is_admin: boolean;
 };
 
 type ProfileContextValue = {
