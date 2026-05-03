@@ -51,6 +51,10 @@ function RootStack() {
           name="chat"
           options={{ presentation: 'modal', title: 'Coach IA' }}
         />
+        <Stack.Screen
+          name="account"
+          options={{ presentation: 'modal', headerShown: false }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

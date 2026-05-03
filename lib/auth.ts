@@ -110,6 +110,17 @@ export async function signUpWithEmail(
   return data;
 }
 
+export async function deleteAccount() {
+  const { error } = await supabase.rpc('delete_user');
+  if (error) throw error;
+  try {
+    await GoogleSignin.signOut();
+  } catch {
+    // ignore
+  }
+  await supabase.auth.signOut();
+}
+
 export async function signOut() {
   try {
     await GoogleSignin.signOut();

@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActivityCard } from '@/components/ui/activity-card';
+import { AvatarButton } from '@/components/ui/avatar-button';
 import { HeroVideoCard } from '@/components/ui/hero-video-card';
 import { SectionTitle } from '@/components/ui/section-title';
 import { StatCard } from '@/components/ui/stat-card';
@@ -34,9 +35,12 @@ export default function TodayScreen() {
         }}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={[styles.eyebrow, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-          {formatToday().toUpperCase()}
-        </Text>
+        <View style={styles.topRow}>
+          <Text style={[styles.eyebrow, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
+            {formatToday().toUpperCase()}
+          </Text>
+          <AvatarButton />
+        </View>
         <Text style={[styles.greeting, { color: palette.text, fontFamily: Fonts.displayBold }]}>
           Bonjour 👋
         </Text>
@@ -92,9 +96,15 @@ export default function TodayScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   eyebrow: {
     fontSize: 11,
     letterSpacing: 1.6,
+    flex: 1,
   },
   greeting: {
     fontSize: 36,
