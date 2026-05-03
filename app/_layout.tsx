@@ -55,6 +55,10 @@ function RootStack() {
           name="account"
           options={{ presentation: 'modal', headerShown: false }}
         />
+        <Stack.Screen
+          name="edit-profile"
+          options={{ presentation: 'modal', headerShown: false }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

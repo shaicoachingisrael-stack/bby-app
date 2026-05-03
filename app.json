@@ -46,6 +46,13 @@
       "expo-video",
       "expo-apple-authentication",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "BBY a besoin d'accéder à tes photos pour ta photo de profil.",
+          "cameraPermission": "BBY a besoin d'accéder à ta caméra pour prendre ta photo de profil."
+        }
+      ],
+      [
         "@react-native-google-signin/google-signin",
         {
           "iosUrlScheme": "com.googleusercontent.apps.1016358247257-bir0vffvlos6a2trmn9g65tpfo3cg9hk"

@@ -1,7 +1,8 @@
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Fonts, Palette, Radius } from '@/constants/theme';
+import { Colors, Fonts, Radius } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
 import { useProfile } from '@/lib/use-profile';
@@ -29,9 +30,17 @@ export function AvatarButton() {
       accessibilityRole="button"
       accessibilityLabel="Mon compte"
     >
-      <Text style={[styles.initial, { color: palette.background, fontFamily: Fonts.sansBold }]}>
-        {initial}
-      </Text>
+      {profile?.avatar_url ? (
+        <Image
+          source={{ uri: profile.avatar_url }}
+          style={StyleSheet.absoluteFillObject}
+          contentFit="cover"
+        />
+      ) : (
+        <Text style={[styles.initial, { color: palette.background, fontFamily: Fonts.sansBold }]}>
+          {initial}
+        </Text>
+      )}
     </Pressable>
   );
 }
@@ -43,6 +52,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   initial: {
     fontSize: 16,

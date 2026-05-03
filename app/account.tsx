@@ -1,5 +1,6 @@
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { ChevronLeft, LogOut, Trash2 } from 'lucide-react-native';
+import { ChevronLeft, LogOut, Pencil, Trash2 } from 'lucide-react-native';
 import {
   Alert,
   Pressable,
@@ -121,9 +122,17 @@ export default function AccountScreen() {
       >
         <View style={styles.headerBlock}>
           <View style={[styles.avatar, { backgroundColor: palette.text }]}>
-            <Text style={[styles.avatarInitial, { color: palette.background, fontFamily: Fonts.displayBold }]}>
-              {initial}
-            </Text>
+            {profile?.avatar_url ? (
+              <Image
+                source={{ uri: profile.avatar_url }}
+                style={StyleSheet.absoluteFillObject}
+                contentFit="cover"
+              />
+            ) : (
+              <Text style={[styles.avatarInitial, { color: palette.background, fontFamily: Fonts.displayBold }]}>
+                {initial}
+              </Text>
+            )}
           </View>
           <Text style={[styles.name, { color: palette.text, fontFamily: Fonts.displayBold }]}>
             {profile?.display_name || 'Sans nom'}
@@ -133,6 +142,22 @@ export default function AccountScreen() {
               {user.email}
             </Text>
           )}
+          <Pressable
+            onPress={() => router.push('/edit-profile' as any)}
+            hitSlop={8}
+            style={({ pressed }) => [
+              styles.editButton,
+              {
+                borderColor: palette.border,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}
+          >
+            <Pencil size={14} color={palette.text} />
+            <Text style={[styles.editText, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+              Modifier le profil
+            </Text>
+          </Pressable>
         </View>
 
         <View style={{ marginTop: Spacing.xxl }}>
@@ -172,9 +197,6 @@ export default function AccountScreen() {
               palette={palette}
             />
           </View>
-          <Text style={[styles.hint, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-            L'édition de ces champs arrive bientôt.
-          </Text>
         </View>
 
         <View style={{ marginTop: Spacing.xxl, gap: Spacing.md }}>
@@ -269,6 +291,17 @@ const styles = StyleSheet.create({
     letterSpacing: -0.4,
   },
   email: { fontSize: 14 },
+  editButton: {
+    marginTop: Spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+  },
+  editText: { fontSize: 13 },
   card: {
     borderRadius: Radius.lg,
     paddingHorizontal: Spacing.lg,
