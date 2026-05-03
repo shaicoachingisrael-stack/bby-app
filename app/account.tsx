@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { ChevronLeft, LogOut, Pencil, Settings, Trash2 } from 'lucide-react-native';
+import { useCallback } from 'react';
 import {
   Alert,
   Pressable,
@@ -37,7 +38,13 @@ export default function AccountScreen() {
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const { user } = useAuth();
-  const { profile, loading } = useProfile();
+  const { profile, loading, refresh } = useProfile();
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh]),
+  );
 
   function handleLogout() {
     Alert.alert('Se déconnecter ?', 'Tu pourras te reconnecter à tout moment.', [
