@@ -19,6 +19,15 @@ import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { supabase } from '@/lib/supabase';
 
+const LINK_CHOICES: { value: string; label: string }[] = [
+  { value: '', label: 'Pas de lien' },
+  { value: '/today', label: "Aujourd'hui" },
+  { value: '/training', label: 'Training' },
+  { value: '/nutrition', label: 'Nutrition' },
+  { value: '/mindset', label: 'Mindset' },
+  { value: '/chat', label: 'Coach IA' },
+];
+
 export default function PushAdminScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -129,19 +138,38 @@ export default function PushAdminScreen() {
           />
         </Field>
 
-        <Field label="Lien (optionnel)" palette={palette}>
-          <TextInput
-            value={linkUrl}
-            onChangeText={setLinkUrl}
-            placeholder="/training, /today, /session/<id>…"
-            placeholderTextColor={palette.textSecondary}
-            autoCapitalize="none"
-            autoCorrect={false}
-            style={[styles.input, inputStyle(palette)]}
-          />
-          <Text style={{ color: palette.textSecondary, fontFamily: Fonts.sans, fontSize: 12 }}>
-            Au tap sur la notif, l'app ouvre cette page. Laisse vide pour rester là où elle est.
-          </Text>
+        <Field label="Quand on tape sur la notif" palette={palette}>
+          <View style={styles.chips}>
+            {LINK_CHOICES.map((c) => {
+              const selected = linkUrl === c.value;
+              return (
+                <Pressable
+                  key={c.value || 'none'}
+                  onPress={() => setLinkUrl(c.value)}
+                  style={({ pressed }) => [
+                    styles.chip,
+                    {
+                      backgroundColor: selected ? palette.text : palette.surface,
+                      borderColor: selected ? palette.text : palette.border,
+                      opacity: pressed ? 0.85 : 1,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.chipText,
+                      {
+                        color: selected ? palette.background : palette.text,
+                        fontFamily: selected ? Fonts.sansSemibold : Fonts.sansMedium,
+                      },
+                    ]}
+                  >
+                    {c.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
         </Field>
 
         <Pressable
@@ -241,4 +269,16 @@ const styles = StyleSheet.create({
     marginTop: Spacing.lg,
   },
   ctaText: { fontSize: 16 },
+  chips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+  },
+  chip: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: 10,
+    borderRadius: Radius.pill,
+    borderWidth: 1,
+  },
+  chipText: { fontSize: 13 },
 });
