@@ -91,6 +91,7 @@ export default function TodayScreen() {
           </Pressable>
           <AdminButton />
           <Pressable
+            onPress={() => router.push('/notifications' as any)}
             hitSlop={8}
             style={[styles.bell, { backgroundColor: palette.surface }]}
             accessibilityLabel="Notifications"

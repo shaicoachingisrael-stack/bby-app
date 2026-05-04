@@ -55,11 +55,18 @@ Deno.serve(async (req) => {
   const message = (body.body ?? '').trim();
   if (!title || !message) return json({ error: 'title et body requis' }, 400);
 
-  // Service-role client to read all push_tokens for broadcast
+  // Service-role client to read all push_tokens for broadcast and write history
   const admin = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   );
+
+  // Persist a history row so users can see this in their inbox even if APNs fails or is offline
+  await admin.from('notifications').insert({
+    title,
+    body: message,
+    data: body.data ?? null,
+  });
 
   let q = admin
     .from('push_tokens')

@@ -83,7 +83,11 @@ export default function TrainingScreen() {
             </View>
           </Pressable>
           <AdminButton />
-          <Pressable hitSlop={8} style={[styles.bell, { backgroundColor: palette.surface }]}>
+          <Pressable
+            onPress={() => router.push('/notifications' as any)}
+            hitSlop={8}
+            style={[styles.bell, { backgroundColor: palette.surface }]}
+          >
             <Bell size={18} color={palette.text} />
           </Pressable>
         </View>
