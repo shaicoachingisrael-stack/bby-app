@@ -79,6 +79,59 @@ export function useTodaySession() {
   return { session, loading, refresh };
 }
 
+// Fetch a single program by id
+export function useProgram(id: string | undefined) {
+  const [program, setProgram] = useState<Program | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = useCallback(async () => {
+    if (!id) {
+      setProgram(null);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('programs')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (error) console.warn('program fetch', error);
+    setProgram((data as Program | null) ?? null);
+    setLoading(false);
+  }, [id]);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  return { program, loading, refresh };
+}
+
+// Set of session_ids the current user has completed
+export function useCompletedSessions() {
+  const [completed, setCompleted] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('session_completions')
+      .select('session_id')
+      .not('session_id', 'is', null)
+      .not('completed_at', 'is', null);
+    if (error) console.warn('completions fetch', error);
+    setCompleted(new Set((data ?? []).map((r) => r.session_id as string)));
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  return { completed, loading, refresh };
+}
+
 // Fetch a single session by id
 export function useSession(id: string | undefined) {
   const [session, setSession] = useState<Session | null>(null);

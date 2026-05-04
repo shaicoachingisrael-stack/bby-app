@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { ChevronLeft, FileText, LogOut, Pencil, Settings, Shield, Trash2 } from 'lucide-react-native';
+import { ChevronLeft, Dumbbell, FileText, LogOut, Pencil, Settings, Shield, Trash2 } from 'lucide-react-native';
 import { useCallback } from 'react';
 import {
   Alert,
@@ -207,6 +207,26 @@ export default function AccountScreen() {
               palette={palette}
             />
           </View>
+        </View>
+
+        <View style={{ marginTop: Spacing.xxl, gap: Spacing.md }}>
+          <SectionTitle title="Mon parcours" />
+          <Pressable
+            onPress={() => router.push('/training' as any)}
+            style={({ pressed }) => [
+              styles.actionButton,
+              {
+                backgroundColor: palette.surface,
+                borderColor: palette.border,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}
+          >
+            <Dumbbell size={18} color={palette.text} />
+            <Text style={[styles.actionText, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+              Mes programmes
+            </Text>
+          </Pressable>
         </View>
 
         {profile?.is_admin && (

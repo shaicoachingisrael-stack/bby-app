@@ -94,6 +94,7 @@ function RootStack() {
           options={{ presentation: 'modal', headerShown: false }}
         />
         <Stack.Screen name="session/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="program/[id]" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
