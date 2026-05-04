@@ -3,7 +3,8 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { supabase } from './supabase';
 
-const DISMISS_KEY = 'bby:inbox:dismissed_until';
+const DISMISS_UNTIL_KEY = 'bby:inbox:dismissed_until';
+const DISMISSED_IDS_KEY = 'bby:inbox:dismissed_ids';
 
 export type InboxItem = {
   id: string;
@@ -13,15 +14,29 @@ export type InboxItem = {
   created_at: string;
 };
 
+async function readDismissedIds(): Promise<Set<string>> {
+  try {
+    const raw = await AsyncStorage.getItem(DISMISSED_IDS_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw) as string[];
+    return new Set(arr);
+  } catch {
+    return new Set();
+  }
+}
+
+async function writeDismissedIds(ids: Set<string>) {
+  await AsyncStorage.setItem(DISMISSED_IDS_KEY, JSON.stringify(Array.from(ids)));
+}
+
 export function useInbox() {
   const [items, setItems] = useState<InboxItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dismissedUntil, setDismissedUntil] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
-    const stored = await AsyncStorage.getItem(DISMISS_KEY);
-    setDismissedUntil(stored);
+    const dismissedUntil = await AsyncStorage.getItem(DISMISS_UNTIL_KEY);
+    const dismissedIds = await readDismissedIds();
 
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     let q = supabase
@@ -30,11 +45,13 @@ export function useInbox() {
       .gte('created_at', since)
       .order('created_at', { ascending: false })
       .limit(50);
-    if (stored) q = q.gt('created_at', stored);
+    if (dismissedUntil) q = q.gt('created_at', dismissedUntil);
 
     const { data, error } = await q;
     if (error) console.warn('inbox fetch', error);
-    setItems((data as InboxItem[]) ?? []);
+
+    const all = ((data as InboxItem[]) ?? []).filter((it) => !dismissedIds.has(it.id));
+    setItems(all);
     setLoading(false);
   }, []);
 
@@ -42,13 +59,18 @@ export function useInbox() {
     refresh();
   }, [refresh]);
 
-  // Mark all current items as dismissed locally (we keep server data for other devices)
   const dismissAll = useCallback(async () => {
     const stamp = new Date().toISOString();
-    await AsyncStorage.setItem(DISMISS_KEY, stamp);
-    setDismissedUntil(stamp);
+    await AsyncStorage.setItem(DISMISS_UNTIL_KEY, stamp);
     setItems([]);
   }, []);
 
-  return { items, loading, refresh, dismissAll, dismissedUntil };
+  const dismissOne = useCallback(async (id: string) => {
+    const ids = await readDismissedIds();
+    ids.add(id);
+    await writeDismissedIds(ids);
+    setItems((prev) => prev.filter((i) => i.id !== id));
+  }, []);
+
+  return { items, loading, refresh, dismissAll, dismissOne };
 }

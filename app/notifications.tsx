@@ -4,7 +4,6 @@ import { useCallback } from 'react';
 import {
   ActivityIndicator,
   Alert,
-  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -31,11 +30,11 @@ export default function NotificationsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
-  const { items, loading, refresh, dismissAll } = useInbox();
+  const { items, loading, refresh, dismissAll, dismissOne } = useInbox();
 
   useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
 
-  function handleClear() {
+  function handleClearAll() {
     if (items.length === 0) return;
     Alert.alert('Tout effacer ?', "Tes notifications passées disparaissent de la liste.", [
       { text: 'Annuler', style: 'cancel' },
@@ -43,11 +42,27 @@ export default function NotificationsScreen() {
     ]);
   }
 
+  function handleDeleteOne(item: InboxItem) {
+    Alert.alert('Supprimer cette notification ?', undefined, [
+      { text: 'Annuler', style: 'cancel' },
+      { text: 'Supprimer', style: 'destructive', onPress: () => dismissOne(item.id) },
+    ]);
+  }
+
   function handleTap(item: InboxItem) {
     const url = (item.data as any)?.url as string | undefined;
-    if (url && typeof url === 'string' && url.startsWith('/')) {
-      router.push(url as any);
-    }
+    const hasLink = !!url && url.startsWith('/');
+
+    Alert.alert(
+      item.title,
+      `${item.body}\n\n${formatRelative(item.created_at)}`,
+      hasLink
+        ? [
+            { text: 'Fermer', style: 'cancel' },
+            { text: 'Voir', onPress: () => router.push(url as any) },
+          ]
+        : [{ text: 'OK' }],
+    );
   }
 
   return (
@@ -61,7 +76,7 @@ export default function NotificationsScreen() {
         </Pressable>
         {items.length > 0 && (
           <Pressable
-            onPress={handleClear}
+            onPress={handleClearAll}
             hitSlop={12}
             style={({ pressed }) => [
               styles.clearBtn,
@@ -107,40 +122,55 @@ export default function NotificationsScreen() {
         ) : (
           <View style={{ gap: Spacing.md, marginTop: Spacing.lg }}>
             {items.map((it) => (
-              <Pressable
+              <View
                 key={it.id}
-                onPress={() => handleTap(it)}
-                style={({ pressed }) => [
-                  styles.row,
-                  { backgroundColor: palette.surface, opacity: pressed ? 0.9 : 1 },
-                ]}
+                style={[styles.row, { backgroundColor: palette.surface }]}
               >
-                <View style={[styles.iconWrap, { backgroundColor: palette.text }]}>
-                  <Bell size={16} color={palette.background} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text
-                    style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}
-                    numberOfLines={2}
-                  >
-                    {it.title}
-                  </Text>
-                  <Text
-                    style={[styles.rowBody, { color: palette.text, fontFamily: Fonts.sans }]}
-                    numberOfLines={3}
-                  >
-                    {it.body}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.rowDate,
-                      { color: palette.textSecondary, fontFamily: Fonts.sansMedium },
-                    ]}
-                  >
-                    {formatRelative(it.created_at)}
-                  </Text>
-                </View>
-              </Pressable>
+                <Pressable
+                  onPress={() => handleTap(it)}
+                  style={({ pressed }) => [
+                    styles.rowMain,
+                    { opacity: pressed ? 0.85 : 1 },
+                  ]}
+                >
+                  <View style={[styles.iconWrap, { backgroundColor: palette.text }]}>
+                    <Bell size={16} color={palette.background} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text
+                      style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}
+                      numberOfLines={2}
+                    >
+                      {it.title}
+                    </Text>
+                    <Text
+                      style={[styles.rowBody, { color: palette.text, fontFamily: Fonts.sans }]}
+                      numberOfLines={3}
+                    >
+                      {it.body}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.rowDate,
+                        { color: palette.textSecondary, fontFamily: Fonts.sansMedium },
+                      ]}
+                    >
+                      {formatRelative(it.created_at)}
+                    </Text>
+                  </View>
+                </Pressable>
+                <Pressable
+                  onPress={() => handleDeleteOne(it)}
+                  hitSlop={10}
+                  style={({ pressed }) => [
+                    styles.trashBtn,
+                    { backgroundColor: palette.background, opacity: pressed ? 0.7 : 1 },
+                  ]}
+                  accessibilityLabel="Supprimer la notification"
+                >
+                  <Trash2 size={16} color={palette.textSecondary} />
+                </Pressable>
+              </View>
             ))}
           </View>
         )}
@@ -187,9 +217,15 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: 14, textAlign: 'center', maxWidth: 280 },
   row: {
     flexDirection: 'row',
-    gap: Spacing.md,
+    alignItems: 'flex-start',
     padding: Spacing.lg,
     borderRadius: Radius.md,
+    gap: Spacing.sm,
+  },
+  rowMain: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: Spacing.md,
   },
   iconWrap: {
     width: 36,
@@ -201,4 +237,12 @@ const styles = StyleSheet.create({
   rowTitle: { fontSize: 15, marginBottom: 4 },
   rowBody: { fontSize: 14, lineHeight: 20 },
   rowDate: { fontSize: 12, marginTop: 6 },
+  trashBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 4,
+  },
 });
