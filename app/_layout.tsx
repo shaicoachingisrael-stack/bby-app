@@ -18,6 +18,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AuthProvider, useAuth } from '@/lib/auth-provider';
+import { useNotificationResponse } from '@/lib/use-notification-response';
 import { ProfileProvider, useProfile } from '@/lib/use-profile';
 import { usePushSetup } from '@/lib/use-push-setup';
 
@@ -35,6 +36,7 @@ function RootStack() {
   const router = useRouter();
 
   usePushSetup();
+  useNotificationResponse();
 
   useEffect(() => {
     if (authLoading) return;

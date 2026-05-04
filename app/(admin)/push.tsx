@@ -26,6 +26,7 @@ export default function PushAdminScreen() {
 
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
+  const [linkUrl, setLinkUrl] = useState('');
   const [sending, setSending] = useState(false);
 
   async function handleSend() {
@@ -50,8 +51,13 @@ export default function PushAdminScreen() {
   async function doSend() {
     setSending(true);
     try {
+      const url = linkUrl.trim();
       const { data, error } = await supabase.functions.invoke('send-push', {
-        body: { title: title.trim(), body: body.trim() },
+        body: {
+          title: title.trim(),
+          body: body.trim(),
+          data: url ? { url } : undefined,
+        },
       });
       if (error) throw error;
       const sent = (data as any)?.sent ?? 0;
@@ -63,6 +69,7 @@ export default function PushAdminScreen() {
       );
       setTitle('');
       setBody('');
+      setLinkUrl('');
     } catch (e: any) {
       Alert.alert('Échec', e?.message ?? 'Erreur inconnue.');
     } finally {
@@ -120,6 +127,21 @@ export default function PushAdminScreen() {
             maxLength={200}
             style={[styles.textarea, inputStyle(palette)]}
           />
+        </Field>
+
+        <Field label="Lien (optionnel)" palette={palette}>
+          <TextInput
+            value={linkUrl}
+            onChangeText={setLinkUrl}
+            placeholder="/training, /today, /session/<id>…"
+            placeholderTextColor={palette.textSecondary}
+            autoCapitalize="none"
+            autoCorrect={false}
+            style={[styles.input, inputStyle(palette)]}
+          />
+          <Text style={{ color: palette.textSecondary, fontFamily: Fonts.sans, fontSize: 12 }}>
+            Au tap sur la notif, l'app ouvre cette page. Laisse vide pour rester là où elle est.
+          </Text>
         </Field>
 
         <Pressable
