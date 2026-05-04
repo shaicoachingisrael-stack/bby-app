@@ -1,4 +1,3 @@
-import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
@@ -92,18 +91,14 @@ export async function registerPushToken(userId: string): Promise<string | null> 
 
   await setupAndroidChannel();
 
-  const projectId =
-    Constants.expoConfig?.extra?.eas?.projectId ??
-    (Constants as any)?.easConfig?.projectId;
-
+  // Native device token (APNs hex on iOS, FCM string on Android).
+  // We talk directly to APNs from our Edge Function — no Expo Push.
   let token: string;
   try {
-    const tokenData = await Notifications.getExpoPushTokenAsync(
-      projectId ? { projectId } : undefined,
-    );
-    token = tokenData.data;
+    const tokenData = await Notifications.getDevicePushTokenAsync();
+    token = tokenData.data as string;
   } catch (e) {
-    console.warn('Could not get expo push token', e);
+    console.warn('Could not get native device push token', e);
     return null;
   }
 

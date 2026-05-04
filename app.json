@@ -11,7 +11,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.bodybyyou.app",
-      "usesAppleSignIn": true
+      "usesAppleSignIn": true,
+      "entitlements": {
+        "aps-environment": "development"
+      }
     },
     "android": {
       "package": "com.bodybyyou.app",
