@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { MediaList } from '@/components/ui/media-list';
 import { MediaUploader } from '@/components/ui/media-uploader';
 import { Segmented } from '@/components/ui/segmented';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
@@ -224,13 +225,21 @@ export default function RecipeEditScreen() {
           />
         </Field>
 
-        <Field label="Vidéo (optionnel)" palette={palette}>
+        <Field label="Vidéo principale (optionnel)" palette={palette}>
           <MediaUploader
             kind="video"
             bucket="recipe-media"
             pathPrefix={`${recipeId}/video`}
             url={videoUrl || null}
             onChange={(u) => setVideoUrl(u ?? '')}
+          />
+        </Field>
+
+        <Field label="Vidéos supplémentaires" palette={palette}>
+          <MediaList
+            parentType="recipe"
+            parentId={recipeId}
+            bucket="recipe-media"
           />
         </Field>
 

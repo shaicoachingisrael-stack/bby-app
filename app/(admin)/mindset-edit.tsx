@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { MediaList } from '@/components/ui/media-list';
 import { MediaUploader } from '@/components/ui/media-uploader';
 import { Segmented } from '@/components/ui/segmented';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
@@ -190,6 +191,14 @@ export default function MindsetEditScreen() {
             pathPrefix={`${itemId}/cover`}
             url={coverUrl || null}
             onChange={(u) => setCoverUrl(u ?? '')}
+          />
+        </Field>
+
+        <Field label="Vidéos supplémentaires" palette={palette}>
+          <MediaList
+            parentType="mindset"
+            parentId={itemId}
+            bucket="mindset-media"
           />
         </Field>
 

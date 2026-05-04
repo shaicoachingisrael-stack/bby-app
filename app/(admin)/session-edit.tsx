@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { MediaList } from '@/components/ui/media-list';
 import { MediaUploader } from '@/components/ui/media-uploader';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -271,13 +272,21 @@ export default function SessionEditScreen() {
           </View>
         </View>
 
-        <Field label="Vidéo" palette={palette}>
+        <Field label="Vidéo principale" palette={palette}>
           <MediaUploader
             kind="video"
             bucket="session-videos"
             pathPrefix={sessionId}
             url={videoUrl || null}
             onChange={(u) => setVideoUrl(u ?? '')}
+          />
+        </Field>
+
+        <Field label="Vidéos supplémentaires" palette={palette}>
+          <MediaList
+            parentType="session"
+            parentId={sessionId}
+            bucket="session-videos"
           />
         </Field>
 

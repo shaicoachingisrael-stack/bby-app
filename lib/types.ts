@@ -44,3 +44,16 @@ export type MindsetContent = {
   duration_min: number | null;
   created_at: string;
 };
+
+export type AttachmentParentType = 'session' | 'recipe' | 'mindset';
+
+export type MediaAttachment = {
+  id: string;
+  parent_type: AttachmentParentType;
+  parent_id: string;
+  kind: 'video' | 'image';
+  url: string;
+  title: string | null;
+  order_index: number;
+  created_at: string;
+};
