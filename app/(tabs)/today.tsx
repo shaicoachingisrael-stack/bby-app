@@ -1,18 +1,23 @@
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Bell } from 'lucide-react-native';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AdminButton } from '@/components/ui/admin-button';
 import { DateStrip } from '@/components/ui/date-strip';
+import { HeroSwiper, type HeroItem } from '@/components/ui/hero-swiper';
 import { RecommendationCard } from '@/components/ui/recommendation-card';
-import { SessionCard } from '@/components/ui/session-card';
-import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
+import { Colors, Fonts, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
-import { useSessions, useTodaySession } from '@/lib/use-content';
+import {
+  useMindsetContent,
+  useRecipes,
+  useSessions,
+  useTodaySession,
+} from '@/lib/use-content';
 import { useDayData } from '@/lib/use-day-data';
 import { useProfile } from '@/lib/use-profile';
 
@@ -34,6 +39,8 @@ export default function TodayScreen() {
   const { refresh } = useDayData();
   const { session: todaySession, refresh: refreshToday } = useTodaySession();
   const { sessions: catalog, refresh: refreshCatalog } = useSessions();
+  const { recipes, refresh: refreshRecipes } = useRecipes();
+  const { items: mindsetItems, refresh: refreshMindset } = useMindsetContent();
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   useFocusEffect(
@@ -41,18 +48,88 @@ export default function TodayScreen() {
       refresh();
       refreshToday();
       refreshCatalog();
-    }, [refresh, refreshToday, refreshCatalog]),
+      refreshRecipes();
+      refreshMindset();
+    }, [refresh, refreshToday, refreshCatalog, refreshRecipes, refreshMindset]),
   );
 
   const firstName = (profile?.display_name || user?.email?.split('@')[0] || '').split(' ')[0];
   const initial = (firstName || '?')[0].toUpperCase();
   const monthLabel = `${MONTHS[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
 
+  // Build hero swiper from real content
+  const heroItems = useMemo<HeroItem[]>(() => {
+    const items: HeroItem[] = [];
+
+    if (todaySession) {
+      items.push({
+        id: `s-${todaySession.id}`,
+        eyebrow: 'Séance du jour',
+        title: todaySession.title,
+        subtitle: todaySession.description ?? undefined,
+        meta: todaySession.duration_min ? `${todaySession.duration_min} min` : undefined,
+        videoSource: todaySession.video_url ?? TRAINING_VIDEO,
+        cta: 'Commencer',
+        onPress: () => router.push(`/session/${todaySession.id}` as any),
+      });
+    }
+
+    const featuredMindset = mindsetItems[0];
+    if (featuredMindset) {
+      items.push({
+        id: `m-${featuredMindset.id}`,
+        eyebrow: 'Mindset du jour',
+        title: featuredMindset.title,
+        subtitle: featuredMindset.body?.split('\n')[0] ?? undefined,
+        meta: featuredMindset.duration_min ? `${featuredMindset.duration_min} min` : undefined,
+        imageSource: featuredMindset.cover_url ?? null,
+        videoSource: featuredMindset.cover_url ? null : INTRO_VIDEO,
+        cta: 'Lire',
+        onPress: () =>
+          router.push(
+            `/mindset-log?kind=${
+              featuredMindset.kind === 'meditation' ? 'meditation_done' : featuredMindset.kind
+            }` as any,
+          ),
+      });
+    }
+
+    const featuredRecipe = recipes[0];
+    if (featuredRecipe) {
+      items.push({
+        id: `r-${featuredRecipe.id}`,
+        eyebrow: 'Recette du jour',
+        title: featuredRecipe.title,
+        subtitle: featuredRecipe.description ?? undefined,
+        meta: featuredRecipe.kcal ? `${featuredRecipe.kcal} kcal` : undefined,
+        imageSource: featuredRecipe.cover_url ?? null,
+        videoSource: featuredRecipe.video_url ?? (featuredRecipe.cover_url ? null : NUTRITION_VIDEO),
+        cta: 'Voir la recette',
+        onPress: () =>
+          router.push(
+            `/meal-log?type=${featuredRecipe.meal_type ?? 'dejeuner'}` as any,
+          ),
+      });
+    }
+
+    if (items.length === 0) {
+      items.push({
+        id: 'placeholder',
+        eyebrow: 'Bientôt',
+        title: 'Du contenu arrive',
+        subtitle: 'Demande à ta coach de publier des séances et recettes',
+        videoSource: TRAINING_VIDEO,
+      });
+    }
+
+    return items;
+  }, [todaySession, mindsetItems, recipes, router]);
+
   return (
     <View style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView
         contentContainerStyle={{
-          paddingTop: insets.top + Spacing.md,
+          paddingTop: insets.top + Spacing.xxl,
           paddingBottom: 140,
         }}
         showsVerticalScrollIndicator={false}
@@ -100,80 +177,128 @@ export default function TodayScreen() {
           </Pressable>
         </View>
 
-        {/* Calendar */}
+        {/* Date strip */}
         <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl }}>
           <Text style={[styles.month, { color: palette.text, fontFamily: Fonts.displayBold }]}>
             {monthLabel}
           </Text>
-          <Text style={[styles.monthHint, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-            Sélectionne une date
-          </Text>
         </View>
-        <View style={{ marginTop: Spacing.md }}>
+        <View style={{ marginTop: Spacing.sm }}>
           <DateStrip value={selectedDate} onChange={setSelectedDate} />
         </View>
 
-        {/* Séance du jour */}
-        <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl }}>
-          <SessionCard
-            eyebrow="SÉANCE DU JOUR"
-            title={todaySession?.title ?? 'Aucune séance'}
-            subtitle={todaySession?.description ?? 'Demande à ta coach de publier du contenu'}
-            duration={todaySession?.duration_min ? `${todaySession.duration_min} min` : undefined}
-            videoSource={todaySession?.video_url ?? TRAINING_VIDEO}
-            onPress={() =>
-              todaySession?.id
-                ? router.push(`/session/${todaySession.id}` as any)
-                : null
-            }
-          />
+        {/* Big hero swiper */}
+        <View style={{ marginTop: Spacing.xl }}>
+          <HeroSwiper items={heroItems} />
         </View>
 
         {/* Mindset du jour */}
-        <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.md }}>
-          <SessionCard
-            eyebrow="COACHING"
-            title="Mindset du jour"
-            subtitle="5 min de lecture"
-            videoSource={INTRO_VIDEO}
-            onPress={() => router.push('/mindset-log?kind=journal' as any)}
-          />
-        </View>
+        {mindsetItems.length > 0 && (
+          <>
+            <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+              <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+                Mindset
+              </Text>
+              <Pressable onPress={() => router.push('/mindset' as any)} hitSlop={8}>
+                <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
+                  Voir tout
+                </Text>
+              </Pressable>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: Spacing.xl, gap: Spacing.md, marginTop: Spacing.md }}
+            >
+              {mindsetItems.slice(0, 6).map((m) => (
+                <RecommendationCard
+                  key={m.id}
+                  videoSource={null}
+                  imageSource={m.cover_url ?? null}
+                  duration={m.duration_min ? `${m.duration_min} min` : '—'}
+                  title={m.title}
+                  subtitle={
+                    m.kind === 'meditation'
+                      ? 'Méditation'
+                      : m.kind === 'article'
+                        ? 'Article'
+                        : 'Affirmation'
+                  }
+                  onPress={() =>
+                    router.push(
+                      `/mindset-log?kind=${m.kind === 'meditation' ? 'meditation_done' : m.kind}` as any,
+                    )
+                  }
+                />
+              ))}
+            </ScrollView>
+          </>
+        )}
 
-        {/* Recommandé pour vous */}
-        <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-          <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-            Recommandé pour vous
-          </Text>
-          <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-            Voir tout
-          </Text>
-        </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: Spacing.xl, gap: Spacing.md, marginTop: Spacing.md }}
-        >
-          {catalog.length === 0 ? (
-            <RecommendationCard
-              videoSource={INTRO_VIDEO}
-              duration="—"
-              title="Bientôt"
-              subtitle="Du contenu arrive"
-            />
-          ) : (
-            catalog.slice(0, 6).map((s) => (
-              <RecommendationCard
-                key={s.id}
-                videoSource={s.video_url ?? INTRO_VIDEO}
-                duration={s.duration_min ? `${s.duration_min} min` : '—'}
-                title={s.title}
-                subtitle={s.description ?? 'Séance'}
-                onPress={() => router.push(`/session/${s.id}` as any)}
-              />
-            ))
-          )}
-        </ScrollView>
+        {/* Recettes */}
+        {recipes.length > 0 && (
+          <>
+            <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+              <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+                Recettes
+              </Text>
+              <Pressable onPress={() => router.push('/nutrition' as any)} hitSlop={8}>
+                <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
+                  Voir tout
+                </Text>
+              </Pressable>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: Spacing.xl, gap: Spacing.md, marginTop: Spacing.md }}
+            >
+              {recipes.slice(0, 6).map((r) => (
+                <RecommendationCard
+                  key={r.id}
+                  videoSource={r.video_url ?? null}
+                  imageSource={r.cover_url ?? null}
+                  duration={r.prep_min ? `${r.prep_min} min` : '—'}
+                  title={r.title}
+                  subtitle={r.kcal ? `${r.kcal} kcal` : 'Recette'}
+                  onPress={() => router.push(`/meal-log?type=${r.meal_type ?? 'dejeuner'}` as any)}
+                />
+              ))}
+            </ScrollView>
+          </>
+        )}
+
+        {/* Séances */}
+        {catalog.length > 0 && (
+          <>
+            <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+              <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+                Séances
+              </Text>
+              <Pressable onPress={() => router.push('/training' as any)} hitSlop={8}>
+                <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
+                  Voir tout
+                </Text>
+              </Pressable>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: Spacing.xl, gap: Spacing.md, marginTop: Spacing.md }}
+            >
+              {catalog.slice(0, 6).map((s) => (
+                <RecommendationCard
+                  key={s.id}
+                  videoSource={s.video_url ?? INTRO_VIDEO}
+                  duration={s.duration_min ? `${s.duration_min} min` : '—'}
+                  title={s.title}
+                  subtitle={s.description ?? 'Séance'}
+                  onPress={() => router.push(`/session/${s.id}` as any)}
+                />
+              ))}
+            </ScrollView>
+          </>
+        )}
       </ScrollView>
     </View>
   );
@@ -215,7 +340,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   month: { fontSize: 18, letterSpacing: -0.3 },
-  monthHint: { fontSize: 13, marginTop: 2 },
-  section: { fontSize: 18, letterSpacing: -0.3 },
+  section: { fontSize: 22, letterSpacing: -0.4 },
   seeAll: { fontSize: 13 },
 });
