@@ -21,6 +21,14 @@ export type Profile = {
   hydration_target_ml: number | null;
   onboarded_at: string | null;
   is_admin: boolean;
+  // Nutrition module inputs
+  sex: 'female' | 'male' | null;
+  age: number | null;
+  height_cm: number | null;
+  weight_kg: number | null;
+  activity_level: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active' | null;
+  goal_intensity: 'gentle' | 'moderate' | 'intense' | null;
+  macro_split: 'balanced' | 'high_protein' | null;
 };
 
 type ProfileContextValue = {

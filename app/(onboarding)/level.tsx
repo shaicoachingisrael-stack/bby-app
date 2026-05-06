@@ -46,7 +46,7 @@ export default function OnboardingLevelStep() {
     setSaving(true);
     try {
       await update({ fitness_level: level });
-      router.push('/(onboarding)/targets' as any);
+      router.push('/(onboarding)/bio' as any);
     } catch (e: any) {
       Alert.alert('Erreur', e?.message ?? 'Sauvegarde impossible.');
     } finally {
@@ -57,7 +57,7 @@ export default function OnboardingLevelStep() {
   return (
     <OnboardingScaffold
       step={3}
-      total={4}
+      total={6}
       title="Quel est ton niveau ?"
       subtitle="On adapte les recommandations à ton expérience actuelle."
       ctaDisabled={!level}

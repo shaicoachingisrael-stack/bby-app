@@ -69,7 +69,7 @@ export default function OnboardingGoalStep() {
   return (
     <OnboardingScaffold
       step={2}
-      total={4}
+      total={6}
       title="Quel est ton objectif ?"
       subtitle="Tu pourras le changer plus tard à tout moment."
       ctaDisabled={!goal}

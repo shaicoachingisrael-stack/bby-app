@@ -1,51 +1,35 @@
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { OnboardingScaffold } from '@/components/onboarding-scaffold';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { computeDefaults } from '@/lib/onboarding-defaults';
+import { useNutritionTargets } from '@/lib/use-nutrition-targets';
 import { useProfile } from '@/lib/use-profile';
 
 export default function OnboardingTargetsStep() {
   const router = useRouter();
   const palette = Colors[useColorScheme() ?? 'light'];
-  const { profile, update } = useProfile();
-
-  const [kcal, setKcal] = useState('');
-  const [protein, setProtein] = useState('');
-  const [hydration, setHydration] = useState('');
+  const { update } = useProfile();
+  const { targets, refresh } = useNutritionTargets();
   const [saving, setSaving] = useState(false);
 
-  // Pre-fill smart defaults from goal + level once profile is loaded
-  useEffect(() => {
-    if (!profile) return;
-    if (kcal || protein || hydration) return;
-    const defaults = computeDefaults(
-      (profile.goal as any) || 'bien_etre',
-      (profile.fitness_level as any) || 'debutant',
-    );
-    setKcal(String(profile.daily_kcal_target ?? defaults.daily_kcal_target));
-    setProtein(String(profile.protein_target_g ?? defaults.protein_target_g));
-    setHydration(String(profile.hydration_target_ml ?? defaults.hydration_target_ml));
-  }, [profile, kcal, protein, hydration]);
-
-  const num = (s: string) => {
-    const n = Number.parseInt(s.replace(/\D/g, ''), 10);
-    return Number.isFinite(n) && n > 0 ? n : null;
-  };
+  // Re-fetch targets when this screen comes into focus (the trigger writes them
+  // when activity step saved the profile). May need a brief retry.
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+      const t = setTimeout(() => refresh(), 800);
+      return () => clearTimeout(t);
+    }, [refresh]),
+  );
 
   async function handleFinish() {
     setSaving(true);
     try {
-      await update({
-        daily_kcal_target: num(kcal),
-        protein_target_g: num(protein),
-        hydration_target_ml: num(hydration),
-        onboarded_at: new Date().toISOString() as any,
-      });
-      // Auth guard will redirect to /today automatically
+      await update({ onboarded_at: new Date().toISOString() as any });
+      // Auth guard redirects to /today
     } catch (e: any) {
       Alert.alert('Erreur', e?.message ?? 'Sauvegarde impossible.');
     } finally {
@@ -55,98 +39,135 @@ export default function OnboardingTargetsStep() {
 
   return (
     <OnboardingScaffold
-      step={4}
-      total={4}
-      title="Tes cibles quotidiennes"
-      subtitle="Pré-rempli selon ton objectif. Tu peux ajuster à tout moment depuis ton profil."
+      step={6}
+      total={6}
+      title="Tes apports quotidiens"
+      subtitle="Calculés à partir de ton profil. Tu pourras les ajuster depuis tes paramètres."
       ctaLabel="Terminer"
       ctaLoading={saving}
       onCta={handleFinish}
       onBack={() => router.back()}
     >
-      <View style={{ gap: Spacing.lg }}>
-        <Field
-          label="Calories"
-          suffix="kcal / jour"
-          value={kcal}
-          onChange={setKcal}
-          palette={palette}
-        />
-        <Field
-          label="Protéines"
-          suffix="g / jour"
-          value={protein}
-          onChange={setProtein}
-          palette={palette}
-        />
-        <Field
-          label="Hydratation"
-          suffix="ml / jour"
-          value={hydration}
-          onChange={setHydration}
-          palette={palette}
-        />
-      </View>
+      {targets ? (
+        <View style={{ gap: Spacing.md }}>
+          <BigCard
+            label="CALORIES PAR JOUR"
+            value={`${targets.calories ?? '—'}`}
+            unit="kcal"
+            hint="Énergie totale à viser sur la journée"
+            palette={palette}
+          />
+
+          <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
+            <MacroCard label="PROTÉINES" value={targets.protein_g} unit="g" sub={`soit ${(targets.protein_g ?? 0) * 4} kcal`} palette={palette} />
+            <MacroCard label="LIPIDES" value={targets.fats_g} unit="g" sub={`soit ${(targets.fats_g ?? 0) * 9} kcal`} palette={palette} />
+            <MacroCard label="GLUCIDES" value={targets.carbs_g} unit="g" sub={`soit ${(targets.carbs_g ?? 0) * 4} kcal`} palette={palette} />
+          </View>
+
+          <BigCard
+            label="HYDRATATION"
+            value={`${((targets.water_ml ?? 0) / 1000).toFixed(1).replace('.', ',')}`}
+            unit="L"
+            hint="par jour"
+            palette={palette}
+          />
+        </View>
+      ) : (
+        <Text style={{ color: palette.textSecondary, fontFamily: Fonts.sans, fontSize: 14 }}>
+          Calcul en cours…
+        </Text>
+      )}
     </OnboardingScaffold>
   );
 }
 
-function Field({
+function BigCard({
   label,
-  suffix,
   value,
-  onChange,
+  unit,
+  hint,
   palette,
 }: {
   label: string;
-  suffix: string;
   value: string;
-  onChange: (s: string) => void;
+  unit: string;
+  hint: string;
   palette: any;
 }) {
   return (
-    <View style={{ gap: Spacing.sm }}>
-      <Text
-        style={{
-          color: palette.textSecondary,
-          fontFamily: Fonts.sansMedium,
-          fontSize: 11,
-          letterSpacing: 1.4,
-        }}
-      >
-        {label.toUpperCase()}
+    <View style={[styles.bigCard, { backgroundColor: palette.surface }]}>
+      <Text style={[styles.eyebrow, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
+        {label}
       </Text>
-      <View
-        style={[
-          styles.wrap,
-          { backgroundColor: palette.surface, borderColor: palette.border },
-        ]}
-      >
-        <TextInput
-          value={value}
-          onChangeText={onChange}
-          keyboardType="number-pad"
-          style={[styles.input, { color: palette.text, fontFamily: Fonts.sans }]}
-        />
-        <Text
-          style={[styles.suffix, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}
-        >
-          {suffix}
+      <View style={styles.row}>
+        <Text style={[styles.bigValue, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+          {value}
+        </Text>
+        <Text style={[styles.unit, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+          {unit}
         </Text>
       </View>
+      <Text style={[styles.hint, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+        {hint}
+      </Text>
+    </View>
+  );
+}
+
+function MacroCard({
+  label,
+  value,
+  unit,
+  sub,
+  palette,
+}: {
+  label: string;
+  value: number | null;
+  unit: string;
+  sub: string;
+  palette: any;
+}) {
+  return (
+    <View style={[styles.macroCard, { backgroundColor: palette.surface }]}>
+      <Text style={[styles.macroLabel, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
+        {label}
+      </Text>
+      <View style={[styles.tinyRule, { backgroundColor: palette.text }]} />
+      <View style={styles.macroRow}>
+        <Text style={[styles.macroValue, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+          {value ?? '—'}
+        </Text>
+        <Text style={[styles.macroUnit, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+          {unit}
+        </Text>
+      </View>
+      <Text style={[styles.macroSub, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+        {sub}
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: {
-    height: 56,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
+  bigCard: {
+    padding: Spacing.lg,
+    borderRadius: Radius.lg,
   },
-  input: { flex: 1, fontSize: 18 },
-  suffix: { fontSize: 13 },
+  eyebrow: { fontSize: 11, letterSpacing: 1.6, marginBottom: 8 },
+  row: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },
+  bigValue: { fontSize: 56, lineHeight: 56, letterSpacing: -1 },
+  unit: { fontSize: 16 },
+  hint: { fontSize: 12, marginTop: 6 },
+  macroCard: {
+    flex: 1,
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    gap: 4,
+  },
+  macroLabel: { fontSize: 9, letterSpacing: 1.4 },
+  tinyRule: { width: 36, height: 1, marginVertical: 6 },
+  macroRow: { flexDirection: 'row', alignItems: 'baseline', gap: 4 },
+  macroValue: { fontSize: 28, letterSpacing: -0.5 },
+  macroUnit: { fontSize: 12 },
+  macroSub: { fontSize: 11, marginTop: 2 },
 });

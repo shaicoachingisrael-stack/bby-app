@@ -99,6 +99,10 @@ function RootStack() {
           name="notifications"
           options={{ presentation: 'modal', headerShown: false }}
         />
+        <Stack.Screen
+          name="macros-help"
+          options={{ presentation: 'modal', headerShown: false }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

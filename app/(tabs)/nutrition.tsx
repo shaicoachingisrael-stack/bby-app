@@ -5,6 +5,7 @@ import { useCallback } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { MacrosSummary } from '@/components/macros-summary';
 import { ActivityCard } from '@/components/ui/activity-card';
 import { AdminButton } from '@/components/ui/admin-button';
 import { RecommendationCard } from '@/components/ui/recommendation-card';
@@ -87,6 +88,8 @@ export default function NutritionScreen() {
             <Bell size={18} color={palette.text} />
           </Pressable>
         </View>
+
+        <MacrosSummary />
 
         <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl }}>
           <SessionCard

@@ -34,7 +34,7 @@ export default function OnboardingNameStep() {
   return (
     <OnboardingScaffold
       step={1}
-      total={4}
+      total={6}
       title="Comment doit-on t'appeler ?"
       subtitle="C'est le prénom (ou pseudo) qui apparaîtra dans l'app."
       ctaDisabled={!name.trim()}
