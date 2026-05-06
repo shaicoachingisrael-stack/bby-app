@@ -1,5 +1,6 @@
 import { ChevronLeft } from 'lucide-react-native';
 import { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -33,15 +34,17 @@ export function OnboardingScaffold({
   total,
   title,
   subtitle,
-  ctaLabel = 'Continuer',
+  ctaLabel,
   ctaDisabled,
   ctaLoading,
   onCta,
   onBack,
   children,
 }: Props) {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
+  const resolvedCtaLabel = ctaLabel ?? t('common.continue');
 
   return (
     <KeyboardAvoidingView
@@ -126,7 +129,7 @@ export function OnboardingScaffold({
                 { color: palette.background, fontFamily: Fonts.sansSemibold },
               ]}
             >
-              {ctaLabel}
+              {resolvedCtaLabel}
             </Text>
           )}
         </Pressable>

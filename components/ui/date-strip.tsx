@@ -1,9 +1,8 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-
-const DAY_LABELS = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
 
 type Props = {
   value: Date;
@@ -23,6 +22,17 @@ function isSameDay(a: Date, b: Date) {
 
 export function DateStrip({ value, onChange, range = 14 }: Props) {
   const palette = Colors[useColorScheme() ?? 'light'];
+  const { t } = useTranslation();
+
+  const DAY_LABELS = [
+    t('dateStrip.sun'),
+    t('dateStrip.mon'),
+    t('dateStrip.tue'),
+    t('dateStrip.wed'),
+    t('dateStrip.thu'),
+    t('dateStrip.fri'),
+    t('dateStrip.sat'),
+  ];
 
   const today = startOfDay(new Date());
   const days: Date[] = [];

@@ -1,5 +1,6 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
 import { OnboardingScaffold } from '@/components/onboarding-scaffold';
@@ -9,6 +10,7 @@ import { useNutritionTargets } from '@/lib/use-nutrition-targets';
 import { useProfile } from '@/lib/use-profile';
 
 export default function OnboardingTargetsStep() {
+  const { t } = useTranslation();
   const router = useRouter();
   const palette = Colors[useColorScheme() ?? 'light'];
   const { update } = useProfile();
@@ -31,7 +33,7 @@ export default function OnboardingTargetsStep() {
       await update({ onboarded_at: new Date().toISOString() as any });
       // Auth guard redirects to /today
     } catch (e: any) {
-      Alert.alert('Erreur', e?.message ?? 'Sauvegarde impossible.');
+      Alert.alert(t('common.error'), e?.message ?? t('common.saveImpossible'));
     } finally {
       setSaving(false);
     }
@@ -41,9 +43,9 @@ export default function OnboardingTargetsStep() {
     <OnboardingScaffold
       step={6}
       total={6}
-      title="Tes apports quotidiens"
-      subtitle="Calculés à partir de ton profil. Tu pourras les ajuster depuis tes paramètres."
-      ctaLabel="Terminer"
+      title={t('onboarding.targets.title')}
+      subtitle={t('onboarding.targets.subtitle')}
+      ctaLabel={t('common.finish')}
       ctaLoading={saving}
       onCta={handleFinish}
       onBack={() => router.back()}
@@ -51,30 +53,30 @@ export default function OnboardingTargetsStep() {
       {targets ? (
         <View style={{ gap: Spacing.md }}>
           <BigCard
-            label="CALORIES PAR JOUR"
+            label={t('onboarding.targets.calories')}
             value={`${targets.calories ?? '—'}`}
-            unit="kcal"
-            hint="Énergie totale à viser sur la journée"
+            unit={t('common.kcal')}
+            hint={t('onboarding.targets.totalEnergy')}
             palette={palette}
           />
 
           <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
-            <MacroCard label="PROTÉINES" value={targets.protein_g} unit="g" sub={`soit ${(targets.protein_g ?? 0) * 4} kcal`} palette={palette} />
-            <MacroCard label="LIPIDES" value={targets.fats_g} unit="g" sub={`soit ${(targets.fats_g ?? 0) * 9} kcal`} palette={palette} />
-            <MacroCard label="GLUCIDES" value={targets.carbs_g} unit="g" sub={`soit ${(targets.carbs_g ?? 0) * 4} kcal`} palette={palette} />
+            <MacroCard label={t('onboarding.targets.protein')} value={targets.protein_g} unit={t('common.g')} sub={t('nutrition.macros.soitKcal', { kcal: (targets.protein_g ?? 0) * 4 })} palette={palette} />
+            <MacroCard label={t('onboarding.targets.fats')} value={targets.fats_g} unit={t('common.g')} sub={t('nutrition.macros.soitKcal', { kcal: (targets.fats_g ?? 0) * 9 })} palette={palette} />
+            <MacroCard label={t('onboarding.targets.carbs')} value={targets.carbs_g} unit={t('common.g')} sub={t('nutrition.macros.soitKcal', { kcal: (targets.carbs_g ?? 0) * 4 })} palette={palette} />
           </View>
 
           <BigCard
-            label="HYDRATATION"
+            label={t('onboarding.targets.hydration')}
             value={`${((targets.water_ml ?? 0) / 1000).toFixed(1).replace('.', ',')}`}
-            unit="L"
-            hint="par jour"
+            unit={t('common.L')}
+            hint={t('onboarding.targets.perDay')}
             palette={palette}
           />
         </View>
       ) : (
         <Text style={{ color: palette.textSecondary, fontFamily: Fonts.sans, fontSize: 14 }}>
-          Calcul en cours…
+          {t('onboarding.targets.computing')}
         </Text>
       )}
     </OnboardingScaffold>

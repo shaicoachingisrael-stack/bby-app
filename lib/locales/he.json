@@ -9,7 +9,20 @@
     "error": "שגיאה",
     "viewAll": "ראה הכול",
     "comingSoon": "בקרוב",
-    "language": "שפה"
+    "language": "שפה",
+    "continue": "המשך",
+    "finish": "סיום",
+    "send": "שליחה",
+    "close": "סגירה",
+    "see": "צפייה",
+    "yes": "כן",
+    "no": "לא",
+    "saveImpossible": "השמירה נכשלה",
+    "min": "דק'",
+    "kcal": "קק\"ל",
+    "g": "גרם",
+    "ml": "מ\"ל",
+    "L": "ליטר"
   },
   "tabs": {
     "today": "היום",
@@ -28,11 +41,11 @@
     "sessionOfDay": "אימון היום",
     "mindsetOfDay": "מיינדסט היום",
     "recipeOfDay": "מתכון היום",
-    "ctaStart": "התחל",
-    "ctaRead": "קרא",
+    "ctaStart": "התחלה",
+    "ctaRead": "קריאה",
     "ctaViewRecipe": "ראה מתכון",
     "placeholderTitle": "תוכן בדרך",
-    "placeholderSubtitle": "בקשי מהמאמנת שלך לפרסם אימונים ומתכונים"
+    "placeholderSubtitle": "בקשי מהמאמנת לפרסם אימונים ומתכונים"
   },
   "training": {
     "title": "אימון",
@@ -40,7 +53,13 @@
     "allSessions": "כל האימונים",
     "resume": "המשך",
     "noSession": "אין אימון",
-    "askCoach": "בקשי מהמאמנת לפרסם תוכן"
+    "askCoach": "בקשי מהמאמנת לפרסם תוכן",
+    "weeks": "{{count}} שב'",
+    "level": {
+      "debutant": "מתחילה",
+      "intermediaire": "בינוני",
+      "avance": "מתקדמת"
+    }
   },
   "nutrition": {
     "title": "תזונה",
@@ -50,8 +69,11 @@
     "breakfast": "ארוחת בוקר",
     "lunch": "ארוחת צהריים",
     "dinner": "ארוחת ערב",
+    "snack": "חטיף",
     "hydration": "שתייה",
     "notLogged": "טרם נרשם",
+    "kcalProgress": "{{current}} / {{target}} קק\"ל",
+    "hydrationProgress": "{{current}} מ\"ל מתוך {{target}} מ\"ל",
     "macros": {
       "title": "הצריכה",
       "titleItalic": "היומית שלך",
@@ -63,7 +85,8 @@
       "fats": "שומנים",
       "carbs": "פחמימות",
       "perDay": "ליום",
-      "understand": "הבן את החישוב שלי"
+      "understand": "הבן את החישוב שלי",
+      "soitKcal": "= {{kcal}} קק\"ל"
     }
   },
   "mindset": {
@@ -76,7 +99,12 @@
     "meditationTitle": "מדיטציה",
     "meditationSubtitle": "5 דקות · נשימה מודעת",
     "journalTitle": "יומן",
-    "journalSubtitle": "כתבי איך את מרגישה היום"
+    "journalSubtitle": "כתבי איך את מרגישה היום",
+    "kind": {
+      "meditation": "מדיטציה",
+      "article": "מאמר",
+      "affirmation": "אישור עצמי"
+    }
   },
   "auth": {
     "welcome": "ברוכה הבאה.",
@@ -93,10 +121,100 @@
     "termsLink": "תנאים",
     "and": "ול",
     "privacyLink": "מדיניות פרטיות",
-    "letsExplore": "בואי נצא לדרך"
+    "letsExplore": "בואי נצא לדרך",
+    "missingFields": "חסרים שדות",
+    "missingFieldsBody": "מלאי אימייל וסיסמה.",
+    "passwordTooShort": "הסיסמה קצרה מדי",
+    "passwordTooShortBody": "לפחות 6 תווים.",
+    "checkInbox": "בדקי את הדוא\"ל שלך",
+    "checkInboxBody": "שלחנו לך אימייל אישור. לחצי על הקישור להפעיל את החשבון.",
+    "signInError": "ההתחברות נכשלה",
+    "signUpError": "ההרשמה נכשלה",
+    "appleError": "שגיאת Apple.",
+    "googleError": "שגיאת Google.",
+    "appleNotAvailable": "Sign in with Apple זמין רק ב-iOS."
+  },
+  "onboarding": {
+    "name": {
+      "title": "איך לקרוא לך?",
+      "subtitle": "השם או הכינוי שיופיע באפליקציה.",
+      "placeholder": "השם שלך"
+    },
+    "goal": {
+      "title": "מה היעד שלך?",
+      "subtitle": "אפשר לשנות בכל רגע.",
+      "perte_de_poids": "ירידה במשקל",
+      "perte_de_poids_desc": "להוריד שומן בלי לאבד אנרגיה.",
+      "tonification": "חיטוב",
+      "tonification_desc": "לעצב ולחזק, בלי להעלות נפח.",
+      "prise_de_masse": "עליה במסה",
+      "prise_de_masse_desc": "לבנות שריר בהדרגה.",
+      "remise_en_forme": "חזרה לכושר",
+      "remise_en_forme_desc": "לחזור בעדינות, ללא לחץ.",
+      "bien_etre": "בריאות כללית",
+      "bien_etre_desc": "לזוז, לאכול, לנשום טוב יותר."
+    },
+    "level": {
+      "title": "מה הרמה שלך?",
+      "subtitle": "נתאים את ההמלצות לניסיון שלך.",
+      "debutant": "מתחילה",
+      "debutant_desc": "מתחילה או חוזרת לפעילות.",
+      "intermediaire": "בינונית",
+      "intermediaire_desc": "מתאמנת 2-3 פעמים בשבוע.",
+      "avance": "מתקדמת",
+      "avance_desc": "מתאמנת 4+ פעמים בשבוע, מכירה את הגוף שלי."
+    },
+    "bio": {
+      "title": "כמה פרטים לחישוב הצריכה",
+      "subtitle": "משמש רק להערכת הצרכים. ניתן לשינוי בכל רגע.",
+      "sex": "מין ביולוגי",
+      "female": "נקבה",
+      "male": "זכר",
+      "age": "גיל",
+      "ageUnit": "שנים",
+      "height": "גובה",
+      "heightUnit": "ס\"מ",
+      "weight": "משקל נוכחי",
+      "weightUnit": "ק\"ג"
+    },
+    "activity": {
+      "title": "הקצב וההעדפות שלך",
+      "subtitle": "נתאים את הצריכה לפעילות היומית שלך.",
+      "section": "פעילות יומית",
+      "sedentary": "יושבנית",
+      "sedentary_desc": "מעט או אין פעילות",
+      "light": "קלה",
+      "light_desc": "1 עד 3 אימונים בשבוע",
+      "moderate": "מתונה",
+      "moderate_desc": "3 עד 5 אימונים בשבוע",
+      "active": "פעילה",
+      "active_desc": "6 עד 7 אימונים בשבוע",
+      "very_active": "פעילה מאוד",
+      "very_active_desc": "ספורט אינטנסיבי יומיומי",
+      "intensitySection": "עוצמת היעד",
+      "gentle": "עדינה",
+      "moderateIntensity": "בינונית",
+      "intense": "חזקה",
+      "splitSection": "חלוקת מאקרוסים",
+      "balanced": "מאוזנת",
+      "highProtein": "עתירת חלבון"
+    },
+    "targets": {
+      "title": "הצריכה היומית שלך",
+      "subtitle": "מחושב לפי הפרופיל. אפשר לשנות בהגדרות.",
+      "computing": "מחשב…",
+      "calories": "קלוריות ליום",
+      "totalEnergy": "סך האנרגיה שכדאי לכוון אליה היום",
+      "protein": "חלבונים",
+      "fats": "שומנים",
+      "carbs": "פחמימות",
+      "hydration": "שתייה",
+      "perDay": "ליום"
+    }
   },
   "account": {
     "title": "החשבון שלי",
+    "withoutName": "ללא שם",
     "editProfile": "עריכת פרופיל",
     "myPath": "המסלול שלי",
     "myPrograms": "התוכניות שלי",
@@ -107,9 +225,164 @@
     "logoutConfirmTitle": "להתנתק?",
     "logoutConfirmBody": "תוכלי להתחבר שוב מתי שתרצי.",
     "deleteAccount": "מחיקת החשבון שלי",
+    "deleteConfirm1Title": "למחוק את החשבון?",
+    "deleteConfirm1Body": "פעולה זו סופית. האימונים, הארוחות, היומן והפרופיל יימחקו.",
+    "deleteConfirm2Title": "אישור מחיקה",
+    "deleteConfirm2Body": "בטוחה? לא ניתן לבטל.",
+    "deleteFinal": "כן, למחוק לצמיתות",
     "legalSection": "משפטי",
     "privacyPolicy": "מדיניות פרטיות",
-    "terms": "תנאי שירות"
+    "terms": "תנאי שירות",
+    "profile": {
+      "title": "פרופיל",
+      "goal": "יעד",
+      "level": "רמה",
+      "kcalTarget": "יעד קלוריות / יום",
+      "proteinTarget": "יעד חלבון / יום",
+      "hydrationTarget": "יעד שתייה / יום"
+    }
+  },
+  "editProfile": {
+    "title": "עריכת פרופיל",
+    "name": "שם",
+    "namePlaceholder": "שם או כינוי",
+    "goal": "יעד",
+    "level": "רמה",
+    "kcalTarget": "יעד קלוריות / יום",
+    "kcalHint": "לדוגמה: 1980",
+    "proteinTarget": "יעד חלבון / יום",
+    "proteinHint": "לדוגמה: 120 גרם",
+    "hydrationTarget": "יעד שתייה / יום",
+    "hydrationHint": "לדוגמה: 2500 מ\"ל",
+    "addPhoto": "הוספת תמונה",
+    "changePhoto": "החלפת תמונה",
+    "photoSheet": "תמונת פרופיל",
+    "takePhoto": "צילום תמונה",
+    "fromLibrary": "בחירה מהגלריה",
+    "photoError": "לא ניתן לטעון תמונה",
+    "permissionPhoto": "אין גישה לתמונות. הפעילי בהגדרות.",
+    "permissionCamera": "אין גישה למצלמה. הפעילי בהגדרות."
+  },
+  "session": {
+    "duration": "משך",
+    "level": "רמה",
+    "anyLevel": "כולן",
+    "description": "תיאור",
+    "material": "ציוד",
+    "materialDefault": "מזרן, גומי, משקולות (לא חובה)",
+    "start": "התחלת אימון",
+    "doneTitle": "כל הכבוד",
+    "doneBody": "האימון נשמר."
+  },
+  "program": {
+    "title": "תוכנית",
+    "yourProgress": "ההתקדמות שלך",
+    "completedSessions": "{{done}} אימון מתוך {{total}}",
+    "completedSessions_other": "{{done}} אימונים מתוך {{total}}",
+    "description": "תיאור",
+    "sessions": "אימונים ({{count}})",
+    "noSessions": "אין עדיין אימונים בתוכנית.",
+    "completed": "הושלם",
+    "session": "אימון",
+    "start": "התחלת התוכנית",
+    "continue": "המשך התוכנית"
+  },
+  "recipe": {
+    "notFound": "המתכון לא נמצא.",
+    "preparation": "הכנה",
+    "intake": "תזונתי",
+    "description": "תיאור",
+    "ingredients": "מצרכים",
+    "videosTitle": "וידאו ושלבים",
+    "logMeal": "רישום ארוחה זו"
+  },
+  "mindsetDetail": {
+    "notFound": "התוכן לא נמצא.",
+    "completeMeditation": "סיימתי",
+    "writeJournal": "להוסיף ליומן"
+  },
+  "mealLog": {
+    "title": "הוספת ארוחה",
+    "type": "סוג ארוחה",
+    "mealName": "כותרת (לא חובה)",
+    "mealNamePlaceholder": "לדוגמה: בול חלבון סלמון",
+    "calories": "קלוריות",
+    "protein": "חלבונים",
+    "carbs": "פחמימות",
+    "fats": "שומנים",
+    "missingKcal": "חסרות קלוריות",
+    "missingKcalBody": "ציינו לפחות קלוריות."
+  },
+  "hydrationLog": {
+    "title": "הוספת מים",
+    "subtitle": "בחרי כמות לרישום מהיר."
+  },
+  "mindsetLog": {
+    "title": "מיינדסט",
+    "type": "סוג",
+    "mood": "מצב רוח",
+    "moodGreat": "מצוין",
+    "moodGood": "טוב",
+    "moodNeutral": "ניטרלי",
+    "moodTired": "עייפה",
+    "moodLow": "ירוד",
+    "content": "תוכן",
+    "kindIntention": "כוונה",
+    "kindJournal": "יומן",
+    "kindMeditation": "מדיטציה",
+    "placeholderIntention": "לדוגמה: «אני עושה את הטוב לעצמי.»",
+    "placeholderJournal": "מה את מרגישה, מה קרה היום…",
+    "placeholderMeditation": "כמה מילים על המדיטציה.",
+    "emptyTitle": "ריק",
+    "emptyBody": "כתבי משהו לפני שמירה."
+  },
+  "notifications": {
+    "title": "התראות",
+    "subtitle": "ההתראות שלך מ-24 השעות האחרונות.",
+    "emptyTitle": "הכול נקי",
+    "emptyBody": "אין התראות ב-24 השעות האחרונות.",
+    "clearAll": "נקה הכול",
+    "clearAllTitle": "לנקות הכול?",
+    "clearAllBody": "ההתראות הקודמות ייעלמו מהרשימה.",
+    "clear": "ניקוי",
+    "deleteOne": "למחוק התראה זו?",
+    "view": "צפייה",
+    "relativeNow": "ממש עכשיו",
+    "relativeMinutes": "לפני {{count}} דק'",
+    "relativeHours": "לפני {{count}} ש'"
+  },
+  "chat": {
+    "title": "מאמן AI",
+    "comingSoonTitle": "מאמן AI",
+    "comingSoonBody": "בקרוב. תוכלי לשאול שאלות, להתאים את התוכנית ולשתף מהיום שלך עם מאמן וירטואלי.",
+    "understood": "הבנתי",
+    "placeholder": "שאלי…",
+    "writing": "המאמן כותב…",
+    "emptyTitle": "מאמן AI",
+    "emptyBody": "שאלי כל דבר על אימון, תזונה או מיינדסט.",
+    "suggestion1": "תני לי רעיון לארוחת בוקר עתירת חלבון",
+    "suggestion2": "אין לי כוח להתאמן היום, מה לעשות?",
+    "suggestion3": "איך מתמודדים עם רעב בערב?",
+    "errorMessage": "מצטערת, לא הצלחתי לענות. בדקי את החיבור ונסי שוב."
+  },
+  "macrosHelp": {
+    "title": "הבן את החישוב שלי",
+    "intro": "המספרים לא מהאוויר — מחושבים מנוסחאות סטנדרטיות ומותאמים לך.",
+    "step1Title": "1 — קצב חילוף החומרים הבסיסי (BMR)",
+    "step1Body": "כמה אנרגיה הגוף שורף במנוחה ב-24 ש'. נוסחת Mifflin-St Jeor: מין, גיל, גובה ומשקל.",
+    "step1Stat": "ה-BMR שלך",
+    "step2Title": "2 — סך הוצאת אנרגיה (TDEE)",
+    "step2Body": "ה-BMR מוכפל בגורם פעילות (יושבנית, קלה, מתונה, פעילה, מאוד פעילה). זו הוצאת האנרגיה האמיתית שלך ביום.",
+    "step2Stat": "ה-TDEE שלך",
+    "step3Title": "3 — קלוריות יעד",
+    "step3Body": "מתאימים את ה-TDEE ליעד ולעוצמה (עדינה, מתונה, חזקה). תמיד שומרים על מינימום בריאות.",
+    "step3Stat": "היעד שלך",
+    "step4Title": "4 — חלוקת מאקרוסים",
+    "step4Body": "חלבונים תחילה בגרם/ק\"ג משקל, שומנים כאחוז מהקלוריות (עם מינימום הורמונלי), הפחמימות ממלאות את השאר.",
+    "step5Title": "5 — שתייה",
+    "step5Body": "35 מ\"ל מים לכל ק\"ג משקל, ועוד 500 מ\"ל בימי אימון.",
+    "disclaimer": "ההמלצות הן הנחיות מחושבות מנוסחאות סטנדרטיות. הן לא מחליפות יעוץ של איש מקצוע. אם את בטיפול רפואי, בהריון, מניקה או עם רקע של הפרעות אכילה — התייעצי לפני שינוי תזונה.",
+    "kcalPerDay": "{{count}} קק\"ל / יום"
   },
   "language": {
     "title": "שפה",
@@ -119,5 +392,14 @@
     "he": "עברית",
     "es": "Español",
     "ru": "Русский"
+  },
+  "dateStrip": {
+    "sun": "א'",
+    "mon": "ב'",
+    "tue": "ג'",
+    "wed": "ד'",
+    "thu": "ה'",
+    "fri": "ו'",
+    "sat": "ש'"
   }
 }

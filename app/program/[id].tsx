@@ -9,6 +9,7 @@ import {
   Play,
 } from 'lucide-react-native';
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -27,18 +28,19 @@ import {
   useSessions,
 } from '@/lib/use-content';
 
-const LEVEL_LABELS: Record<string, string> = {
-  debutant: 'Débutante',
-  intermediaire: 'Intermédiaire',
-  avance: 'Avancée',
-};
-
 export default function ProgramDetailScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const params = useLocalSearchParams<{ id?: string }>();
   const id = params.id;
+
+  const LEVEL_LABELS: Record<string, string> = {
+    debutant: t('training.level.debutant'),
+    intermediaire: t('training.level.intermediaire'),
+    avance: t('training.level.avance'),
+  };
 
   const { program, loading: programLoading } = useProgram(id);
   const { sessions, refresh: refreshSessions } = useSessions(id);
@@ -105,7 +107,7 @@ export default function ProgramDetailScreen() {
         </View>
 
         <View style={styles.heroContent}>
-          <Text style={styles.heroEyebrow}>PROGRAMME</Text>
+          <Text style={styles.heroEyebrow}>{t('program.title').toUpperCase()}</Text>
           <Text style={styles.heroTitle}>{program?.title ?? '...'}</Text>
         </View>
       </View>
@@ -127,7 +129,7 @@ export default function ProgramDetailScreen() {
               <BarChart3 size={18} color={palette.text} />
               <View>
                 <Text style={[styles.metaLabel, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                  Niveau
+                  {t('session.level')}
                 </Text>
                 <Text style={[styles.metaValue, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
                   {program?.level ? LEVEL_LABELS[program.level] ?? program.level : '—'}
@@ -138,10 +140,10 @@ export default function ProgramDetailScreen() {
               <Calendar size={18} color={palette.text} />
               <View>
                 <Text style={[styles.metaLabel, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                  Durée
+                  {t('session.duration')}
                 </Text>
                 <Text style={[styles.metaValue, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                  {program?.duration_weeks ? `${program.duration_weeks} sem.` : '—'}
+                  {program?.duration_weeks ? t('training.weeks', { count: program.duration_weeks }) : '—'}
                 </Text>
               </View>
             </View>
@@ -151,7 +153,7 @@ export default function ProgramDetailScreen() {
           <View style={[styles.progressBlock, { backgroundColor: palette.surface }]}>
             <View style={styles.progressHeader}>
               <Text style={[styles.progressTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                Ta progression
+                {t('program.yourProgress')}
               </Text>
               <Text style={[styles.progressPct, { color: palette.text, fontFamily: Fonts.displayBold }]}>
                 {progress} %
@@ -166,8 +168,7 @@ export default function ProgramDetailScreen() {
               />
             </View>
             <Text style={[styles.progressMeta, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-              {doneCount} séance{doneCount > 1 ? 's' : ''} terminée{doneCount > 1 ? 's' : ''}{' '}
-              sur {orderedSessions.length}
+              {t('program.completedSessions', { count: doneCount, done: doneCount, total: orderedSessions.length })}
             </Text>
           </View>
 
@@ -175,7 +176,7 @@ export default function ProgramDetailScreen() {
           {program?.description ? (
             <>
               <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                Description
+                {t('program.description')}
               </Text>
               <Text style={[styles.desc, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
                 {program.description}
@@ -185,13 +186,13 @@ export default function ProgramDetailScreen() {
 
           {/* Sessions list */}
           <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-            Séances ({orderedSessions.length})
+            {t('program.sessions', { count: orderedSessions.length })}
           </Text>
 
           {orderedSessions.length === 0 ? (
             <View style={[styles.empty, { backgroundColor: palette.surface }]}>
               <Text style={[styles.emptyText, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                Pas encore de séances dans ce programme.
+                {t('program.noSessions')}
               </Text>
             </View>
           ) : (
@@ -243,9 +244,9 @@ export default function ProgramDetailScreen() {
                       <Text
                         style={[styles.sessionMeta, { color: palette.textSecondary, fontFamily: Fonts.sans }]}
                       >
-                        {[s.duration_min ? `${s.duration_min} min` : null, isDone ? 'Terminée' : null]
+                        {[s.duration_min ? `${s.duration_min} ${t('common.min')}` : null, isDone ? t('program.completed') : null]
                           .filter(Boolean)
-                          .join(' · ') || 'Séance'}
+                          .join(' · ') || t('program.session')}
                       </Text>
                     </View>
                     <ChevronRight size={18} color={palette.textSecondary} />
@@ -280,7 +281,7 @@ export default function ProgramDetailScreen() {
                   { color: palette.background, fontFamily: Fonts.sansSemibold },
                 ]}
               >
-                {doneCount > 0 ? 'Continuer le programme' : 'Démarrer le programme'}
+                {doneCount > 0 ? t('program.continue') : t('program.start')}
               </Text>
             </Pressable>
           </View>

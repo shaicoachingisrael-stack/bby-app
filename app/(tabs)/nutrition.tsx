@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Bell, Coffee, Cookie, Droplet, UtensilsCrossed } from 'lucide-react-native';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -24,6 +25,7 @@ export default function NutritionScreen() {
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const router = useRouter();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { profile } = useProfile();
   const { data, refresh } = useDayData();
@@ -72,10 +74,10 @@ export default function NutritionScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={[styles.eyebrow, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                {data.meals.total_kcal} / {target} kcal
+                {t('nutrition.kcalProgress', { current: data.meals.total_kcal, target })}
               </Text>
               <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                Nutrition
+                {t('nutrition.title')}
               </Text>
             </View>
           </Pressable>
@@ -93,9 +95,9 @@ export default function NutritionScreen() {
 
         <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl }}>
           <SessionCard
-            eyebrow={featuredRecipe ? 'RECETTE DU JOUR' : 'RECETTES'}
-            title={featuredRecipe?.title ?? 'Bientôt'}
-            subtitle={featuredRecipe?.description ?? 'Demande à ta coach de publier des recettes'}
+            eyebrow={featuredRecipe ? t('today.recipeOfDay').toUpperCase() : t('common.comingSoon').toUpperCase()}
+            title={featuredRecipe?.title ?? t('common.comingSoon')}
+            subtitle={featuredRecipe?.description ?? t('training.askCoach')}
             duration={featuredRecipe?.prep_min ? `${featuredRecipe.prep_min} min` : undefined}
             level={featuredRecipe?.kcal ? `${featuredRecipe.kcal} kcal` : undefined}
             videoSource={featuredRecipe ? featuredRecipe.video_url : NUTRITION_VIDEO}
@@ -111,52 +113,52 @@ export default function NutritionScreen() {
         <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>
           <View style={styles.sectionRow}>
             <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-              Mes repas du jour
+              {t('nutrition.todaysMeals')}
             </Text>
             <Pressable hitSlop={8} onPress={() => router.push('/meal-log' as any)}>
               <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-                Ajouter
+                {t('nutrition.addMeal')}
               </Text>
             </Pressable>
           </View>
           <View style={{ gap: Spacing.md, marginTop: Spacing.md }}>
             <ActivityCard
               icon={Coffee}
-              title="Petit-déjeuner"
+              title={t('nutrition.breakfast')}
               subtitle={
                 data.meals.petit_dejeuner.logged
                   ? `${data.meals.petit_dejeuner.kcal} kcal · ${data.meals.petit_dejeuner.protein} g`
-                  : 'Pas encore enregistré'
+                  : t('nutrition.notLogged')
               }
               status={data.meals.petit_dejeuner.logged ? 'done' : 'pending'}
               onPress={() => router.push('/meal-log?type=petit_dejeuner' as any)}
             />
             <ActivityCard
               icon={UtensilsCrossed}
-              title="Déjeuner"
+              title={t('nutrition.lunch')}
               subtitle={
                 data.meals.dejeuner.logged
                   ? `${data.meals.dejeuner.kcal} kcal · ${data.meals.dejeuner.protein} g`
-                  : 'Pas encore enregistré'
+                  : t('nutrition.notLogged')
               }
               status={data.meals.dejeuner.logged ? 'done' : 'pending'}
               onPress={() => router.push('/meal-log?type=dejeuner' as any)}
             />
             <ActivityCard
               icon={Cookie}
-              title="Dîner"
+              title={t('nutrition.dinner')}
               subtitle={
                 data.meals.diner.logged
                   ? `${data.meals.diner.kcal} kcal · ${data.meals.diner.protein} g`
-                  : 'Pas encore enregistré'
+                  : t('nutrition.notLogged')
               }
               status={data.meals.diner.logged ? 'done' : 'pending'}
               onPress={() => router.push('/meal-log?type=diner' as any)}
             />
             <ActivityCard
               icon={Droplet}
-              title="Hydratation"
-              subtitle={`${data.hydration_ml} ml sur ${profile?.hydration_target_ml ?? 2500} ml`}
+              title={t('nutrition.hydration')}
+              subtitle={t('nutrition.hydrationProgress', { current: data.hydration_ml, target: profile?.hydration_target_ml ?? 2500 })}
               status={
                 data.hydration_ml >= (profile?.hydration_target_ml ?? 2500) ? 'done' : 'pending'
               }
@@ -167,7 +169,7 @@ export default function NutritionScreen() {
 
         <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>
           <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-            Idées recettes
+            {t('nutrition.recipeIdeas')}
           </Text>
         </View>
         <ScrollView
@@ -179,8 +181,8 @@ export default function NutritionScreen() {
             <RecommendationCard
               videoSource={INTRO_VIDEO}
               duration="—"
-              title="Bientôt"
-              subtitle="Du contenu arrive"
+              title={t('common.comingSoon')}
+              subtitle={t('today.placeholderTitle')}
             />
           ) : (
             otherRecipes.map((r) => (
@@ -190,7 +192,7 @@ export default function NutritionScreen() {
                 imageSource={r.cover_url ?? null}
                 duration={r.prep_min ? `${r.prep_min} min` : '—'}
                 title={r.title}
-                subtitle={r.kcal ? `${r.kcal} kcal` : 'Recette'}
+                subtitle={r.kcal ? `${r.kcal} kcal` : t('today.sectionRecipes')}
                 onPress={() => router.push(`/recipe/${r.id}` as any)}
               />
             ))

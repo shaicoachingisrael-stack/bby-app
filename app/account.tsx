@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { ChevronLeft, Dumbbell, FileText, LogOut, Pencil, Settings, Shield, Trash2 } from 'lucide-react-native';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Linking,
@@ -22,26 +23,27 @@ import { deleteAccount, signOut } from '@/lib/auth';
 import { useAuth } from '@/lib/auth-provider';
 import { useProfile } from '@/lib/use-profile';
 
-const GOAL_LABELS: Record<string, string> = {
-  perte_de_poids: 'Perte de poids',
-  prise_de_masse: 'Prise de masse',
-  tonification: 'Tonification',
-  remise_en_forme: 'Remise en forme',
-  bien_etre: 'Bien-être',
-};
-
-const LEVEL_LABELS: Record<string, string> = {
-  debutant: 'Débutant',
-  intermediaire: 'Intermédiaire',
-  avance: 'Avancé',
-};
-
 export default function AccountScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { profile, loading, refresh } = useProfile();
+
+  const GOAL_LABELS: Record<string, string> = {
+    perte_de_poids: t('onboarding.goal.perte_de_poids'),
+    prise_de_masse: t('onboarding.goal.prise_de_masse'),
+    tonification: t('onboarding.goal.tonification'),
+    remise_en_forme: t('onboarding.goal.remise_en_forme'),
+    bien_etre: t('onboarding.goal.bien_etre'),
+  };
+
+  const LEVEL_LABELS: Record<string, string> = {
+    debutant: t('onboarding.level.debutant'),
+    intermediaire: t('onboarding.level.intermediaire'),
+    avance: t('onboarding.level.avance'),
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -50,16 +52,16 @@ export default function AccountScreen() {
   );
 
   function handleLogout() {
-    Alert.alert('Se déconnecter ?', 'Tu pourras te reconnecter à tout moment.', [
-      { text: 'Annuler', style: 'cancel' },
+    Alert.alert(t('account.logoutConfirmTitle'), t('account.logoutConfirmBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
       {
-        text: 'Se déconnecter',
+        text: t('account.logout'),
         style: 'destructive',
         onPress: async () => {
           try {
             await signOut();
           } catch (e: any) {
-            Alert.alert('Erreur', e?.message ?? 'Déconnexion impossible.');
+            Alert.alert(t('common.error'), e?.message ?? t('common.error'));
           }
         },
       },
@@ -68,29 +70,29 @@ export default function AccountScreen() {
 
   function handleDelete() {
     Alert.alert(
-      'Supprimer ton compte ?',
-      'Cette action est définitive. Tes séances, repas, journal et données de profil seront supprimés.',
+      t('account.deleteConfirm1Title'),
+      t('account.deleteConfirm1Body'),
       [
-        { text: 'Annuler', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Supprimer',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: () => {
             Alert.alert(
-              'Confirmer la suppression',
-              'Es-tu absolument sûr·e ? Cette action ne peut pas être annulée.',
+              t('account.deleteConfirm2Title'),
+              t('account.deleteConfirm2Body'),
               [
-                { text: 'Annuler', style: 'cancel' },
+                { text: t('common.cancel'), style: 'cancel' },
                 {
-                  text: 'Oui, supprimer définitivement',
+                  text: t('account.deleteFinal'),
                   style: 'destructive',
                   onPress: async () => {
                     try {
                       await deleteAccount();
                     } catch (e: any) {
                       Alert.alert(
-                        'Erreur',
-                        e?.message ?? 'Suppression impossible.',
+                        t('common.error'),
+                        e?.message ?? t('common.error'),
                       );
                     }
                   },
@@ -114,11 +116,11 @@ export default function AccountScreen() {
           hitSlop={12}
           style={({ pressed }) => [styles.back, { opacity: pressed ? 0.6 : 1 }]}
           accessibilityRole="button"
-          accessibilityLabel="Retour"
+          accessibilityLabel={t('common.back')}
         >
           <ChevronLeft size={24} color={palette.text} />
           <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-            Retour
+            {t('common.back')}
           </Text>
         </Pressable>
       </View>
@@ -145,7 +147,7 @@ export default function AccountScreen() {
             )}
           </View>
           <Text style={[styles.name, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-            {profile?.display_name || 'Sans nom'}
+            {profile?.display_name || t('account.withoutName')}
           </Text>
           {user?.email && (
             <Text style={[styles.email, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
@@ -165,22 +167,22 @@ export default function AccountScreen() {
           >
             <Pencil size={14} color={palette.text} />
             <Text style={[styles.editText, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-              Modifier le profil
+              {t('account.editProfile')}
             </Text>
           </Pressable>
         </View>
 
         <View style={{ marginTop: Spacing.xxl }}>
-          <SectionTitle title="Profil" />
+          <SectionTitle title={t('account.profile.title')} />
           <View style={[styles.card, { backgroundColor: palette.surface }]}>
             <Row
-              label="Objectif"
+              label={t('account.profile.goal')}
               value={profile?.goal ? GOAL_LABELS[profile.goal] ?? profile.goal : '—'}
               palette={palette}
             />
             <Divider color={palette.border} />
             <Row
-              label="Niveau"
+              label={t('account.profile.level')}
               value={
                 profile?.fitness_level
                   ? LEVEL_LABELS[profile.fitness_level] ?? profile.fitness_level
@@ -190,19 +192,19 @@ export default function AccountScreen() {
             />
             <Divider color={palette.border} />
             <Row
-              label="Calories cible / jour"
+              label={t('account.profile.kcalTarget')}
               value={profile?.daily_kcal_target ? `${profile.daily_kcal_target} kcal` : '—'}
               palette={palette}
             />
             <Divider color={palette.border} />
             <Row
-              label="Protéines cible / jour"
+              label={t('account.profile.proteinTarget')}
               value={profile?.protein_target_g ? `${profile.protein_target_g} g` : '—'}
               palette={palette}
             />
             <Divider color={palette.border} />
             <Row
-              label="Hydratation cible / jour"
+              label={t('account.profile.hydrationTarget')}
               value={profile?.hydration_target_ml ? `${profile.hydration_target_ml} ml` : '—'}
               palette={palette}
             />
@@ -210,7 +212,7 @@ export default function AccountScreen() {
         </View>
 
         <View style={{ marginTop: Spacing.xxl, gap: Spacing.md }}>
-          <SectionTitle title="Mon parcours" />
+          <SectionTitle title={t('account.myPath')} />
           <Pressable
             onPress={() => router.push('/training' as any)}
             style={({ pressed }) => [
@@ -224,14 +226,14 @@ export default function AccountScreen() {
           >
             <Dumbbell size={18} color={palette.text} />
             <Text style={[styles.actionText, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-              Mes programmes
+              {t('account.myPrograms')}
             </Text>
           </Pressable>
         </View>
 
         {profile?.is_admin && (
           <View style={{ marginTop: Spacing.xxl, gap: Spacing.md }}>
-            <SectionTitle title="Coach" />
+            <SectionTitle title={t('account.coach')} />
             <Pressable
               onPress={() => router.push('/(admin)' as any)}
               style={({ pressed }) => [
@@ -245,14 +247,14 @@ export default function AccountScreen() {
             >
               <Settings size={18} color={palette.text} />
               <Text style={[styles.actionText, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                Panneau admin
+                {t('account.adminPanel')}
               </Text>
             </Pressable>
           </View>
         )}
 
         <View style={{ marginTop: Spacing.xxl, gap: Spacing.md }}>
-          <SectionTitle title="Compte" />
+          <SectionTitle title={t('account.accountSection')} />
           <Pressable
             onPress={handleLogout}
             disabled={loading}
@@ -267,7 +269,7 @@ export default function AccountScreen() {
           >
             <LogOut size={18} color={palette.text} />
             <Text style={[styles.actionText, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-              Se déconnecter
+              {t('account.logout')}
             </Text>
           </Pressable>
 
@@ -282,13 +284,13 @@ export default function AccountScreen() {
           >
             <Trash2 size={18} color={Palette.albatre} />
             <Text style={[styles.actionText, { color: Palette.albatre, fontFamily: Fonts.sansSemibold }]}>
-              Supprimer mon compte
+              {t('account.deleteAccount')}
             </Text>
           </Pressable>
         </View>
 
         <View style={{ marginTop: Spacing.xxl, gap: Spacing.md }}>
-          <SectionTitle title="Légal" />
+          <SectionTitle title={t('account.legalSection')} />
           <Pressable
             onPress={() => Linking.openURL(LEGAL_URLS.privacy)}
             style={({ pressed }) => [
@@ -302,7 +304,7 @@ export default function AccountScreen() {
           >
             <Shield size={18} color={palette.text} />
             <Text style={[styles.actionText, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-              Politique de confidentialité
+              {t('account.privacyPolicy')}
             </Text>
           </Pressable>
           <Pressable
@@ -318,7 +320,7 @@ export default function AccountScreen() {
           >
             <FileText size={18} color={palette.text} />
             <Text style={[styles.actionText, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-              Conditions générales d'utilisation
+              {t('account.terms')}
             </Text>
           </Pressable>
         </View>

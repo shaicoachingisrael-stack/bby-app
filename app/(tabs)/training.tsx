@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Bell, Dumbbell } from 'lucide-react-native';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -18,21 +19,22 @@ import { useProfile } from '@/lib/use-profile';
 const EXERCISE_VIDEO = require('@/assets/videos/exercise.mp4');
 const INTRO_VIDEO = require('@/assets/videos/intro.mp4');
 
-const LEVEL_LABELS: Record<string, string> = {
-  debutant: 'Débutante',
-  intermediaire: 'Intermédiaire',
-  avance: 'Avancée',
-};
-
 export default function TrainingScreen() {
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const router = useRouter();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { profile } = useProfile();
   const { programs, refresh: refreshPrograms } = usePrograms();
   const { sessions, refresh: refreshSessions } = useSessions();
   const { session: todaySession, refresh: refreshToday } = useTodaySession();
+
+  const LEVEL_LABELS: Record<string, string> = {
+    debutant: t('training.level.debutant'),
+    intermediaire: t('training.level.intermediaire'),
+    avance: t('training.level.avance'),
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -75,10 +77,10 @@ export default function TrainingScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={[styles.eyebrow, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                {programs.length} {programs.length > 1 ? 'programmes' : 'programme'}
+                {programs.length} {t('account.myPrograms').toLowerCase()}
               </Text>
               <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                Training
+                {t('training.title')}
               </Text>
             </View>
           </Pressable>
@@ -94,9 +96,9 @@ export default function TrainingScreen() {
 
         <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl }}>
           <SessionCard
-            eyebrow={todaySession ? 'REPRENDRE' : 'AUCUNE SÉANCE'}
-            title={todaySession?.title ?? 'Bientôt'}
-            subtitle={todaySession?.description ?? 'Demande à ta coach de publier du contenu'}
+            eyebrow={todaySession ? t('training.resume').toUpperCase() : t('training.noSession').toUpperCase()}
+            title={todaySession?.title ?? t('common.comingSoon')}
+            subtitle={todaySession?.description ?? t('training.askCoach')}
             duration={todaySession?.duration_min ? `${todaySession.duration_min} min` : undefined}
             videoSource={todaySession?.video_url ?? EXERCISE_VIDEO}
             onPress={() =>
@@ -109,7 +111,7 @@ export default function TrainingScreen() {
           <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>
             <View style={styles.sectionRow}>
               <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                Mes programmes
+                {t('training.myPrograms')}
               </Text>
             </View>
             <View style={{ gap: Spacing.md, marginTop: Spacing.md }}>
@@ -122,10 +124,10 @@ export default function TrainingScreen() {
                   subtitle={
                     [
                       p.level ? LEVEL_LABELS[p.level] ?? p.level : null,
-                      p.duration_weeks ? `${p.duration_weeks} sem.` : null,
+                      p.duration_weeks ? t('training.weeks', { count: p.duration_weeks }) : null,
                     ]
                       .filter(Boolean)
-                      .join(' · ') || 'Programme'
+                      .join(' · ') || t('program.title')
                   }
                   onPress={() => router.push(`/program/${p.id}` as any)}
                 />
@@ -139,7 +141,7 @@ export default function TrainingScreen() {
             <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>
               <View style={styles.sectionRow}>
                 <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                  Toutes les séances
+                  {t('training.allSessions')}
                 </Text>
               </View>
             </View>
@@ -154,7 +156,7 @@ export default function TrainingScreen() {
                   videoSource={s.video_url ?? INTRO_VIDEO}
                   duration={s.duration_min ? `${s.duration_min} min` : '—'}
                   title={s.title}
-                  subtitle={s.description ?? 'Séance'}
+                  subtitle={s.description ?? t('program.session')}
                   onPress={() => router.push(`/session/${s.id}` as any)}
                 />
               ))}

@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { ChevronLeft, Droplet } from 'lucide-react-native';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Pressable,
@@ -20,6 +21,7 @@ const QUICK = [250, 500, 1000];
 
 export default function HydrationLogScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const { user } = useAuth();
@@ -35,7 +37,7 @@ export default function HydrationLogScreen() {
       if (error) throw error;
       router.back();
     } catch (e: any) {
-      Alert.alert('Erreur', e?.message ?? 'Sauvegarde impossible.');
+      Alert.alert(t('common.error'), e?.message ?? t('common.saveImpossible'));
     } finally {
       setBusy(null);
     }
@@ -47,7 +49,7 @@ export default function HydrationLogScreen() {
         <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
           <ChevronLeft size={24} color={palette.text} />
           <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-            Retour
+            {t('common.back')}
           </Text>
         </Pressable>
       </View>
@@ -61,10 +63,10 @@ export default function HydrationLogScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          Ajouter de l'eau
+          {t('hydrationLog.title')}
         </Text>
         <Text style={[styles.subtitle, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          Choisis une quantité pour la logger en un tap.
+          {t('hydrationLog.subtitle')}
         </Text>
 
         <View style={{ gap: Spacing.md, marginTop: Spacing.lg }}>

@@ -9,7 +9,20 @@
     "error": "Error",
     "viewAll": "Ver todo",
     "comingSoon": "Pronto",
-    "language": "Idioma"
+    "language": "Idioma",
+    "continue": "Continuar",
+    "finish": "Terminar",
+    "send": "Enviar",
+    "close": "Cerrar",
+    "see": "Ver",
+    "yes": "Sí",
+    "no": "No",
+    "saveImpossible": "No se pudo guardar",
+    "min": "min",
+    "kcal": "kcal",
+    "g": "g",
+    "ml": "ml",
+    "L": "L"
   },
   "tabs": {
     "today": "Hoy",
@@ -40,7 +53,13 @@
     "allSessions": "Todas las sesiones",
     "resume": "Continuar",
     "noSession": "Sin sesión",
-    "askCoach": "Pídele a tu coach que publique contenido"
+    "askCoach": "Pídele a tu coach que publique contenido",
+    "weeks": "{{count}} sem.",
+    "level": {
+      "debutant": "Principiante",
+      "intermediaire": "Intermedio",
+      "avance": "Avanzado"
+    }
   },
   "nutrition": {
     "title": "Nutrición",
@@ -50,8 +69,11 @@
     "breakfast": "Desayuno",
     "lunch": "Almuerzo",
     "dinner": "Cena",
+    "snack": "Tentempié",
     "hydration": "Hidratación",
     "notLogged": "Aún no registrado",
+    "kcalProgress": "{{current}} / {{target}} kcal",
+    "hydrationProgress": "{{current}} ml de {{target}} ml",
     "macros": {
       "title": "Tu ingesta",
       "titleItalic": "diaria",
@@ -63,7 +85,8 @@
       "fats": "GRASAS",
       "carbs": "CARBOHIDRATOS",
       "perDay": "por día",
-      "understand": "Entender mi cálculo"
+      "understand": "Entender mi cálculo",
+      "soitKcal": "= {{kcal}} kcal"
     }
   },
   "mindset": {
@@ -76,7 +99,12 @@
     "meditationTitle": "Meditación",
     "meditationSubtitle": "5 min · Respiración consciente",
     "journalTitle": "Diario",
-    "journalSubtitle": "Escribe cómo te sientes hoy"
+    "journalSubtitle": "Escribe cómo te sientes hoy",
+    "kind": {
+      "meditation": "Meditación",
+      "article": "Artículo",
+      "affirmation": "Afirmación"
+    }
   },
   "auth": {
     "welcome": "Bienvenida.",
@@ -93,10 +121,100 @@
     "termsLink": "condiciones",
     "and": "y nuestra",
     "privacyLink": "política de privacidad",
-    "letsExplore": "Empecemos"
+    "letsExplore": "Empecemos",
+    "missingFields": "Faltan datos",
+    "missingFieldsBody": "Introduce tu email y contraseña.",
+    "passwordTooShort": "Contraseña demasiado corta",
+    "passwordTooShortBody": "Mínimo 6 caracteres.",
+    "checkInbox": "Revisa tu correo",
+    "checkInboxBody": "Te enviamos un email de confirmación. Haz clic en el enlace para activar tu cuenta.",
+    "signInError": "No se pudo iniciar sesión",
+    "signUpError": "No se pudo registrar",
+    "appleError": "Error de Apple.",
+    "googleError": "Error de Google.",
+    "appleNotAvailable": "Iniciar sesión con Apple solo está disponible en iOS."
+  },
+  "onboarding": {
+    "name": {
+      "title": "¿Cómo te llamamos?",
+      "subtitle": "El nombre (o alias) que aparecerá en la app.",
+      "placeholder": "Tu nombre"
+    },
+    "goal": {
+      "title": "¿Cuál es tu objetivo?",
+      "subtitle": "Puedes cambiarlo en cualquier momento.",
+      "perte_de_poids": "Perder peso",
+      "perte_de_poids_desc": "Adelgazar manteniendo tu energía.",
+      "tonification": "Tonificación",
+      "tonification_desc": "Esculpir y firmar, sin volumen.",
+      "prise_de_masse": "Ganancia muscular",
+      "prise_de_masse_desc": "Construir músculo de forma progresiva.",
+      "remise_en_forme": "Volver a la forma",
+      "remise_en_forme_desc": "Volver suavemente, sin presión.",
+      "bien_etre": "Bienestar global",
+      "bien_etre_desc": "Moverse, comer, respirar mejor."
+    },
+    "level": {
+      "title": "¿Cuál es tu nivel?",
+      "subtitle": "Adaptamos las recomendaciones a tu experiencia.",
+      "debutant": "Principiante",
+      "debutant_desc": "Empiezo o vuelvo a la actividad.",
+      "intermediaire": "Intermedio",
+      "intermediaire_desc": "Entreno 2 a 3 veces por semana.",
+      "avance": "Avanzado",
+      "avance_desc": "Entreno 4+ veces por semana, conozco mi cuerpo."
+    },
+    "bio": {
+      "title": "Algunos datos para calcular tu ingesta",
+      "subtitle": "Solo se usa para estimar tus necesidades. Editable cuando quieras.",
+      "sex": "Sexo biológico",
+      "female": "Mujer",
+      "male": "Hombre",
+      "age": "Edad",
+      "ageUnit": "años",
+      "height": "Estatura",
+      "heightUnit": "cm",
+      "weight": "Peso actual",
+      "weightUnit": "kg"
+    },
+    "activity": {
+      "title": "Tu ritmo y tus preferencias",
+      "subtitle": "Adaptamos tu ingesta a tu actividad diaria.",
+      "section": "Actividad diaria",
+      "sedentary": "Sedentaria",
+      "sedentary_desc": "Poco o nada de ejercicio",
+      "light": "Ligera",
+      "light_desc": "1 a 3 sesiones por semana",
+      "moderate": "Moderada",
+      "moderate_desc": "3 a 5 sesiones por semana",
+      "active": "Activa",
+      "active_desc": "6 a 7 sesiones por semana",
+      "very_active": "Muy activa",
+      "very_active_desc": "Deporte intenso a diario",
+      "intensitySection": "Intensidad de tu objetivo",
+      "gentle": "Suave",
+      "moderateIntensity": "Moderada",
+      "intense": "Intensa",
+      "splitSection": "Distribución de macros",
+      "balanced": "Equilibrada",
+      "highProtein": "Alta en proteínas"
+    },
+    "targets": {
+      "title": "Tu ingesta diaria",
+      "subtitle": "Calculada desde tu perfil. Puedes ajustarla en los ajustes.",
+      "computing": "Calculando…",
+      "calories": "CALORÍAS POR DÍA",
+      "totalEnergy": "Energía total a alcanzar en el día",
+      "protein": "PROTEÍNAS",
+      "fats": "GRASAS",
+      "carbs": "CARBOHIDRATOS",
+      "hydration": "HIDRATACIÓN",
+      "perDay": "por día"
+    }
   },
   "account": {
     "title": "Mi cuenta",
+    "withoutName": "Sin nombre",
     "editProfile": "Editar perfil",
     "myPath": "Mi camino",
     "myPrograms": "Mis programas",
@@ -107,9 +225,164 @@
     "logoutConfirmTitle": "¿Cerrar sesión?",
     "logoutConfirmBody": "Puedes iniciar sesión de nuevo cuando quieras.",
     "deleteAccount": "Eliminar mi cuenta",
+    "deleteConfirm1Title": "¿Eliminar tu cuenta?",
+    "deleteConfirm1Body": "Esta acción es definitiva. Tus sesiones, comidas, diario y perfil se borrarán.",
+    "deleteConfirm2Title": "Confirmar eliminación",
+    "deleteConfirm2Body": "¿Estás absolutamente segura? No se puede deshacer.",
+    "deleteFinal": "Sí, eliminar definitivamente",
     "legalSection": "Legal",
     "privacyPolicy": "Política de privacidad",
-    "terms": "Términos de uso"
+    "terms": "Términos de uso",
+    "profile": {
+      "title": "Perfil",
+      "goal": "Objetivo",
+      "level": "Nivel",
+      "kcalTarget": "Objetivo de calorías / día",
+      "proteinTarget": "Objetivo de proteínas / día",
+      "hydrationTarget": "Objetivo de hidratación / día"
+    }
+  },
+  "editProfile": {
+    "title": "Editar perfil",
+    "name": "Nombre",
+    "namePlaceholder": "Tu nombre o alias",
+    "goal": "Objetivo",
+    "level": "Nivel",
+    "kcalTarget": "Objetivo de calorías / día",
+    "kcalHint": "Ej: 1980",
+    "proteinTarget": "Objetivo de proteínas / día",
+    "proteinHint": "Ej: 120 g",
+    "hydrationTarget": "Objetivo de hidratación / día",
+    "hydrationHint": "Ej: 2500 ml",
+    "addPhoto": "Añadir una foto",
+    "changePhoto": "Cambiar foto",
+    "photoSheet": "Foto de perfil",
+    "takePhoto": "Hacer una foto",
+    "fromLibrary": "Elegir de la biblioteca",
+    "photoError": "No se pudo cargar la foto",
+    "permissionPhoto": "Acceso a fotos denegado. Actívalo en Ajustes.",
+    "permissionCamera": "Acceso a la cámara denegado. Actívalo en Ajustes."
+  },
+  "session": {
+    "duration": "Duración",
+    "level": "Nivel",
+    "anyLevel": "Todos",
+    "description": "Descripción",
+    "material": "Material",
+    "materialDefault": "Esterilla, banda, mancuernas (opcional)",
+    "start": "Empezar la sesión",
+    "doneTitle": "Bien hecho",
+    "doneBody": "Sesión guardada."
+  },
+  "program": {
+    "title": "Programa",
+    "yourProgress": "Tu progreso",
+    "completedSessions": "{{done}} sesión hecha de {{total}}",
+    "completedSessions_other": "{{done}} sesiones hechas de {{total}}",
+    "description": "Descripción",
+    "sessions": "Sesiones ({{count}})",
+    "noSessions": "Aún no hay sesiones en este programa.",
+    "completed": "Hecha",
+    "session": "Sesión",
+    "start": "Empezar el programa",
+    "continue": "Continuar el programa"
+  },
+  "recipe": {
+    "notFound": "Receta no encontrada.",
+    "preparation": "Preparación",
+    "intake": "Aporte",
+    "description": "Descripción",
+    "ingredients": "Ingredientes",
+    "videosTitle": "Vídeos y pasos",
+    "logMeal": "Registrar esta comida"
+  },
+  "mindsetDetail": {
+    "notFound": "Contenido no encontrado.",
+    "completeMeditation": "Terminé",
+    "writeJournal": "Anotar en mi diario"
+  },
+  "mealLog": {
+    "title": "Añadir una comida",
+    "type": "Tipo de comida",
+    "mealName": "Título (opcional)",
+    "mealNamePlaceholder": "Ej: Bowl de salmón proteico",
+    "calories": "Calorías",
+    "protein": "Proteínas",
+    "carbs": "Carbohidratos",
+    "fats": "Grasas",
+    "missingKcal": "Faltan calorías",
+    "missingKcalBody": "Indica al menos las kcal."
+  },
+  "hydrationLog": {
+    "title": "Añadir agua",
+    "subtitle": "Elige una cantidad para registrarla con un toque."
+  },
+  "mindsetLog": {
+    "title": "Mindset",
+    "type": "Tipo",
+    "mood": "Ánimo",
+    "moodGreat": "Genial",
+    "moodGood": "Bien",
+    "moodNeutral": "Neutro",
+    "moodTired": "Cansada",
+    "moodLow": "Bajo",
+    "content": "Contenido",
+    "kindIntention": "Intención",
+    "kindJournal": "Diario",
+    "kindMeditation": "Meditación",
+    "placeholderIntention": "Ej: «Hago lo que es bueno para mí.»",
+    "placeholderJournal": "Cómo te sientes, qué pasó hoy…",
+    "placeholderMeditation": "Unas palabras sobre tu meditación.",
+    "emptyTitle": "Vacío",
+    "emptyBody": "Escribe algo antes de guardar."
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "subtitle": "Tus notificaciones de las últimas 24 h.",
+    "emptyTitle": "Todo claro",
+    "emptyBody": "Sin notificaciones en las últimas 24 h.",
+    "clearAll": "Borrar todo",
+    "clearAllTitle": "¿Borrar todo?",
+    "clearAllBody": "Tus notificaciones pasadas desaparecen de la lista.",
+    "clear": "Borrar",
+    "deleteOne": "¿Eliminar esta notificación?",
+    "view": "Ver",
+    "relativeNow": "ahora mismo",
+    "relativeMinutes": "hace {{count}} min",
+    "relativeHours": "hace {{count}} h"
+  },
+  "chat": {
+    "title": "Coach IA",
+    "comingSoonTitle": "Coach IA",
+    "comingSoonBody": "Pronto disponible. Podrás hacer preguntas, ajustar tu plan y hablar de tu día con un coach virtual.",
+    "understood": "Entendido",
+    "placeholder": "Haz tu pregunta…",
+    "writing": "Coach está escribiendo…",
+    "emptyTitle": "Coach IA",
+    "emptyBody": "Pregunta lo que quieras sobre entrenamiento, nutrición o mindset.",
+    "suggestion1": "Dame una idea de desayuno proteico",
+    "suggestion2": "No tengo ganas de entrenar hoy, ¿qué hago?",
+    "suggestion3": "¿Cómo gestiono el hambre al final del día?",
+    "errorMessage": "Lo siento, no pude responder. Comprueba tu conexión e inténtalo de nuevo."
+  },
+  "macrosHelp": {
+    "title": "Entender mi cálculo",
+    "intro": "Tus números no salen de la nada: se calculan con fórmulas nutricionales estándar adaptadas a ti.",
+    "step1Title": "1 — Metabolismo basal (BMR)",
+    "step1Body": "La energía que tu cuerpo quema en reposo durante 24 h, calculada según la fórmula de Mifflin-St Jeor a partir de tu sexo, edad, estatura y peso.",
+    "step1Stat": "Tu BMR",
+    "step2Title": "2 — Gasto energético total (TDEE)",
+    "step2Body": "Tu BMR multiplicado por un factor de actividad (sedentaria, ligera, moderada, activa, muy activa). Es lo que realmente quemas cada día.",
+    "step2Stat": "Tu TDEE",
+    "step3Title": "3 — Calorías objetivo",
+    "step3Body": "Ajustamos tu TDEE según tu objetivo e intensidad (suave, moderada, intensa). Mantenemos siempre un mínimo saludable.",
+    "step3Stat": "Tu objetivo",
+    "step4Title": "4 — Distribución de macros",
+    "step4Body": "Las proteínas se calculan primero en g/kg de peso corporal, las grasas como % de las calorías (con un mínimo hormonal), y los carbohidratos rellenan el resto.",
+    "step5Title": "5 — Hidratación",
+    "step5Body": "35 ml de agua por kilo de peso corporal, y +500 ml los días de entrenamiento.",
+    "disclaimer": "Estas recomendaciones son orientativas y se calculan a partir de fórmulas estándar. No sustituyen el consejo de un/a profesional de la salud. Si sigues un tratamiento médico, estás embarazada, amamantando o tienes antecedentes de trastornos alimentarios, consulta antes de ajustar tu alimentación.",
+    "kcalPerDay": "{{count}} kcal / día"
   },
   "language": {
     "title": "Idioma",
@@ -119,5 +392,14 @@
     "he": "עברית",
     "es": "Español",
     "ru": "Русский"
+  },
+  "dateStrip": {
+    "sun": "Dom",
+    "mon": "Lun",
+    "tue": "Mar",
+    "wed": "Mié",
+    "thu": "Jue",
+    "fri": "Vie",
+    "sat": "Sáb"
   }
 }

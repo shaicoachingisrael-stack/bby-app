@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Dumbbell, Flame, Heart, Sparkles, TrendingUp } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, View } from 'react-native';
 
 import { OnboardingOption } from '@/components/onboarding-option';
@@ -11,32 +12,32 @@ import { useProfile } from '@/lib/use-profile';
 const GOALS = [
   {
     value: 'perte_de_poids',
-    title: 'Perte de poids',
-    description: 'Affiner la silhouette en gardant ton énergie.',
+    titleKey: 'onboarding.goal.perte_de_poids',
+    descKey: 'onboarding.goal.perte_de_poids_desc',
     icon: Flame,
   },
   {
     value: 'tonification',
-    title: 'Tonification',
-    description: 'Sculpter et raffermir, sans grossir.',
+    titleKey: 'onboarding.goal.tonification',
+    descKey: 'onboarding.goal.tonification_desc',
     icon: Sparkles,
   },
   {
     value: 'prise_de_masse',
-    title: 'Prise de masse',
-    description: 'Construire du muscle progressivement.',
+    titleKey: 'onboarding.goal.prise_de_masse',
+    descKey: 'onboarding.goal.prise_de_masse_desc',
     icon: Dumbbell,
   },
   {
     value: 'remise_en_forme',
-    title: 'Remise en forme',
-    description: 'Repartir doucement, sans pression.',
+    titleKey: 'onboarding.goal.remise_en_forme',
+    descKey: 'onboarding.goal.remise_en_forme_desc',
     icon: TrendingUp,
   },
   {
     value: 'bien_etre',
-    title: 'Bien-être global',
-    description: 'Bouger, manger, respirer mieux.',
+    titleKey: 'onboarding.goal.bien_etre',
+    descKey: 'onboarding.goal.bien_etre_desc',
     icon: Heart,
   },
 ] as const;
@@ -44,6 +45,7 @@ const GOALS = [
 type Goal = (typeof GOALS)[number]['value'];
 
 export default function OnboardingGoalStep() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { profile, update } = useProfile();
   const [goal, setGoal] = useState<Goal | null>(null);
@@ -60,7 +62,7 @@ export default function OnboardingGoalStep() {
       await update({ goal });
       router.push('/(onboarding)/level' as any);
     } catch (e: any) {
-      Alert.alert('Erreur', e?.message ?? 'Sauvegarde impossible.');
+      Alert.alert(t('common.error'), e?.message ?? t('common.saveImpossible'));
     } finally {
       setSaving(false);
     }
@@ -70,8 +72,8 @@ export default function OnboardingGoalStep() {
     <OnboardingScaffold
       step={2}
       total={6}
-      title="Quel est ton objectif ?"
-      subtitle="Tu pourras le changer plus tard à tout moment."
+      title={t('onboarding.goal.title')}
+      subtitle={t('onboarding.goal.subtitle')}
       ctaDisabled={!goal}
       ctaLoading={saving}
       onCta={handleNext}
@@ -82,8 +84,8 @@ export default function OnboardingGoalStep() {
           <OnboardingOption
             key={g.value}
             icon={g.icon}
-            title={g.title}
-            description={g.description}
+            title={t(g.titleKey)}
+            description={t(g.descKey)}
             selected={goal === g.value}
             onPress={() => setGoal(g.value)}
           />

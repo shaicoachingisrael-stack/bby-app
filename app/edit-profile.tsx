@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Camera, ChevronLeft, ImagePlus } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActionSheetIOS,
   ActivityIndicator,
@@ -24,29 +25,29 @@ import { pickAvatarFromLibrary, takeAvatarPhoto, uploadAvatar } from '@/lib/avat
 import { useAuth } from '@/lib/auth-provider';
 import { useProfile } from '@/lib/use-profile';
 
-const GOAL_OPTIONS = [
-  { value: 'perte_de_poids', label: 'Perte de poids' },
-  { value: 'prise_de_masse', label: 'Prise de masse' },
-  { value: 'tonification', label: 'Tonification' },
-  { value: 'remise_en_forme', label: 'Remise en forme' },
-  { value: 'bien_etre', label: 'Bien-être' },
-] as const;
+const GOAL_VALUES = ['perte_de_poids', 'prise_de_masse', 'tonification', 'remise_en_forme', 'bien_etre'] as const;
+const LEVEL_VALUES = ['debutant', 'intermediaire', 'avance'] as const;
 
-const LEVEL_OPTIONS = [
-  { value: 'debutant', label: 'Débutant' },
-  { value: 'intermediaire', label: 'Intermédiaire' },
-  { value: 'avance', label: 'Avancé' },
-] as const;
-
-type Goal = (typeof GOAL_OPTIONS)[number]['value'];
-type Level = (typeof LEVEL_OPTIONS)[number]['value'];
+type Goal = (typeof GOAL_VALUES)[number];
+type Level = (typeof LEVEL_VALUES)[number];
 
 export default function EditProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { profile, update } = useProfile();
+
+  const GOAL_OPTIONS = GOAL_VALUES.map((value) => ({
+    value,
+    label: t(`onboarding.goal.${value}`),
+  }));
+
+  const LEVEL_OPTIONS = LEVEL_VALUES.map((value) => ({
+    value,
+    label: t(`onboarding.level.${value}`),
+  }));
 
   const [displayName, setDisplayName] = useState('');
   const [goal, setGoal] = useState<Goal | null>(null);
@@ -77,7 +78,7 @@ export default function EditProfileScreen() {
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          options: ['Annuler', 'Prendre une photo', 'Choisir depuis la photothèque'],
+          options: [t('common.cancel'), t('editProfile.takePhoto'), t('editProfile.fromLibrary')],
           cancelButtonIndex: 0,
         },
         (idx) => {
@@ -86,10 +87,10 @@ export default function EditProfileScreen() {
         },
       );
     } else {
-      Alert.alert('Photo de profil', undefined, [
-        { text: 'Annuler', style: 'cancel' },
-        { text: 'Prendre une photo', onPress: () => choose('camera') },
-        { text: 'Photothèque', onPress: () => choose('library') },
+      Alert.alert(t('editProfile.photoSheet'), undefined, [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('editProfile.takePhoto'), onPress: () => choose('camera') },
+        { text: t('editProfile.fromLibrary'), onPress: () => choose('library') },
       ]);
     }
   }
@@ -104,7 +105,7 @@ export default function EditProfileScreen() {
       await update({ avatar_url: url });
       setAvatarUrl(url);
     } catch (e: any) {
-      Alert.alert('Photo impossible', e?.message ?? 'Erreur.');
+      Alert.alert(t('editProfile.photoError'), e?.message ?? t('common.error'));
     } finally {
       setUploadingAvatar(false);
     }
@@ -127,7 +128,7 @@ export default function EditProfileScreen() {
       });
       router.back();
     } catch (e: any) {
-      Alert.alert('Sauvegarde impossible', e?.message ?? 'Erreur.');
+      Alert.alert(t('common.saveImpossible'), e?.message ?? t('common.error'));
     } finally {
       setSaving(false);
     }
@@ -148,7 +149,7 @@ export default function EditProfileScreen() {
         >
           <ChevronLeft size={24} color={palette.text} />
           <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-            Retour
+            {t('common.back')}
           </Text>
         </Pressable>
         <Pressable
@@ -161,7 +162,7 @@ export default function EditProfileScreen() {
             <ActivityIndicator color={palette.text} />
           ) : (
             <Text style={[styles.save, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-              Enregistrer
+              {t('common.save')}
             </Text>
           )}
         </Pressable>
@@ -177,7 +178,7 @@ export default function EditProfileScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          Modifier le profil
+          {t('editProfile.title')}
         </Text>
 
         <View style={styles.avatarBlock}>
@@ -206,14 +207,14 @@ export default function EditProfileScreen() {
           </Pressable>
           <Pressable onPress={handlePickAvatar} disabled={uploadingAvatar} hitSlop={8}>
             <Text style={[styles.changePhoto, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-              {avatarUrl ? 'Changer la photo' : 'Ajouter une photo'}
+              {avatarUrl ? t('editProfile.changePhoto') : t('editProfile.addPhoto')}
             </Text>
           </Pressable>
         </View>
 
-        <Field label="Nom" palette={palette}>
+        <Field label={t('editProfile.name')} palette={palette}>
           <TextInput
-            placeholder="Ton prénom ou pseudo"
+            placeholder={t('editProfile.namePlaceholder')}
             placeholderTextColor={palette.textSecondary}
             value={displayName}
             onChangeText={setDisplayName}
@@ -232,7 +233,7 @@ export default function EditProfileScreen() {
           />
         </Field>
 
-        <Field label="Objectif" palette={palette}>
+        <Field label={t('editProfile.goal')} palette={palette}>
           <View style={{ gap: Spacing.sm }}>
             <Segmented
               value={goal}
@@ -249,7 +250,7 @@ export default function EditProfileScreen() {
           </View>
         </Field>
 
-        <Field label="Niveau" palette={palette}>
+        <Field label={t('editProfile.level')} palette={palette}>
           <Segmented
             value={level}
             options={LEVEL_OPTIONS as any}
@@ -258,9 +259,9 @@ export default function EditProfileScreen() {
           />
         </Field>
 
-        <Field label="Calories cible / jour" palette={palette} hint="Ex : 1980">
+        <Field label={t('editProfile.kcalTarget')} palette={palette} hint={t('editProfile.kcalHint')}>
           <TextInput
-            placeholder="kcal"
+            placeholder={t('common.kcal')}
             placeholderTextColor={palette.textSecondary}
             value={kcal}
             onChangeText={setKcal}
@@ -278,9 +279,9 @@ export default function EditProfileScreen() {
           />
         </Field>
 
-        <Field label="Protéines cible / jour" palette={palette} hint="Ex : 120 g">
+        <Field label={t('editProfile.proteinTarget')} palette={palette} hint={t('editProfile.proteinHint')}>
           <TextInput
-            placeholder="grammes"
+            placeholder={t('common.g')}
             placeholderTextColor={palette.textSecondary}
             value={protein}
             onChangeText={setProtein}
@@ -298,9 +299,9 @@ export default function EditProfileScreen() {
           />
         </Field>
 
-        <Field label="Hydratation cible / jour" palette={palette} hint="Ex : 2500 ml">
+        <Field label={t('editProfile.hydrationTarget')} palette={palette} hint={t('editProfile.hydrationHint')}>
           <TextInput
-            placeholder="ml"
+            placeholder={t('common.ml')}
             placeholderTextColor={palette.textSecondary}
             value={hydration}
             onChangeText={setHydration}

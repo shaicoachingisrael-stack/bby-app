@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
@@ -9,6 +10,7 @@ import { useNutritionTargets } from '@/lib/use-nutrition-targets';
 export function MacrosSummary() {
   const router = useRouter();
   const palette = Colors[useColorScheme() ?? 'light'];
+  const { t } = useTranslation();
   const { targets } = useNutritionTargets();
 
   if (!targets || targets.calories === null) return null;
@@ -23,56 +25,56 @@ export function MacrosSummary() {
     <View style={[styles.outer, { backgroundColor: palette.background }]}>
       <View style={styles.headerRow}>
         <Text style={[styles.eyebrow, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-          NUTRITION
+          {t('tabs.nutrition').toUpperCase()}
         </Text>
       </View>
       <Text style={[styles.h1, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-        Tes apports{' '}
-        <Text style={[styles.h1Italic, { fontFamily: Fonts.display }]}>quotidiens</Text>
+        {t('nutrition.macros.title')}{' '}
+        <Text style={[styles.h1Italic, { fontFamily: Fonts.display }]}>{t('nutrition.macros.titleItalic')}</Text>
       </Text>
       <Text style={[styles.subtitle, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-        Calculés selon ton profil et ton objectif
+        {t('nutrition.macros.subtitle')}
       </Text>
 
       <View style={[styles.bigCard, { backgroundColor: palette.surface }]}>
         <Text style={[styles.bigEyebrow, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-          CALORIES PAR JOUR
+          {t('nutrition.macros.caloriesPerDay')}
         </Text>
         <View style={styles.bigRow}>
           <Text style={[styles.bigValue, { color: palette.text, fontFamily: Fonts.displayBold }]}>
             {calories.toLocaleString('fr-FR').replace(',', ' ')}
           </Text>
           <Text style={[styles.bigUnit, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-            kcal
+            {t('common.kcal')}
           </Text>
         </View>
         <Text style={[styles.bigHint, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          Énergie totale à viser sur la journée
+          {t('nutrition.macros.totalEnergy')}
         </Text>
       </View>
 
       <Text style={[styles.sectionLabel, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-        Répartition
+        {t('nutrition.macros.split')}
       </Text>
       <View style={styles.row3}>
-        <Macro label="PROTÉINES" value={protein} kcal={protein * 4} palette={palette} />
-        <Macro label="LIPIDES" value={fats} kcal={fats * 9} palette={palette} />
-        <Macro label="GLUCIDES" value={carbs} kcal={carbs * 4} palette={palette} />
+        <Macro label={t('nutrition.macros.protein')} value={protein} kcal={protein * 4} palette={palette} />
+        <Macro label={t('nutrition.macros.fats')} value={fats} kcal={fats * 9} palette={palette} />
+        <Macro label={t('nutrition.macros.carbs')} value={carbs} kcal={carbs * 4} palette={palette} />
       </View>
 
       <View style={[styles.bigCard, { backgroundColor: palette.surface, marginTop: Spacing.md }]}>
         <Text style={[styles.bigEyebrow, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-          HYDRATATION
+          {t('nutrition.hydration').toUpperCase()}
         </Text>
         <View style={styles.bigRow}>
           <Text style={[styles.midValue, { color: palette.text, fontFamily: Fonts.displayBold }]}>
             {(water / 1000).toFixed(1).replace('.', ',')}
           </Text>
           <Text style={[styles.bigUnit, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-            L
+            {t('common.L')}
           </Text>
           <Text style={[styles.bigHint, { color: palette.textSecondary, fontFamily: Fonts.sans, marginLeft: 'auto' }]}>
-            par jour
+            {t('nutrition.macros.perDay')}
           </Text>
         </View>
       </View>
@@ -85,7 +87,7 @@ export function MacrosSummary() {
         ]}
       >
         <Text style={[styles.linkText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-          Comprendre mon calcul
+          {t('nutrition.macros.understand')}
         </Text>
         <ChevronRight size={16} color={palette.text} />
       </Pressable>
@@ -104,6 +106,7 @@ function Macro({
   kcal: number;
   palette: any;
 }) {
+  const { t } = useTranslation();
   return (
     <View style={[styles.macroCard, { backgroundColor: palette.surface }]}>
       <Text style={[styles.macroLabel, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
@@ -115,11 +118,11 @@ function Macro({
           {value}
         </Text>
         <Text style={[styles.macroUnit, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          g
+          {t('common.g')}
         </Text>
       </View>
       <Text style={[styles.macroSub, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-        soit {kcal} kcal
+        {t('nutrition.macros.soitKcal', { kcal })}
       </Text>
     </View>
   );

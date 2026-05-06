@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -21,38 +22,42 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
 import { supabase } from '@/lib/supabase';
 
-const KIND_OPTIONS = [
-  { value: 'intention', label: 'Intention' },
-  { value: 'journal', label: 'Journal' },
-  { value: 'meditation_done', label: 'Méditation' },
-] as const;
+const KIND_VALUES = ['intention', 'journal', 'meditation_done'] as const;
+const MOOD_VALUES = ['great', 'good', 'neutral', 'tired', 'low'] as const;
 
-const MOOD_OPTIONS = [
-  { value: 'great', label: 'Top' },
-  { value: 'good', label: 'Bien' },
-  { value: 'neutral', label: 'Neutre' },
-  { value: 'tired', label: 'Fatigue' },
-  { value: 'low', label: 'Bas' },
-] as const;
-
-type Kind = (typeof KIND_OPTIONS)[number]['value'];
-type Mood = (typeof MOOD_OPTIONS)[number]['value'];
-
-const PLACEHOLDERS: Record<Kind, string> = {
-  intention: 'Ex : « Je fais ce qui est bon pour moi. »',
-  journal: 'Comment tu te sens, ce qui s\'est passé aujourd\'hui…',
-  meditation_done: 'Quelques mots sur ta séance de méditation.',
-};
+type Kind = (typeof KIND_VALUES)[number];
+type Mood = (typeof MOOD_VALUES)[number];
 
 export default function MindsetLogScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const { user } = useAuth();
   const params = useLocalSearchParams<{ kind?: string }>();
 
+  const KIND_OPTIONS = [
+    { value: 'intention' as const, label: t('mindsetLog.kindIntention') },
+    { value: 'journal' as const, label: t('mindsetLog.kindJournal') },
+    { value: 'meditation_done' as const, label: t('mindsetLog.kindMeditation') },
+  ];
+
+  const MOOD_OPTIONS = [
+    { value: 'great' as const, label: t('mindsetLog.moodGreat') },
+    { value: 'good' as const, label: t('mindsetLog.moodGood') },
+    { value: 'neutral' as const, label: t('mindsetLog.moodNeutral') },
+    { value: 'tired' as const, label: t('mindsetLog.moodTired') },
+    { value: 'low' as const, label: t('mindsetLog.moodLow') },
+  ];
+
+  const PLACEHOLDERS: Record<Kind, string> = {
+    intention: t('mindsetLog.placeholderIntention'),
+    journal: t('mindsetLog.placeholderJournal'),
+    meditation_done: t('mindsetLog.placeholderMeditation'),
+  };
+
   const [kind, setKind] = useState<Kind>(
-    KIND_OPTIONS.some((k) => k.value === params.kind)
+    KIND_VALUES.some((k) => k === params.kind)
       ? (params.kind as Kind)
       : 'intention',
   );
@@ -63,7 +68,7 @@ export default function MindsetLogScreen() {
   async function save() {
     if (!user) return;
     if (!body.trim()) {
-      Alert.alert('Vide', 'Écris quelque chose avant de sauvegarder.');
+      Alert.alert(t('mindsetLog.emptyTitle'), t('mindsetLog.emptyBody'));
       return;
     }
     setSaving(true);
@@ -77,7 +82,7 @@ export default function MindsetLogScreen() {
       if (error) throw error;
       router.back();
     } catch (e: any) {
-      Alert.alert('Sauvegarde impossible', e?.message ?? 'Erreur.');
+      Alert.alert(t('common.saveImpossible'), e?.message ?? t('common.error'));
     } finally {
       setSaving(false);
     }
@@ -92,7 +97,7 @@ export default function MindsetLogScreen() {
         <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
           <ChevronLeft size={24} color={palette.text} />
           <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-            Retour
+            {t('common.back')}
           </Text>
         </Pressable>
         <Pressable onPress={save} disabled={saving} hitSlop={12}>
@@ -100,7 +105,7 @@ export default function MindsetLogScreen() {
             <ActivityIndicator color={palette.text} />
           ) : (
             <Text style={[styles.action, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-              Enregistrer
+              {t('common.save')}
             </Text>
           )}
         </Pressable>
@@ -116,16 +121,16 @@ export default function MindsetLogScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          Mindset
+          {t('mindsetLog.title')}
         </Text>
 
         <View style={{ gap: Spacing.sm }}>
-          <Label palette={palette}>Type</Label>
+          <Label palette={palette}>{t('mindsetLog.type')}</Label>
           <Segmented value={kind} options={KIND_OPTIONS as any} onChange={(v: Kind) => setKind(v)} />
         </View>
 
         <View style={{ gap: Spacing.sm }}>
-          <Label palette={palette}>Humeur</Label>
+          <Label palette={palette}>{t('mindsetLog.mood')}</Label>
           <Segmented
             value={mood}
             options={MOOD_OPTIONS as any}
@@ -134,7 +139,7 @@ export default function MindsetLogScreen() {
         </View>
 
         <View style={{ gap: Spacing.sm }}>
-          <Label palette={palette}>Contenu</Label>
+          <Label palette={palette}>{t('mindsetLog.content')}</Label>
           <TextInput
             value={body}
             onChangeText={setBody}

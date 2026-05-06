@@ -67,12 +67,12 @@ export default function TodayScreen() {
     if (todaySession) {
       items.push({
         id: `s-${todaySession.id}`,
-        eyebrow: 'Séance du jour',
+        eyebrow: t('today.sessionOfDay'),
         title: todaySession.title,
         subtitle: todaySession.description ?? undefined,
         meta: todaySession.duration_min ? `${todaySession.duration_min} min` : undefined,
         videoSource: todaySession.video_url ?? TRAINING_VIDEO,
-        cta: 'Commencer',
+        cta: t('today.ctaStart'),
         onPress: () => router.push(`/session/${todaySession.id}` as any),
       });
     }
@@ -81,13 +81,13 @@ export default function TodayScreen() {
     if (featuredMindset) {
       items.push({
         id: `m-${featuredMindset.id}`,
-        eyebrow: 'Mindset du jour',
+        eyebrow: t('today.mindsetOfDay'),
         title: featuredMindset.title,
         subtitle: featuredMindset.body?.split('\n')[0] ?? undefined,
         meta: featuredMindset.duration_min ? `${featuredMindset.duration_min} min` : undefined,
         imageSource: featuredMindset.cover_url ?? null,
         videoSource: featuredMindset.cover_url ? null : INTRO_VIDEO,
-        cta: 'Lire',
+        cta: t('today.ctaRead'),
         onPress: () => router.push(`/mindset/${featuredMindset.id}` as any),
       });
     }
@@ -96,13 +96,13 @@ export default function TodayScreen() {
     if (featuredRecipe) {
       items.push({
         id: `r-${featuredRecipe.id}`,
-        eyebrow: 'Recette du jour',
+        eyebrow: t('today.recipeOfDay'),
         title: featuredRecipe.title,
         subtitle: featuredRecipe.description ?? undefined,
         meta: featuredRecipe.kcal ? `${featuredRecipe.kcal} kcal` : undefined,
         imageSource: featuredRecipe.cover_url ?? null,
         videoSource: featuredRecipe.video_url ?? (featuredRecipe.cover_url ? null : NUTRITION_VIDEO),
-        cta: 'Voir la recette',
+        cta: t('today.ctaViewRecipe'),
         onPress: () => router.push(`/recipe/${featuredRecipe.id}` as any),
       });
     }
@@ -110,15 +110,15 @@ export default function TodayScreen() {
     if (items.length === 0) {
       items.push({
         id: 'placeholder',
-        eyebrow: 'Bientôt',
-        title: 'Du contenu arrive',
-        subtitle: 'Demande à ta coach de publier des séances et recettes',
+        eyebrow: t('common.comingSoon'),
+        title: t('today.placeholderTitle'),
+        subtitle: t('today.placeholderSubtitle'),
         videoSource: TRAINING_VIDEO,
       });
     }
 
     return items;
-  }, [todaySession, mindsetItems, recipes, router]);
+  }, [todaySession, mindsetItems, recipes, router, t]);
 
   return (
     <View style={[styles.container, { backgroundColor: palette.background }]}>
@@ -215,10 +215,10 @@ export default function TodayScreen() {
                   title={m.title}
                   subtitle={
                     m.kind === 'meditation'
-                      ? 'Méditation'
+                      ? t('mindset.kind.meditation')
                       : m.kind === 'article'
-                        ? 'Article'
-                        : 'Affirmation'
+                        ? t('mindset.kind.article')
+                        : t('mindset.kind.affirmation')
                   }
                   onPress={() => router.push(`/mindset/${m.id}` as any)}
                 />
@@ -252,7 +252,7 @@ export default function TodayScreen() {
                   imageSource={r.cover_url ?? null}
                   duration={r.prep_min ? `${r.prep_min} min` : '—'}
                   title={r.title}
-                  subtitle={r.kcal ? `${r.kcal} kcal` : 'Recette'}
+                  subtitle={r.kcal ? `${r.kcal} kcal` : t('today.sectionRecipes')}
                   onPress={() => router.push(`/recipe/${r.id}` as any)}
                 />
               ))}
@@ -284,7 +284,7 @@ export default function TodayScreen() {
                   videoSource={s.video_url ?? INTRO_VIDEO}
                   duration={s.duration_min ? `${s.duration_min} min` : '—'}
                   title={s.title}
-                  subtitle={s.description ?? 'Séance'}
+                  subtitle={s.description ?? t('program.session')}
                   onPress={() => router.push(`/session/${s.id}` as any)}
                 />
               ))}

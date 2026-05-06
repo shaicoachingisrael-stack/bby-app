@@ -3,6 +3,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { ChevronLeft, Clock, Flame } from 'lucide-react-native';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -19,19 +20,20 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAttachments } from '@/lib/use-attachments';
 import { useRecipe } from '@/lib/use-content';
 
-const MEAL_LABELS: Record<string, string> = {
-  petit_dejeuner: 'Petit-déjeuner',
-  dejeuner: 'Déjeuner',
-  diner: 'Dîner',
-  collation: 'Collation',
-};
-
 export default function RecipeDetailScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const params = useLocalSearchParams<{ id?: string }>();
   const id = params.id;
+
+  const MEAL_LABELS: Record<string, string> = {
+    petit_dejeuner: t('nutrition.breakfast'),
+    dejeuner: t('nutrition.lunch'),
+    diner: t('nutrition.dinner'),
+    collation: t('nutrition.snack'),
+  };
 
   const { recipe, loading } = useRecipe(id);
   const { items: attachments, refresh: refreshAttachments } = useAttachments(
@@ -64,7 +66,7 @@ export default function RecipeDetailScreen() {
     return (
       <View style={[styles.flex, { backgroundColor: palette.background, alignItems: 'center', justifyContent: 'center' }]}>
         <Text style={[{ color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          Recette introuvable.
+          {t('recipe.notFound')}
         </Text>
       </View>
     );
@@ -120,10 +122,10 @@ export default function RecipeDetailScreen() {
           <View style={{ paddingHorizontal: Spacing.xl, paddingTop: Spacing.lg }}>
             <View style={styles.metaRow}>
               {recipe.prep_min ? (
-                <Meta icon={Clock} label="Préparation" value={`${recipe.prep_min} min`} palette={palette} />
+                <Meta icon={Clock} label={t('recipe.preparation')} value={`${recipe.prep_min} ${t('common.min')}`} palette={palette} />
               ) : null}
               {recipe.kcal ? (
-                <Meta icon={Flame} label="Apport" value={`${recipe.kcal} kcal`} palette={palette} />
+                <Meta icon={Flame} label={t('recipe.intake')} value={`${recipe.kcal} ${t('common.kcal')}`} palette={palette} />
               ) : null}
             </View>
 
@@ -139,7 +141,7 @@ export default function RecipeDetailScreen() {
             {recipe.description ? (
               <>
                 <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                  Description
+                  {t('recipe.description')}
                 </Text>
                 <Text style={[styles.body, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
                   {recipe.description}
@@ -150,7 +152,7 @@ export default function RecipeDetailScreen() {
             {recipe.ingredients ? (
               <>
                 <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                  Ingrédients
+                  {t('recipe.ingredients')}
                 </Text>
                 <Text style={[styles.ingredients, { color: palette.text, fontFamily: Fonts.sans }]}>
                   {recipe.ingredients}
@@ -159,7 +161,7 @@ export default function RecipeDetailScreen() {
             ) : null}
           </View>
 
-          <AttachmentCarousel attachments={attachments} title="Vidéos & étapes" />
+          <AttachmentCarousel attachments={attachments} title={t('recipe.videosTitle')} />
         </ScrollView>
 
         <View style={[styles.cta, { paddingBottom: insets.bottom + Spacing.md, backgroundColor: palette.background }]}>
@@ -171,7 +173,7 @@ export default function RecipeDetailScreen() {
             ]}
           >
             <Text style={[styles.ctaText, { color: palette.background, fontFamily: Fonts.sansSemibold }]}>
-              Logger ce repas
+              {t('recipe.logMeal')}
             </Text>
           </Pressable>
         </View>
@@ -208,6 +210,7 @@ function MacroPill({ label, value, palette }: any) {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },

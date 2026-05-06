@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -21,24 +22,27 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
 import { supabase } from '@/lib/supabase';
 
-const MEAL_OPTIONS = [
-  { value: 'petit_dejeuner', label: 'Petit-déj' },
-  { value: 'dejeuner', label: 'Déjeuner' },
-  { value: 'diner', label: 'Dîner' },
-  { value: 'collation', label: 'Collation' },
-] as const;
+const MEAL_VALUES = ['petit_dejeuner', 'dejeuner', 'diner', 'collation'] as const;
 
-type MealType = (typeof MEAL_OPTIONS)[number]['value'];
+type MealType = (typeof MEAL_VALUES)[number];
 
 export default function MealLogScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const { user } = useAuth();
   const params = useLocalSearchParams<{ type?: string }>();
 
+  const MEAL_OPTIONS = [
+    { value: 'petit_dejeuner' as const, label: t('nutrition.breakfast') },
+    { value: 'dejeuner' as const, label: t('nutrition.lunch') },
+    { value: 'diner' as const, label: t('nutrition.dinner') },
+    { value: 'collation' as const, label: t('nutrition.snack') },
+  ];
+
   const [mealType, setMealType] = useState<MealType>(
-    (MEAL_OPTIONS.some((m) => m.value === params.type)
+    (MEAL_VALUES.some((m) => m === params.type)
       ? (params.type as MealType)
       : 'petit_dejeuner'),
   );
@@ -52,7 +56,7 @@ export default function MealLogScreen() {
   async function save() {
     if (!user) return;
     if (!kcal) {
-      Alert.alert('Calories manquantes', 'Indique au moins les kcal.');
+      Alert.alert(t('mealLog.missingKcal'), t('mealLog.missingKcalBody'));
       return;
     }
     setSaving(true);
@@ -73,7 +77,7 @@ export default function MealLogScreen() {
       if (error) throw error;
       router.back();
     } catch (e: any) {
-      Alert.alert('Sauvegarde impossible', e?.message ?? 'Erreur.');
+      Alert.alert(t('common.saveImpossible'), e?.message ?? t('common.error'));
     } finally {
       setSaving(false);
     }
@@ -87,14 +91,14 @@ export default function MealLogScreen() {
       <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
         <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
           <ChevronLeft size={24} color={palette.text} />
-          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>Retour</Text>
+          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>{t('common.back')}</Text>
         </Pressable>
         <Pressable onPress={save} disabled={saving} hitSlop={12}>
           {saving ? (
             <ActivityIndicator color={palette.text} />
           ) : (
             <Text style={[styles.action, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-              Enregistrer
+              {t('common.save')}
             </Text>
           )}
         </Pressable>
@@ -110,11 +114,11 @@ export default function MealLogScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          Ajouter un repas
+          {t('mealLog.title')}
         </Text>
 
         <View style={{ gap: Spacing.sm }}>
-          <Label palette={palette}>Type de repas</Label>
+          <Label palette={palette}>{t('mealLog.type')}</Label>
           <View style={{ gap: Spacing.sm }}>
             <Segmented
               value={mealType}
@@ -130,11 +134,11 @@ export default function MealLogScreen() {
         </View>
 
         <View style={{ gap: Spacing.sm }}>
-          <Label palette={palette}>Titre (optionnel)</Label>
+          <Label palette={palette}>{t('mealLog.mealName')}</Label>
           <TextInput
             value={title}
             onChangeText={setTitle}
-            placeholder="Ex : Bowl protéiné saumon"
+            placeholder={t('mealLog.mealNamePlaceholder')}
             placeholderTextColor={palette.textSecondary}
             style={[
               styles.input,
@@ -144,13 +148,13 @@ export default function MealLogScreen() {
         </View>
 
         <View style={{ flexDirection: 'row', gap: Spacing.md }}>
-          <NumberField label="Calories" suffix="kcal" value={kcal} onChange={setKcal} palette={palette} />
-          <NumberField label="Protéines" suffix="g" value={protein} onChange={setProtein} palette={palette} />
+          <NumberField label={t('mealLog.calories')} suffix={t('common.kcal')} value={kcal} onChange={setKcal} palette={palette} />
+          <NumberField label={t('mealLog.protein')} suffix={t('common.g')} value={protein} onChange={setProtein} palette={palette} />
         </View>
 
         <View style={{ flexDirection: 'row', gap: Spacing.md }}>
-          <NumberField label="Glucides" suffix="g" value={carbs} onChange={setCarbs} palette={palette} />
-          <NumberField label="Lipides" suffix="g" value={fat} onChange={setFat} palette={palette} />
+          <NumberField label={t('mealLog.carbs')} suffix={t('common.g')} value={carbs} onChange={setCarbs} palette={palette} />
+          <NumberField label={t('mealLog.fats')} suffix={t('common.g')} value={fat} onChange={setFat} palette={palette} />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

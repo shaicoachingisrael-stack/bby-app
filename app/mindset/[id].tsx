@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { ChevronLeft, Clock } from 'lucide-react-native';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Pressable,
@@ -18,18 +19,19 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAttachments } from '@/lib/use-attachments';
 import { useMindsetItem } from '@/lib/use-content';
 
-const KIND_LABELS: Record<string, string> = {
-  meditation: 'Méditation',
-  article: 'Article',
-  affirmation: 'Affirmation',
-};
-
 export default function MindsetDetailScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const params = useLocalSearchParams<{ id?: string }>();
   const id = params.id;
+
+  const KIND_LABELS: Record<string, string> = {
+    meditation: t('mindset.kind.meditation'),
+    article: t('mindset.kind.article'),
+    affirmation: t('mindset.kind.affirmation'),
+  };
 
   const { item, loading } = useMindsetItem(id);
   const { items: attachments, refresh: refreshAttachments } = useAttachments(
@@ -51,7 +53,7 @@ export default function MindsetDetailScreen() {
     return (
       <View style={[styles.flex, { backgroundColor: palette.background, alignItems: 'center', justifyContent: 'center' }]}>
         <Text style={[{ color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          Contenu introuvable.
+          {t('mindsetDetail.notFound')}
         </Text>
       </View>
     );
@@ -102,7 +104,7 @@ export default function MindsetDetailScreen() {
               <View style={[styles.metaCard, { backgroundColor: palette.surface }]}>
                 <Clock size={18} color={palette.text} />
                 <Text style={[styles.metaValue, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                  {item.duration_min} min
+                  {item.duration_min} {t('common.min')}
                 </Text>
               </View>
             ) : null}
@@ -126,7 +128,7 @@ export default function MindsetDetailScreen() {
             ]}
           >
             <Text style={[styles.ctaText, { color: palette.background, fontFamily: Fonts.sansSemibold }]}>
-              {item.kind === 'meditation' ? 'J\'ai terminé' : 'Noter dans mon journal'}
+              {item.kind === 'meditation' ? t('mindsetDetail.completeMeditation') : t('mindsetDetail.writeJournal')}
             </Text>
           </Pressable>
         </View>

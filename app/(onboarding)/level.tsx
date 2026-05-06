@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Mountain, Sprout, Zap } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, View } from 'react-native';
 
 import { OnboardingOption } from '@/components/onboarding-option';
@@ -11,20 +12,20 @@ import { useProfile } from '@/lib/use-profile';
 const LEVELS = [
   {
     value: 'debutant',
-    title: 'Débutante',
-    description: 'Je reprends une activité ou je débute.',
+    titleKey: 'onboarding.level.debutant',
+    descKey: 'onboarding.level.debutant_desc',
     icon: Sprout,
   },
   {
     value: 'intermediaire',
-    title: 'Intermédiaire',
-    description: 'Je m\'entraîne 2 à 3 fois par semaine.',
+    titleKey: 'onboarding.level.intermediaire',
+    descKey: 'onboarding.level.intermediaire_desc',
     icon: Zap,
   },
   {
     value: 'avance',
-    title: 'Avancée',
-    description: 'Je m\'entraîne 4+ fois par semaine, je connais mon corps.',
+    titleKey: 'onboarding.level.avance',
+    descKey: 'onboarding.level.avance_desc',
     icon: Mountain,
   },
 ] as const;
@@ -32,6 +33,7 @@ const LEVELS = [
 type Level = (typeof LEVELS)[number]['value'];
 
 export default function OnboardingLevelStep() {
+  const { t } = useTranslation();
   const router = useRouter();
   const { profile, update } = useProfile();
   const [level, setLevel] = useState<Level | null>(null);
@@ -48,7 +50,7 @@ export default function OnboardingLevelStep() {
       await update({ fitness_level: level });
       router.push('/(onboarding)/bio' as any);
     } catch (e: any) {
-      Alert.alert('Erreur', e?.message ?? 'Sauvegarde impossible.');
+      Alert.alert(t('common.error'), e?.message ?? t('common.saveImpossible'));
     } finally {
       setSaving(false);
     }
@@ -58,8 +60,8 @@ export default function OnboardingLevelStep() {
     <OnboardingScaffold
       step={3}
       total={6}
-      title="Quel est ton niveau ?"
-      subtitle="On adapte les recommandations à ton expérience actuelle."
+      title={t('onboarding.level.title')}
+      subtitle={t('onboarding.level.subtitle')}
       ctaDisabled={!level}
       ctaLoading={saving}
       onCta={handleNext}
@@ -70,8 +72,8 @@ export default function OnboardingLevelStep() {
           <OnboardingOption
             key={l.value}
             icon={l.icon}
-            title={l.title}
-            description={l.description}
+            title={t(l.titleKey)}
+            description={t(l.descKey)}
             selected={level === l.value}
             onPress={() => setLevel(l.value)}
           />

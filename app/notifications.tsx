@@ -1,6 +1,7 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Bell, ChevronLeft, Trash2 } from 'lucide-react-native';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -16,36 +17,37 @@ import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { type InboxItem, useInbox } from '@/lib/use-inbox';
 
-function formatRelative(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const min = Math.floor(diff / 60000);
-  if (min < 1) return "à l'instant";
-  if (min < 60) return `il y a ${min} min`;
-  const hr = Math.floor(min / 60);
-  if (hr < 24) return `il y a ${hr}h`;
-  return new Date(iso).toLocaleDateString('fr-FR');
-}
-
 export default function NotificationsScreen() {
   const router = useRouter();
+  const { t, i18n } = useTranslation();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const { items, loading, refresh, dismissAll, dismissOne } = useInbox();
 
   useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
 
+  function formatRelative(iso: string): string {
+    const diff = Date.now() - new Date(iso).getTime();
+    const min = Math.floor(diff / 60000);
+    if (min < 1) return t('notifications.relativeNow');
+    if (min < 60) return t('notifications.relativeMinutes', { count: min });
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return t('notifications.relativeHours', { count: hr });
+    return new Date(iso).toLocaleDateString(i18n.language);
+  }
+
   function handleClearAll() {
     if (items.length === 0) return;
-    Alert.alert('Tout effacer ?', "Tes notifications passées disparaissent de la liste.", [
-      { text: 'Annuler', style: 'cancel' },
-      { text: 'Effacer', style: 'destructive', onPress: () => dismissAll() },
+    Alert.alert(t('notifications.clearAllTitle'), t('notifications.clearAllBody'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('notifications.clear'), style: 'destructive', onPress: () => dismissAll() },
     ]);
   }
 
   function handleDeleteOne(item: InboxItem) {
-    Alert.alert('Supprimer cette notification ?', undefined, [
-      { text: 'Annuler', style: 'cancel' },
-      { text: 'Supprimer', style: 'destructive', onPress: () => dismissOne(item.id) },
+    Alert.alert(t('notifications.deleteOne'), undefined, [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('common.delete'), style: 'destructive', onPress: () => dismissOne(item.id) },
     ]);
   }
 
@@ -58,10 +60,10 @@ export default function NotificationsScreen() {
       `${item.body}\n\n${formatRelative(item.created_at)}`,
       hasLink
         ? [
-            { text: 'Fermer', style: 'cancel' },
-            { text: 'Voir', onPress: () => router.push(url as any) },
+            { text: t('common.close'), style: 'cancel' },
+            { text: t('notifications.view'), onPress: () => router.push(url as any) },
           ]
-        : [{ text: 'OK' }],
+        : [{ text: t('common.ok') }],
     );
   }
 
@@ -71,7 +73,7 @@ export default function NotificationsScreen() {
         <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
           <ChevronLeft size={24} color={palette.text} />
           <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-            Retour
+            {t('common.back')}
           </Text>
         </Pressable>
         {items.length > 0 && (
@@ -85,7 +87,7 @@ export default function NotificationsScreen() {
           >
             <Trash2 size={14} color={palette.text} />
             <Text style={[styles.clearText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-              Tout effacer
+              {t('notifications.clearAll')}
             </Text>
           </Pressable>
         )}
@@ -99,10 +101,10 @@ export default function NotificationsScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          Notifications
+          {t('notifications.title')}
         </Text>
         <Text style={[styles.subtitle, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          Tes notifications des dernières 24 h.
+          {t('notifications.subtitle')}
         </Text>
 
         {loading ? (
@@ -113,10 +115,10 @@ export default function NotificationsScreen() {
               <Bell size={28} color={palette.textSecondary} />
             </View>
             <Text style={[styles.emptyTitle, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-              Tout est clair
+              {t('notifications.emptyTitle')}
             </Text>
             <Text style={[styles.emptyText, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-              Pas de notification ces dernières 24 h.
+              {t('notifications.emptyBody')}
             </Text>
           </View>
         ) : (

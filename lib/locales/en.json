@@ -9,7 +9,20 @@
     "error": "Error",
     "viewAll": "See all",
     "comingSoon": "Soon",
-    "language": "Language"
+    "language": "Language",
+    "continue": "Continue",
+    "finish": "Finish",
+    "send": "Send",
+    "close": "Close",
+    "see": "View",
+    "yes": "Yes",
+    "no": "No",
+    "saveImpossible": "Could not save",
+    "min": "min",
+    "kcal": "kcal",
+    "g": "g",
+    "ml": "ml",
+    "L": "L"
   },
   "tabs": {
     "today": "Today",
@@ -40,7 +53,13 @@
     "allSessions": "All sessions",
     "resume": "Resume",
     "noSession": "No session",
-    "askCoach": "Ask your coach to publish content"
+    "askCoach": "Ask your coach to publish content",
+    "weeks": "{{count}} wk",
+    "level": {
+      "debutant": "Beginner",
+      "intermediaire": "Intermediate",
+      "avance": "Advanced"
+    }
   },
   "nutrition": {
     "title": "Nutrition",
@@ -50,8 +69,11 @@
     "breakfast": "Breakfast",
     "lunch": "Lunch",
     "dinner": "Dinner",
+    "snack": "Snack",
     "hydration": "Hydration",
     "notLogged": "Not logged yet",
+    "kcalProgress": "{{current}} / {{target}} kcal",
+    "hydrationProgress": "{{current}} ml of {{target}} ml",
     "macros": {
       "title": "Your daily",
       "titleItalic": "intake",
@@ -63,7 +85,8 @@
       "fats": "FATS",
       "carbs": "CARBS",
       "perDay": "per day",
-      "understand": "Understand my calculation"
+      "understand": "Understand my calculation",
+      "soitKcal": "= {{kcal}} kcal"
     }
   },
   "mindset": {
@@ -76,7 +99,12 @@
     "meditationTitle": "Meditation",
     "meditationSubtitle": "5 min · Conscious breathing",
     "journalTitle": "Journal",
-    "journalSubtitle": "Write down how you feel today"
+    "journalSubtitle": "Write down how you feel today",
+    "kind": {
+      "meditation": "Meditation",
+      "article": "Article",
+      "affirmation": "Affirmation"
+    }
   },
   "auth": {
     "welcome": "Welcome.",
@@ -93,10 +121,100 @@
     "termsLink": "terms",
     "and": "and our",
     "privacyLink": "privacy policy",
-    "letsExplore": "Let's explore"
+    "letsExplore": "Let's explore",
+    "missingFields": "Missing fields",
+    "missingFieldsBody": "Enter your email and password.",
+    "passwordTooShort": "Password too short",
+    "passwordTooShortBody": "At least 6 characters.",
+    "checkInbox": "Check your inbox",
+    "checkInboxBody": "We sent you a confirmation email. Click the link to activate your account.",
+    "signInError": "Could not sign in",
+    "signUpError": "Could not sign up",
+    "appleError": "Apple error.",
+    "googleError": "Google error.",
+    "appleNotAvailable": "Sign in with Apple is only available on iOS."
+  },
+  "onboarding": {
+    "name": {
+      "title": "What should we call you?",
+      "subtitle": "First name (or nickname) shown across the app.",
+      "placeholder": "Your first name"
+    },
+    "goal": {
+      "title": "What's your goal?",
+      "subtitle": "You can change it anytime later.",
+      "perte_de_poids": "Weight loss",
+      "perte_de_poids_desc": "Slim down while keeping your energy.",
+      "tonification": "Toning",
+      "tonification_desc": "Sculpt and firm up, without bulking.",
+      "prise_de_masse": "Muscle gain",
+      "prise_de_masse_desc": "Build muscle progressively.",
+      "remise_en_forme": "Get back in shape",
+      "remise_en_forme_desc": "Ease back in, no pressure.",
+      "bien_etre": "Overall wellness",
+      "bien_etre_desc": "Move, eat, breathe better."
+    },
+    "level": {
+      "title": "What's your level?",
+      "subtitle": "We tailor recommendations to your current experience.",
+      "debutant": "Beginner",
+      "debutant_desc": "Just starting or coming back to fitness.",
+      "intermediaire": "Intermediate",
+      "intermediaire_desc": "I work out 2 to 3 times a week.",
+      "avance": "Advanced",
+      "avance_desc": "I train 4+ times a week, I know my body."
+    },
+    "bio": {
+      "title": "A few details to compute your needs",
+      "subtitle": "Used only to estimate your intake. Editable anytime.",
+      "sex": "Biological sex",
+      "female": "Female",
+      "male": "Male",
+      "age": "Age",
+      "ageUnit": "yrs",
+      "height": "Height",
+      "heightUnit": "cm",
+      "weight": "Current weight",
+      "weightUnit": "kg"
+    },
+    "activity": {
+      "title": "Your rhythm and preferences",
+      "subtitle": "We adjust your intake to your daily activity.",
+      "section": "Daily activity",
+      "sedentary": "Sedentary",
+      "sedentary_desc": "Little or no exercise",
+      "light": "Light",
+      "light_desc": "1 to 3 sessions per week",
+      "moderate": "Moderate",
+      "moderate_desc": "3 to 5 sessions per week",
+      "active": "Active",
+      "active_desc": "6 to 7 sessions per week",
+      "very_active": "Very active",
+      "very_active_desc": "Daily intense sport",
+      "intensitySection": "Goal intensity",
+      "gentle": "Gentle",
+      "moderateIntensity": "Moderate",
+      "intense": "Intense",
+      "splitSection": "Macro split",
+      "balanced": "Balanced",
+      "highProtein": "High-protein"
+    },
+    "targets": {
+      "title": "Your daily intake",
+      "subtitle": "Computed from your profile. You can adjust them in settings.",
+      "computing": "Computing…",
+      "calories": "CALORIES PER DAY",
+      "totalEnergy": "Total energy to aim for today",
+      "protein": "PROTEIN",
+      "fats": "FATS",
+      "carbs": "CARBS",
+      "hydration": "HYDRATION",
+      "perDay": "per day"
+    }
   },
   "account": {
     "title": "My account",
+    "withoutName": "No name",
     "editProfile": "Edit profile",
     "myPath": "My journey",
     "myPrograms": "My programs",
@@ -107,9 +225,164 @@
     "logoutConfirmTitle": "Sign out?",
     "logoutConfirmBody": "You can sign in again anytime.",
     "deleteAccount": "Delete my account",
+    "deleteConfirm1Title": "Delete your account?",
+    "deleteConfirm1Body": "This is permanent. Your sessions, meals, journal and profile will be deleted.",
+    "deleteConfirm2Title": "Confirm deletion",
+    "deleteConfirm2Body": "Are you absolutely sure? This cannot be undone.",
+    "deleteFinal": "Yes, delete permanently",
     "legalSection": "Legal",
     "privacyPolicy": "Privacy policy",
-    "terms": "Terms of service"
+    "terms": "Terms of service",
+    "profile": {
+      "title": "Profile",
+      "goal": "Goal",
+      "level": "Level",
+      "kcalTarget": "Calorie target / day",
+      "proteinTarget": "Protein target / day",
+      "hydrationTarget": "Hydration target / day"
+    }
+  },
+  "editProfile": {
+    "title": "Edit profile",
+    "name": "Name",
+    "namePlaceholder": "Your first name or nickname",
+    "goal": "Goal",
+    "level": "Level",
+    "kcalTarget": "Calorie target / day",
+    "kcalHint": "e.g. 1980",
+    "proteinTarget": "Protein target / day",
+    "proteinHint": "e.g. 120 g",
+    "hydrationTarget": "Hydration target / day",
+    "hydrationHint": "e.g. 2500 ml",
+    "addPhoto": "Add a photo",
+    "changePhoto": "Change photo",
+    "photoSheet": "Profile photo",
+    "takePhoto": "Take a photo",
+    "fromLibrary": "Choose from library",
+    "photoError": "Photo unavailable",
+    "permissionPhoto": "Library access denied. Enable it in Settings.",
+    "permissionCamera": "Camera access denied. Enable it in Settings."
+  },
+  "session": {
+    "duration": "Duration",
+    "level": "Level",
+    "anyLevel": "All",
+    "description": "Description",
+    "material": "Equipment",
+    "materialDefault": "Mat, band, dumbbells (optional)",
+    "start": "Start session",
+    "doneTitle": "Well done",
+    "doneBody": "Session saved."
+  },
+  "program": {
+    "title": "Program",
+    "yourProgress": "Your progress",
+    "completedSessions": "{{done}} session done out of {{total}}",
+    "completedSessions_other": "{{done}} sessions done out of {{total}}",
+    "description": "Description",
+    "sessions": "Sessions ({{count}})",
+    "noSessions": "No sessions in this program yet.",
+    "completed": "Done",
+    "session": "Session",
+    "start": "Start program",
+    "continue": "Continue program"
+  },
+  "recipe": {
+    "notFound": "Recipe not found.",
+    "preparation": "Prep time",
+    "intake": "Intake",
+    "description": "Description",
+    "ingredients": "Ingredients",
+    "videosTitle": "Videos & steps",
+    "logMeal": "Log this meal"
+  },
+  "mindsetDetail": {
+    "notFound": "Content not found.",
+    "completeMeditation": "I'm done",
+    "writeJournal": "Add to my journal"
+  },
+  "mealLog": {
+    "title": "Add a meal",
+    "type": "Meal type",
+    "mealName": "Title (optional)",
+    "mealNamePlaceholder": "e.g. Salmon protein bowl",
+    "calories": "Calories",
+    "protein": "Protein",
+    "carbs": "Carbs",
+    "fats": "Fats",
+    "missingKcal": "Missing calories",
+    "missingKcalBody": "Enter at least the kcal."
+  },
+  "hydrationLog": {
+    "title": "Log water",
+    "subtitle": "Pick a quantity to log in one tap."
+  },
+  "mindsetLog": {
+    "title": "Mindset",
+    "type": "Type",
+    "mood": "Mood",
+    "moodGreat": "Great",
+    "moodGood": "Good",
+    "moodNeutral": "Neutral",
+    "moodTired": "Tired",
+    "moodLow": "Low",
+    "content": "Content",
+    "kindIntention": "Intention",
+    "kindJournal": "Journal",
+    "kindMeditation": "Meditation",
+    "placeholderIntention": "e.g. \"I do what's good for me.\"",
+    "placeholderJournal": "How you feel, what happened today…",
+    "placeholderMeditation": "A few words about your meditation.",
+    "emptyTitle": "Empty",
+    "emptyBody": "Write something before saving."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "Your notifications from the last 24 h.",
+    "emptyTitle": "All clear",
+    "emptyBody": "No notification in the last 24 h.",
+    "clearAll": "Clear all",
+    "clearAllTitle": "Clear all?",
+    "clearAllBody": "Past notifications disappear from the list.",
+    "clear": "Clear",
+    "deleteOne": "Delete this notification?",
+    "view": "View",
+    "relativeNow": "just now",
+    "relativeMinutes": "{{count}} min ago",
+    "relativeHours": "{{count}}h ago"
+  },
+  "chat": {
+    "title": "AI Coach",
+    "comingSoonTitle": "AI Coach",
+    "comingSoonBody": "Coming soon. You'll be able to ask questions, tweak your plan, and chat about your day with a virtual coach.",
+    "understood": "Got it",
+    "placeholder": "Ask anything…",
+    "writing": "Coach is typing…",
+    "emptyTitle": "AI Coach",
+    "emptyBody": "Ask anything about training, nutrition or mindset.",
+    "suggestion1": "Give me a high-protein breakfast idea",
+    "suggestion2": "I don't feel like training today, what should I do?",
+    "suggestion3": "How do I handle late-day cravings?",
+    "errorMessage": "Sorry, I couldn't reply. Check your connection and try again."
+  },
+  "macrosHelp": {
+    "title": "Understand my calculation",
+    "intro": "Your numbers don't come out of thin air — they're computed from standard nutrition formulas adapted to you.",
+    "step1Title": "1 — Basal Metabolic Rate (BMR)",
+    "step1Body": "How much energy your body burns at rest over 24 h, computed via the Mifflin-St Jeor formula from your sex, age, height, and weight.",
+    "step1Stat": "Your BMR",
+    "step2Title": "2 — Total Daily Energy Expenditure (TDEE)",
+    "step2Body": "Your BMR multiplied by an activity factor (sedentary, light, moderate, active, very active). It's what you really burn each day.",
+    "step2Stat": "Your TDEE",
+    "step3Title": "3 — Calorie target",
+    "step3Body": "We tweak your TDEE based on your goal and intensity (gentle, moderate, intense). A health floor always keeps you from going too low.",
+    "step3Stat": "Your target",
+    "step4Title": "4 — Macro split",
+    "step4Body": "Protein first in g/kg of body weight, fats as a % of calories (with a hormonal floor), and carbs fill the rest.",
+    "step5Title": "5 — Hydration",
+    "step5Body": "35 ml of water per kilo of body weight, and +500 ml on training days.",
+    "disclaimer": "These recommendations are guidelines computed from standard formulas. They don't replace advice from a healthcare professional. If you're under medical care, pregnant, breastfeeding, or have a history of eating disorders, please consult before adjusting your nutrition.",
+    "kcalPerDay": "{{count}} kcal / day"
   },
   "language": {
     "title": "Language",
@@ -119,5 +392,14 @@
     "he": "עברית",
     "es": "Español",
     "ru": "Русский"
+  },
+  "dateStrip": {
+    "sun": "Sun",
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri",
+    "sat": "Sat"
   }
 }

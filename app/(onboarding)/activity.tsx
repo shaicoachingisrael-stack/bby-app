@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Bed, Bike, Flame, Footprints, Mountain } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, Text, View } from 'react-native';
 
 import { OnboardingOption } from '@/components/onboarding-option';
@@ -10,33 +11,37 @@ import { Colors, Fonts, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useProfile } from '@/lib/use-profile';
 
-const ACTIVITY_OPTIONS = [
-  { value: 'sedentary', label: 'Sédentaire', description: 'Peu ou pas d\'exercice', icon: Bed },
-  { value: 'light', label: 'Léger', description: '1 à 3 séances par semaine', icon: Footprints },
-  { value: 'moderate', label: 'Modéré', description: '3 à 5 séances par semaine', icon: Bike },
-  { value: 'active', label: 'Actif', description: '6 à 7 séances par semaine', icon: Flame },
-  { value: 'very_active', label: 'Très actif', description: 'Sport intensif quotidien', icon: Mountain },
+const ACTIVITY_DEFS = [
+  { value: 'sedentary', labelKey: 'onboarding.activity.sedentary', descKey: 'onboarding.activity.sedentary_desc', icon: Bed },
+  { value: 'light', labelKey: 'onboarding.activity.light', descKey: 'onboarding.activity.light_desc', icon: Footprints },
+  { value: 'moderate', labelKey: 'onboarding.activity.moderate', descKey: 'onboarding.activity.moderate_desc', icon: Bike },
+  { value: 'active', labelKey: 'onboarding.activity.active', descKey: 'onboarding.activity.active_desc', icon: Flame },
+  { value: 'very_active', labelKey: 'onboarding.activity.very_active', descKey: 'onboarding.activity.very_active_desc', icon: Mountain },
 ] as const;
 
-const INTENSITY_OPTIONS = [
-  { value: 'gentle', label: 'Douce' },
-  { value: 'moderate', label: 'Modérée' },
-  { value: 'intense', label: 'Soutenue' },
-] as const;
+const INTENSITY_VALUES = ['gentle', 'moderate', 'intense'] as const;
+const SPLIT_VALUES = ['balanced', 'high_protein'] as const;
 
-const SPLIT_OPTIONS = [
-  { value: 'balanced', label: 'Équilibrée' },
-  { value: 'high_protein', label: 'Riche en protéines' },
-] as const;
-
-type Activity = (typeof ACTIVITY_OPTIONS)[number]['value'];
-type Intensity = (typeof INTENSITY_OPTIONS)[number]['value'];
-type Split = (typeof SPLIT_OPTIONS)[number]['value'];
+type Activity = (typeof ACTIVITY_DEFS)[number]['value'];
+type Intensity = (typeof INTENSITY_VALUES)[number];
+type Split = (typeof SPLIT_VALUES)[number];
 
 export default function OnboardingActivityStep() {
+  const { t } = useTranslation();
   const router = useRouter();
   const palette = Colors[useColorScheme() ?? 'light'];
   const { profile, update } = useProfile();
+
+  const INTENSITY_OPTIONS = [
+    { value: 'gentle', label: t('onboarding.activity.gentle') },
+    { value: 'moderate', label: t('onboarding.activity.moderateIntensity') },
+    { value: 'intense', label: t('onboarding.activity.intense') },
+  ] as const;
+
+  const SPLIT_OPTIONS = [
+    { value: 'balanced', label: t('onboarding.activity.balanced') },
+    { value: 'high_protein', label: t('onboarding.activity.highProtein') },
+  ] as const;
 
   const [activity, setActivity] = useState<Activity | null>(null);
   const [intensity, setIntensity] = useState<Intensity | null>(null);
@@ -69,7 +74,7 @@ export default function OnboardingActivityStep() {
       });
       router.push('/(onboarding)/targets' as any);
     } catch (e: any) {
-      Alert.alert('Erreur', e?.message ?? 'Sauvegarde impossible.');
+      Alert.alert(t('common.error'), e?.message ?? t('common.saveImpossible'));
     } finally {
       setSaving(false);
     }
@@ -79,8 +84,8 @@ export default function OnboardingActivityStep() {
     <OnboardingScaffold
       step={5}
       total={6}
-      title="Ton rythme et tes préférences"
-      subtitle="On adapte tes apports en fonction de ton activité quotidienne."
+      title={t('onboarding.activity.title')}
+      subtitle={t('onboarding.activity.subtitle')}
       ctaDisabled={!ok}
       ctaLoading={saving}
       onCta={handleNext}
@@ -96,15 +101,15 @@ export default function OnboardingActivityStep() {
               letterSpacing: 1.4,
             }}
           >
-            ACTIVITÉ QUOTIDIENNE
+            {t('onboarding.activity.section').toUpperCase()}
           </Text>
           <View style={{ gap: Spacing.md }}>
-            {ACTIVITY_OPTIONS.map((opt) => (
+            {ACTIVITY_DEFS.map((opt) => (
               <OnboardingOption
                 key={opt.value}
                 icon={opt.icon}
-                title={opt.label}
-                description={opt.description}
+                title={t(opt.labelKey)}
+                description={t(opt.descKey)}
                 selected={activity === opt.value}
                 onPress={() => setActivity(opt.value)}
               />
@@ -122,7 +127,7 @@ export default function OnboardingActivityStep() {
                 letterSpacing: 1.4,
               }}
             >
-              INTENSITÉ DE TON OBJECTIF
+              {t('onboarding.activity.intensitySection').toUpperCase()}
             </Text>
             <Segmented
               value={intensity}
@@ -141,7 +146,7 @@ export default function OnboardingActivityStep() {
               letterSpacing: 1.4,
             }}
           >
-            RÉPARTITION DES MACROS
+            {t('onboarding.activity.splitSection').toUpperCase()}
           </Text>
           <Segmented
             value={split}

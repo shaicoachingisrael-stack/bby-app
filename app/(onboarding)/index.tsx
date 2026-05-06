@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, TextInput } from 'react-native';
 
 import { OnboardingScaffold } from '@/components/onboarding-scaffold';
@@ -8,6 +9,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useProfile } from '@/lib/use-profile';
 
 export default function OnboardingNameStep() {
+  const { t } = useTranslation();
   const router = useRouter();
   const palette = Colors[useColorScheme() ?? 'light'];
   const { profile, update } = useProfile();
@@ -25,7 +27,7 @@ export default function OnboardingNameStep() {
       await update({ display_name: name.trim() });
       router.push('/(onboarding)/goal' as any);
     } catch (e: any) {
-      Alert.alert('Erreur', e?.message ?? 'Sauvegarde impossible.');
+      Alert.alert(t('common.error'), e?.message ?? t('common.saveImpossible'));
     } finally {
       setSaving(false);
     }
@@ -35,14 +37,14 @@ export default function OnboardingNameStep() {
     <OnboardingScaffold
       step={1}
       total={6}
-      title="Comment doit-on t'appeler ?"
-      subtitle="C'est le prénom (ou pseudo) qui apparaîtra dans l'app."
+      title={t('onboarding.name.title')}
+      subtitle={t('onboarding.name.subtitle')}
       ctaDisabled={!name.trim()}
       ctaLoading={saving}
       onCta={handleNext}
     >
       <TextInput
-        placeholder="Ton prénom"
+        placeholder={t('onboarding.name.placeholder')}
         placeholderTextColor={palette.textSecondary}
         value={name}
         onChangeText={setName}

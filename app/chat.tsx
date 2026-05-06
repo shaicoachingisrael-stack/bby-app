@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { ChevronLeft, Send, Sparkles } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -20,11 +21,18 @@ import { useChat } from '@/lib/use-chat';
 
 export default function ChatScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const { messages, loading, sending, send } = useChat();
   const [input, setInput] = useState('');
   const scrollRef = useRef<ScrollView>(null);
+
+  const SUGGESTIONS = [
+    t('chat.suggestion1'),
+    t('chat.suggestion2'),
+    t('chat.suggestion3'),
+  ];
 
   useEffect(() => {
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 50);
@@ -53,7 +61,7 @@ export default function ChatScreen() {
             <Sparkles size={14} color={palette.background} />
           </View>
           <Text style={[styles.headerTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-            Coach IA
+            {t('chat.title')}
           </Text>
         </View>
         <View style={{ width: 40 }} />
@@ -74,7 +82,7 @@ export default function ChatScreen() {
           </View>
         )}
 
-        {showEmpty && <EmptyState palette={palette} onSuggest={(t) => send(t)} />}
+        {showEmpty && <EmptyState palette={palette} suggestions={SUGGESTIONS} onSuggest={(s) => send(s)} t={t} />}
 
         {messages.map((m) => (
           <Bubble key={m.id} role={m.role} content={m.content} palette={palette} />
@@ -83,7 +91,7 @@ export default function ChatScreen() {
         {sending && (
           <View style={[styles.bubble, styles.assistant, { backgroundColor: palette.surface }]}>
             <Text style={[styles.bubbleText, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-              Coach écrit…
+              {t('chat.writing')}
             </Text>
           </View>
         )}
@@ -102,7 +110,7 @@ export default function ChatScreen() {
         <TextInput
           value={input}
           onChangeText={setInput}
-          placeholder="Pose ta question…"
+          placeholder={t('chat.placeholder')}
           placeholderTextColor={palette.textSecondary}
           editable={!sending}
           multiline
@@ -133,18 +141,16 @@ export default function ChatScreen() {
   );
 }
 
-const SUGGESTIONS = [
-  'Donne-moi une idée de petit-dej protéiné',
-  "J'ai pas envie de m'entraîner aujourd'hui, qu'est-ce que je fais ?",
-  'Comment je gère une fringale en fin de journée ?',
-];
-
 function EmptyState({
   palette,
   onSuggest,
+  suggestions,
+  t,
 }: {
   palette: any;
   onSuggest: (text: string) => void;
+  suggestions: string[];
+  t: (k: string) => string;
 }) {
   return (
     <View style={{ alignItems: 'center', gap: Spacing.lg, paddingVertical: Spacing.xxl }}>
@@ -152,13 +158,13 @@ function EmptyState({
         <Sparkles size={28} color={palette.background} />
       </View>
       <Text style={[styles.emptyTitle, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-        Coach IA
+        {t('chat.emptyTitle')}
       </Text>
       <Text style={[styles.emptyText, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-        Pose toutes tes questions sur l'entraînement, la nutrition ou le mindset.
+        {t('chat.emptyBody')}
       </Text>
       <View style={{ gap: Spacing.sm, marginTop: Spacing.md, width: '100%' }}>
-        {SUGGESTIONS.map((s) => (
+        {suggestions.map((s) => (
           <Pressable
             key={s}
             onPress={() => onSuggest(s)}

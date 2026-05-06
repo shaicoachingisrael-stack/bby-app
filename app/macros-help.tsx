@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -10,6 +11,7 @@ import { useProfile } from '@/lib/use-profile';
 
 export default function MacrosHelpScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const { profile } = useProfile();
@@ -21,7 +23,7 @@ export default function MacrosHelpScreen() {
         <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
           <ChevronLeft size={24} color={palette.text} />
           <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-            Retour
+            {t('common.back')}
           </Text>
         </Pressable>
       </View>
@@ -35,61 +37,48 @@ export default function MacrosHelpScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          Comprendre mon calcul
+          {t('macrosHelp.title')}
         </Text>
         <Text style={[styles.body, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          Tes apports ne sortent pas d'un chapeau : ils sont calculés à partir de
-          formules nutritionnelles standards et adaptés à toi.
+          {t('macrosHelp.intro')}
         </Text>
 
-        <Section title="1 — Métabolisme de base (BMR)" palette={palette}>
-          La quantité d'énergie que ton corps brûle au repos sur 24 h, calculée
-          selon la formule de Mifflin-St Jeor à partir de ton sexe, ton âge, ta
-          taille et ton poids.
+        <Section title={t('macrosHelp.step1Title')} palette={palette}>
+          {t('macrosHelp.step1Body')}
         </Section>
         {targets?.bmr && (
-          <Stat label="Ton BMR" value={`${targets.bmr} kcal / jour`} palette={palette} />
+          <Stat label={t('macrosHelp.step1Stat')} value={t('macrosHelp.kcalPerDay', { count: targets.bmr })} palette={palette} />
         )}
 
-        <Section title="2 — Dépense énergétique totale (TDEE)" palette={palette}>
-          Ton BMR multiplié par un facteur d'activité (sédentaire, léger, modéré,
-          actif, très actif). C'est l'énergie que tu dépenses vraiment chaque jour.
+        <Section title={t('macrosHelp.step2Title')} palette={palette}>
+          {t('macrosHelp.step2Body')}
         </Section>
         {targets?.tdee && (
-          <Stat label="Ton TDEE" value={`${targets.tdee} kcal / jour`} palette={palette} />
+          <Stat label={t('macrosHelp.step2Stat')} value={t('macrosHelp.kcalPerDay', { count: targets.tdee })} palette={palette} />
         )}
 
-        <Section title="3 — Calories cibles" palette={palette}>
-          On ajuste ton TDEE selon ton objectif et son intensité (douce, modérée,
-          soutenue). On garde toujours un plancher santé pour que tu ne descendes
-          jamais trop bas.
+        <Section title={t('macrosHelp.step3Title')} palette={palette}>
+          {t('macrosHelp.step3Body')}
         </Section>
         {targets?.calories && (
           <Stat
-            label="Ta cible"
-            value={`${targets.calories} kcal / jour`}
+            label={t('macrosHelp.step3Stat')}
+            value={t('macrosHelp.kcalPerDay', { count: targets.calories })}
             palette={palette}
           />
         )}
 
-        <Section title="4 — Répartition des macros" palette={palette}>
-          Les protéines sont calculées d'abord en grammes par kilo (protéine
-          prioritaire), puis les lipides en pourcentage des calories (avec un
-          plancher hormonal), et les glucides remplissent le reste.
+        <Section title={t('macrosHelp.step4Title')} palette={palette}>
+          {t('macrosHelp.step4Body')}
         </Section>
 
-        <Section title="5 — Hydratation" palette={palette}>
-          35 ml d'eau par kilo de poids corporel, et +500 ml les jours
-          d'entraînement.
+        <Section title={t('macrosHelp.step5Title')} palette={palette}>
+          {t('macrosHelp.step5Body')}
         </Section>
 
         <View style={[styles.disclaimer, { backgroundColor: palette.surface }]}>
           <Text style={[styles.disclaimerText, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-            Ces recommandations sont indicatives et calculées à partir de formules
-            standards. Elles ne remplacent pas l'avis d'un·e professionnel·le de
-            santé. Si tu suis un traitement médical, es enceinte, allaitante, ou
-            as un historique de troubles alimentaires, consulte avant d'ajuster
-            ton alimentation.
+            {t('macrosHelp.disclaimer')}
           </Text>
         </View>
       </ScrollView>

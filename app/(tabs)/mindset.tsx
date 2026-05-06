@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Bell, BookOpen, Heart, Sparkles } from 'lucide-react-native';
 import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -23,6 +24,7 @@ export default function MindsetScreen() {
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const router = useRouter();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { profile } = useProfile();
   const { data, refresh } = useDayData();
@@ -70,10 +72,10 @@ export default function MindsetScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={[styles.eyebrow, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                Quelques minutes pour soi
+                {t('mindset.subtitle')}
               </Text>
               <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                Mindset
+                {t('mindset.title')}
               </Text>
             </View>
           </Pressable>
@@ -92,14 +94,14 @@ export default function MindsetScreen() {
             eyebrow={
               featured
                 ? featured.kind === 'meditation'
-                  ? 'MÉDITATION'
+                  ? t('mindset.kind.meditation').toUpperCase()
                   : featured.kind === 'article'
-                    ? 'ARTICLE'
-                    : 'AFFIRMATION'
-                : 'MINDSET'
+                    ? t('mindset.kind.article').toUpperCase()
+                    : t('mindset.kind.affirmation').toUpperCase()
+                : t('mindset.title').toUpperCase()
             }
-            title={featured?.title ?? 'Bientôt'}
-            subtitle={featured?.body?.split('\n')[0] ?? 'Demande à ta coach de publier du mindset'}
+            title={featured?.title ?? t('common.comingSoon')}
+            subtitle={featured?.body?.split('\n')[0] ?? t('training.askCoach')}
             duration={featured?.duration_min ? `${featured.duration_min} min` : undefined}
             videoSource={featured ? null : INTRO_VIDEO}
             imageSource={featured?.cover_url ?? null}
@@ -113,26 +115,26 @@ export default function MindsetScreen() {
 
         <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>
           <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-            Aujourd'hui
+            {t('mindset.today')}
           </Text>
           <View style={{ gap: Spacing.md, marginTop: Spacing.md }}>
             <ActivityCard
               icon={Sparkles}
-              title="Intention du jour"
-              subtitle={data.mindset_intention ?? 'Note ton intention'}
+              title={t('mindset.intentionTitle')}
+              subtitle={data.mindset_intention ?? t('mindset.intentionEmpty')}
               status={data.mindset_intention ? 'done' : 'pending'}
               onPress={() => router.push('/mindset-log?kind=intention' as any)}
             />
             <ActivityCard
               icon={Heart}
-              title="Méditation"
-              subtitle="5 min · Respiration consciente"
+              title={t('mindset.meditationTitle')}
+              subtitle={t('mindset.meditationSubtitle')}
               onPress={() => router.push('/mindset-log?kind=meditation_done' as any)}
             />
             <ActivityCard
               icon={BookOpen}
-              title="Journal"
-              subtitle="Écris tes ressentis du jour"
+              title={t('mindset.journalTitle')}
+              subtitle={t('mindset.journalSubtitle')}
               onPress={() => router.push('/mindset-log?kind=journal' as any)}
             />
           </View>
@@ -140,7 +142,7 @@ export default function MindsetScreen() {
 
         <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>
           <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-            À explorer
+            {t('mindset.explore')}
           </Text>
         </View>
         <ScrollView
@@ -152,8 +154,8 @@ export default function MindsetScreen() {
             <RecommendationCard
               videoSource={INTRO_VIDEO}
               duration="—"
-              title="Bientôt"
-              subtitle="Du contenu arrive"
+              title={t('common.comingSoon')}
+              subtitle={t('today.placeholderTitle')}
             />
           ) : (
             others.map((m) => (
@@ -165,10 +167,10 @@ export default function MindsetScreen() {
                 title={m.title}
                 subtitle={
                   m.kind === 'meditation'
-                    ? 'Méditation'
+                    ? t('mindset.kind.meditation')
                     : m.kind === 'article'
-                      ? 'Article'
-                      : 'Affirmation'
+                      ? t('mindset.kind.article')
+                      : t('mindset.kind.affirmation')
                 }
                 onPress={() => router.push(`/mindset/${m.id}` as any)}
               />

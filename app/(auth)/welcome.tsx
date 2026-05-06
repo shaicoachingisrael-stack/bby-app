@@ -1,6 +1,7 @@
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useRouter } from 'expo-router';
 import { ArrowRight } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,6 +10,7 @@ import { Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 const HERO_VIDEO = require('@/assets/videos/intro.mp4');
 
 export default function WelcomeScreen() {
+  const { t } = useTranslation();
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
@@ -56,7 +58,7 @@ export default function WelcomeScreen() {
             onPress={() => router.replace('/(auth)/login' as any)}
             style={({ pressed }) => [styles.cta, { opacity: pressed ? 0.9 : 1 }]}
           >
-            <Text style={styles.ctaText}>Let's explore</Text>
+            <Text style={styles.ctaText}>{t('auth.letsExplore')}</Text>
             <View style={styles.ctaArrow}>
               <ArrowRight size={18} color={Palette.encre} />
             </View>

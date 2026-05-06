@@ -1,5 +1,6 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -30,6 +31,7 @@ type Mode = 'signIn' | 'signUp';
 type LoadingState = 'apple' | 'google' | 'email' | null;
 
 export default function LoginScreen() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
 
@@ -44,7 +46,7 @@ export default function LoginScreen() {
       await signInWithApple();
     } catch (e: any) {
       if (e?.code !== 'ERR_REQUEST_CANCELED') {
-        Alert.alert('Connexion impossible', e?.message ?? 'Erreur Apple.');
+        Alert.alert(t('auth.signInError'), e?.message ?? t('auth.appleError'));
       }
     } finally {
       setLoading(null);
@@ -56,7 +58,7 @@ export default function LoginScreen() {
     try {
       await signInWithGoogle();
     } catch (e: any) {
-      Alert.alert('Connexion impossible', e?.message ?? 'Erreur Google.');
+      Alert.alert(t('auth.signInError'), e?.message ?? t('auth.googleError'));
     } finally {
       setLoading(null);
     }
@@ -64,11 +66,11 @@ export default function LoginScreen() {
 
   async function handleEmail() {
     if (!email || !password) {
-      Alert.alert('Champs manquants', 'Renseigne ton email et ton mot de passe.');
+      Alert.alert(t('auth.missingFields'), t('auth.missingFieldsBody'));
       return;
     }
     if (mode === 'signUp' && password.length < 6) {
-      Alert.alert('Mot de passe trop court', 'Au moins 6 caractères.');
+      Alert.alert(t('auth.passwordTooShort'), t('auth.passwordTooShortBody'));
       return;
     }
     setLoading('email');
@@ -79,15 +81,15 @@ export default function LoginScreen() {
         const { user, session } = await signUpWithEmail(email, password);
         if (user && !session) {
           Alert.alert(
-            'Vérifie ta boîte mail',
-            "Un email de confirmation t'a été envoyé. Clique le lien pour activer ton compte.",
+            t('auth.checkInbox'),
+            t('auth.checkInboxBody'),
           );
         }
       }
     } catch (e: any) {
       Alert.alert(
-        mode === 'signIn' ? 'Connexion impossible' : 'Inscription impossible',
-        e?.message ?? 'Erreur.',
+        mode === 'signIn' ? t('auth.signInError') : t('auth.signUpError'),
+        e?.message ?? t('common.error'),
       );
     } finally {
       setLoading(null);
@@ -95,9 +97,9 @@ export default function LoginScreen() {
   }
 
   const submitting = loading !== null;
-  const submitLabel = mode === 'signIn' ? 'Se connecter' : 'Créer mon compte';
+  const submitLabel = mode === 'signIn' ? t('auth.signIn') : t('auth.signUp');
   const toggleLabel =
-    mode === 'signIn' ? "Pas encore de compte ? Inscris-toi" : 'Déjà inscrit·e ? Connecte-toi';
+    mode === 'signIn' ? t('auth.switchToSignUp') : t('auth.switchToSignIn');
 
   return (
     <KeyboardAvoidingView
@@ -120,10 +122,10 @@ export default function LoginScreen() {
             BODY BY YOU
           </Text>
           <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-            Bienvenue.
+            {t('auth.welcome')}
           </Text>
           <Text style={[styles.subtitle, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-            Ton coaching muscu, nutrition et mindset, dans une seule app.
+            {t('auth.subtitle')}
           </Text>
         </View>
 
@@ -158,7 +160,7 @@ export default function LoginScreen() {
                   <Text style={styles.googleG}>G</Text>
                 </View>
                 <Text style={[styles.oauthText, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                  Continuer avec Google
+                  {t('auth.googleContinue')}
                 </Text>
               </>
             )}
@@ -168,14 +170,14 @@ export default function LoginScreen() {
         <View style={styles.divider}>
           <View style={[styles.line, { backgroundColor: palette.border }]} />
           <Text style={[styles.dividerText, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-            ou
+            {t('auth.or')}
           </Text>
           <View style={[styles.line, { backgroundColor: palette.border }]} />
         </View>
 
         <View style={{ gap: Spacing.md }}>
           <TextInput
-            placeholder="Email"
+            placeholder={t('auth.email')}
             placeholderTextColor={palette.textSecondary}
             keyboardType="email-address"
             autoCapitalize="none"
@@ -196,7 +198,7 @@ export default function LoginScreen() {
             ]}
           />
           <TextInput
-            placeholder="Mot de passe"
+            placeholder={t('auth.password')}
             placeholderTextColor={palette.textSecondary}
             secureTextEntry
             autoComplete={mode === 'signUp' ? 'new-password' : 'current-password'}
@@ -252,19 +254,19 @@ export default function LoginScreen() {
         </View>
 
         <Text style={[styles.legal, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          En continuant, tu acceptes nos{' '}
+          {t('auth.termsAccept')}{' '}
           <Text
             onPress={() => Linking.openURL(LEGAL_URLS.terms)}
             style={{ color: palette.text, textDecorationLine: 'underline' }}
           >
-            conditions
+            {t('auth.termsLink')}
           </Text>
-          {' '}et notre{' '}
+          {' '}{t('auth.and')}{' '}
           <Text
             onPress={() => Linking.openURL(LEGAL_URLS.privacy)}
             style={{ color: palette.text, textDecorationLine: 'underline' }}
           >
-            politique de confidentialité
+            {t('auth.privacyLink')}
           </Text>
           .
         </Text>

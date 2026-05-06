@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { OnboardingScaffold } from '@/components/onboarding-scaffold';
@@ -8,16 +9,19 @@ import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useProfile } from '@/lib/use-profile';
 
-const SEX_OPTIONS = [
-  { value: 'female', label: 'Femme' },
-  { value: 'male', label: 'Homme' },
-] as const;
+const SEX_VALUES = ['female', 'male'] as const;
 
-type Sex = (typeof SEX_OPTIONS)[number]['value'];
+type Sex = (typeof SEX_VALUES)[number];
 
 export default function OnboardingBioStep() {
+  const { t } = useTranslation();
   const router = useRouter();
   const palette = Colors[useColorScheme() ?? 'light'];
+
+  const SEX_OPTIONS = [
+    { value: 'female', label: t('onboarding.bio.female') },
+    { value: 'male', label: t('onboarding.bio.male') },
+  ] as const;
   const { profile, update } = useProfile();
   const [sex, setSex] = useState<Sex | null>(null);
   const [age, setAge] = useState('');
@@ -60,7 +64,7 @@ export default function OnboardingBioStep() {
       });
       router.push('/(onboarding)/activity' as any);
     } catch (e: any) {
-      Alert.alert('Erreur', e?.message ?? 'Sauvegarde impossible.');
+      Alert.alert(t('common.error'), e?.message ?? t('common.saveImpossible'));
     } finally {
       setSaving(false);
     }
@@ -70,15 +74,15 @@ export default function OnboardingBioStep() {
     <OnboardingScaffold
       step={4}
       total={6}
-      title="Quelques infos pour calculer tes apports"
-      subtitle="Utilisé uniquement pour estimer tes besoins. Modifiable à tout moment."
+      title={t('onboarding.bio.title')}
+      subtitle={t('onboarding.bio.subtitle')}
       ctaDisabled={!ok}
       ctaLoading={saving}
       onCta={handleNext}
       onBack={() => router.back()}
     >
       <View style={{ gap: Spacing.lg }}>
-        <Field label="Sexe biologique" palette={palette}>
+        <Field label={t('onboarding.bio.sex')} palette={palette}>
           <Segmented
             value={sex}
             options={SEX_OPTIONS as any}
@@ -88,19 +92,19 @@ export default function OnboardingBioStep() {
 
         <View style={{ flexDirection: 'row', gap: Spacing.md }}>
           <View style={{ flex: 1 }}>
-            <Field label="Âge" palette={palette}>
-              <Input value={age} onChangeText={setAge} suffix="ans" palette={palette} />
+            <Field label={t('onboarding.bio.age')} palette={palette}>
+              <Input value={age} onChangeText={setAge} suffix={t('onboarding.bio.ageUnit')} palette={palette} />
             </Field>
           </View>
           <View style={{ flex: 1 }}>
-            <Field label="Taille" palette={palette}>
-              <Input value={height} onChangeText={setHeight} suffix="cm" palette={palette} />
+            <Field label={t('onboarding.bio.height')} palette={palette}>
+              <Input value={height} onChangeText={setHeight} suffix={t('onboarding.bio.heightUnit')} palette={palette} />
             </Field>
           </View>
         </View>
 
-        <Field label="Poids actuel" palette={palette}>
-          <Input value={weight} onChangeText={setWeight} suffix="kg" palette={palette} />
+        <Field label={t('onboarding.bio.weight')} palette={palette}>
+          <Input value={weight} onChangeText={setWeight} suffix={t('onboarding.bio.weightUnit')} palette={palette} />
         </Field>
       </View>
     </OnboardingScaffold>

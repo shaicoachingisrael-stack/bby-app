@@ -2,6 +2,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { BarChart3, ChevronLeft, Clock, Dumbbell, Heart } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -25,6 +26,7 @@ const FALLBACK_VIDEO = require('@/assets/videos/exercise.mp4');
 
 export default function SessionDetailScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const { user } = useAuth();
@@ -57,11 +59,11 @@ export default function SessionDetailScreen() {
         perceived_difficulty: 3,
       });
       if (error) console.warn('completion insert error', error);
-      Alert.alert('Bravo', 'Séance enregistrée.', [
-        { text: 'OK', onPress: () => router.back() },
+      Alert.alert(t('session.doneTitle'), t('session.doneBody'), [
+        { text: t('common.ok'), onPress: () => router.back() },
       ]);
     } catch (e: any) {
-      Alert.alert('Erreur', e?.message ?? 'Sauvegarde impossible.');
+      Alert.alert(t('common.error'), e?.message ?? t('common.saveImpossible'));
     } finally {
       setCompleting(false);
     }
@@ -75,9 +77,9 @@ export default function SessionDetailScreen() {
     );
   }
 
-  const title = session?.title ?? 'Séance';
+  const title = session?.title ?? t('program.session');
   const subtitle = session?.description ?? '';
-  const duration = session?.duration_min ? `${session.duration_min} min` : '—';
+  const duration = session?.duration_min ? `${session.duration_min} ${t('common.min')}` : '—';
 
   return (
     <View style={[styles.flex, { backgroundColor: palette.background }]}>
@@ -139,7 +141,7 @@ export default function SessionDetailScreen() {
               <Clock size={18} color={palette.text} />
               <View>
                 <Text style={[styles.metaLabel, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                  Durée
+                  {t('session.duration')}
                 </Text>
                 <Text style={[styles.metaValue, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
                   {duration}
@@ -150,10 +152,10 @@ export default function SessionDetailScreen() {
               <BarChart3 size={18} color={palette.text} />
               <View>
                 <Text style={[styles.metaLabel, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                  Niveau
+                  {t('session.level')}
                 </Text>
                 <Text style={[styles.metaValue, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                  Tous
+                  {t('session.anyLevel')}
                 </Text>
               </View>
             </View>
@@ -162,7 +164,7 @@ export default function SessionDetailScreen() {
           {session?.description ? (
             <>
               <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                Description
+                {t('session.description')}
               </Text>
               <Text style={[styles.desc, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
                 {session.description}
@@ -176,10 +178,10 @@ export default function SessionDetailScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={[styles.materialLabel, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                Matériel
+                {t('session.material')}
               </Text>
               <Text style={[styles.materialValue, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                Tapis, élastique, haltères (optionnel)
+                {t('session.materialDefault')}
               </Text>
             </View>
           </View>
@@ -209,7 +211,7 @@ export default function SessionDetailScreen() {
                   { color: palette.background, fontFamily: Fonts.sansSemibold },
                 ]}
               >
-                Démarrer la séance
+                {t('session.start')}
               </Text>
             )}
           </Pressable>
