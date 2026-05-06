@@ -1,0 +1,123 @@
+{
+  "common": {
+    "back": "Retour",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "ok": "OK",
+    "loading": "Chargement…",
+    "error": "Erreur",
+    "viewAll": "Voir tout",
+    "comingSoon": "Bientôt",
+    "language": "Langue"
+  },
+  "tabs": {
+    "today": "Aujourd'hui",
+    "training": "Training",
+    "nutrition": "Nutrition",
+    "mindset": "Mindset",
+    "coachIa": "Coach IA"
+  },
+  "today": {
+    "hello": "Hello, {{name}}",
+    "greeting": "Belle journée !",
+    "selectDate": "Sélectionne une date",
+    "sectionMindset": "Mindset",
+    "sectionRecipes": "Recettes",
+    "sectionSessions": "Séances",
+    "sessionOfDay": "Séance du jour",
+    "mindsetOfDay": "Mindset du jour",
+    "recipeOfDay": "Recette du jour",
+    "ctaStart": "Commencer",
+    "ctaRead": "Lire",
+    "ctaViewRecipe": "Voir la recette",
+    "placeholderTitle": "Du contenu arrive",
+    "placeholderSubtitle": "Demande à ta coach de publier des séances et recettes"
+  },
+  "training": {
+    "title": "Training",
+    "myPrograms": "Mes programmes",
+    "allSessions": "Toutes les séances",
+    "resume": "Reprendre",
+    "noSession": "Aucune séance",
+    "askCoach": "Demande à ta coach de publier du contenu"
+  },
+  "nutrition": {
+    "title": "Nutrition",
+    "todaysMeals": "Mes repas du jour",
+    "addMeal": "Ajouter",
+    "recipeIdeas": "Idées recettes",
+    "breakfast": "Petit-déjeuner",
+    "lunch": "Déjeuner",
+    "dinner": "Dîner",
+    "hydration": "Hydratation",
+    "notLogged": "Pas encore enregistré",
+    "macros": {
+      "title": "Tes apports",
+      "titleItalic": "quotidiens",
+      "subtitle": "Calculés selon ton profil et ton objectif",
+      "caloriesPerDay": "CALORIES PAR JOUR",
+      "totalEnergy": "Énergie totale à viser sur la journée",
+      "split": "Répartition",
+      "protein": "PROTÉINES",
+      "fats": "LIPIDES",
+      "carbs": "GLUCIDES",
+      "perDay": "par jour",
+      "understand": "Comprendre mon calcul"
+    }
+  },
+  "mindset": {
+    "title": "Mindset",
+    "subtitle": "Quelques minutes pour soi",
+    "today": "Aujourd'hui",
+    "explore": "À explorer",
+    "intentionTitle": "Intention du jour",
+    "intentionEmpty": "Note ton intention",
+    "meditationTitle": "Méditation",
+    "meditationSubtitle": "5 min · Respiration consciente",
+    "journalTitle": "Journal",
+    "journalSubtitle": "Écris tes ressentis du jour"
+  },
+  "auth": {
+    "welcome": "Bienvenue.",
+    "subtitle": "Ton coaching muscu, nutrition et mindset, dans une seule app.",
+    "googleContinue": "Continuer avec Google",
+    "or": "ou",
+    "email": "Email",
+    "password": "Mot de passe",
+    "signIn": "Se connecter",
+    "signUp": "Créer mon compte",
+    "switchToSignUp": "Pas encore de compte ? Inscris-toi",
+    "switchToSignIn": "Déjà inscrit·e ? Connecte-toi",
+    "termsAccept": "En continuant, tu acceptes nos",
+    "termsLink": "conditions",
+    "and": "et notre",
+    "privacyLink": "politique de confidentialité",
+    "letsExplore": "Let's explore"
+  },
+  "account": {
+    "title": "Mon compte",
+    "editProfile": "Modifier le profil",
+    "myPath": "Mon parcours",
+    "myPrograms": "Mes programmes",
+    "coach": "Coach",
+    "adminPanel": "Panneau admin",
+    "accountSection": "Compte",
+    "logout": "Se déconnecter",
+    "logoutConfirmTitle": "Se déconnecter ?",
+    "logoutConfirmBody": "Tu pourras te reconnecter à tout moment.",
+    "deleteAccount": "Supprimer mon compte",
+    "legalSection": "Légal",
+    "privacyPolicy": "Politique de confidentialité",
+    "terms": "Conditions générales d'utilisation"
+  },
+  "language": {
+    "title": "Langue",
+    "subtitle": "Choisis la langue de l'application",
+    "fr": "Français",
+    "en": "English",
+    "he": "עברית",
+    "es": "Español",
+    "ru": "Русский"
+  }
+}

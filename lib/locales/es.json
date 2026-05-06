@@ -1,0 +1,123 @@
+{
+  "common": {
+    "back": "Volver",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "ok": "OK",
+    "loading": "Cargando…",
+    "error": "Error",
+    "viewAll": "Ver todo",
+    "comingSoon": "Pronto",
+    "language": "Idioma"
+  },
+  "tabs": {
+    "today": "Hoy",
+    "training": "Entrena",
+    "nutrition": "Nutrición",
+    "mindset": "Mindset",
+    "coachIa": "Coach IA"
+  },
+  "today": {
+    "hello": "Hola, {{name}}",
+    "greeting": "¡Que tengas un buen día!",
+    "selectDate": "Elige una fecha",
+    "sectionMindset": "Mindset",
+    "sectionRecipes": "Recetas",
+    "sectionSessions": "Sesiones",
+    "sessionOfDay": "Sesión del día",
+    "mindsetOfDay": "Mindset del día",
+    "recipeOfDay": "Receta del día",
+    "ctaStart": "Empezar",
+    "ctaRead": "Leer",
+    "ctaViewRecipe": "Ver receta",
+    "placeholderTitle": "Pronto habrá contenido",
+    "placeholderSubtitle": "Pídele a tu coach que publique sesiones y recetas"
+  },
+  "training": {
+    "title": "Entrena",
+    "myPrograms": "Mis programas",
+    "allSessions": "Todas las sesiones",
+    "resume": "Continuar",
+    "noSession": "Sin sesión",
+    "askCoach": "Pídele a tu coach que publique contenido"
+  },
+  "nutrition": {
+    "title": "Nutrición",
+    "todaysMeals": "Mis comidas de hoy",
+    "addMeal": "Añadir",
+    "recipeIdeas": "Ideas de recetas",
+    "breakfast": "Desayuno",
+    "lunch": "Almuerzo",
+    "dinner": "Cena",
+    "hydration": "Hidratación",
+    "notLogged": "Aún no registrado",
+    "macros": {
+      "title": "Tu ingesta",
+      "titleItalic": "diaria",
+      "subtitle": "Calculada según tu perfil y tu objetivo",
+      "caloriesPerDay": "CALORÍAS POR DÍA",
+      "totalEnergy": "Energía total a alcanzar en el día",
+      "split": "Distribución",
+      "protein": "PROTEÍNAS",
+      "fats": "GRASAS",
+      "carbs": "CARBOHIDRATOS",
+      "perDay": "por día",
+      "understand": "Entender mi cálculo"
+    }
+  },
+  "mindset": {
+    "title": "Mindset",
+    "subtitle": "Unos minutos para ti",
+    "today": "Hoy",
+    "explore": "Para explorar",
+    "intentionTitle": "Intención del día",
+    "intentionEmpty": "Anota tu intención",
+    "meditationTitle": "Meditación",
+    "meditationSubtitle": "5 min · Respiración consciente",
+    "journalTitle": "Diario",
+    "journalSubtitle": "Escribe cómo te sientes hoy"
+  },
+  "auth": {
+    "welcome": "Bienvenida.",
+    "subtitle": "Tu coaching de fuerza, nutrición y mindset, en una app.",
+    "googleContinue": "Continuar con Google",
+    "or": "o",
+    "email": "Email",
+    "password": "Contraseña",
+    "signIn": "Iniciar sesión",
+    "signUp": "Crear mi cuenta",
+    "switchToSignUp": "¿Aún no tienes cuenta? Regístrate",
+    "switchToSignIn": "¿Ya tienes cuenta? Inicia sesión",
+    "termsAccept": "Al continuar, aceptas nuestras",
+    "termsLink": "condiciones",
+    "and": "y nuestra",
+    "privacyLink": "política de privacidad",
+    "letsExplore": "Empecemos"
+  },
+  "account": {
+    "title": "Mi cuenta",
+    "editProfile": "Editar perfil",
+    "myPath": "Mi camino",
+    "myPrograms": "Mis programas",
+    "coach": "Coach",
+    "adminPanel": "Panel admin",
+    "accountSection": "Cuenta",
+    "logout": "Cerrar sesión",
+    "logoutConfirmTitle": "¿Cerrar sesión?",
+    "logoutConfirmBody": "Puedes iniciar sesión de nuevo cuando quieras.",
+    "deleteAccount": "Eliminar mi cuenta",
+    "legalSection": "Legal",
+    "privacyPolicy": "Política de privacidad",
+    "terms": "Términos de uso"
+  },
+  "language": {
+    "title": "Idioma",
+    "subtitle": "Elige el idioma de la app",
+    "fr": "Français",
+    "en": "English",
+    "he": "עברית",
+    "es": "Español",
+    "ru": "Русский"
+  }
+}

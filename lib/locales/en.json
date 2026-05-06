@@ -1,0 +1,123 @@
+{
+  "common": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "ok": "OK",
+    "loading": "Loading…",
+    "error": "Error",
+    "viewAll": "See all",
+    "comingSoon": "Soon",
+    "language": "Language"
+  },
+  "tabs": {
+    "today": "Today",
+    "training": "Training",
+    "nutrition": "Nutrition",
+    "mindset": "Mindset",
+    "coachIa": "AI Coach"
+  },
+  "today": {
+    "hello": "Hello, {{name}}",
+    "greeting": "Have a great day!",
+    "selectDate": "Pick a date",
+    "sectionMindset": "Mindset",
+    "sectionRecipes": "Recipes",
+    "sectionSessions": "Sessions",
+    "sessionOfDay": "Session of the day",
+    "mindsetOfDay": "Mindset of the day",
+    "recipeOfDay": "Recipe of the day",
+    "ctaStart": "Start",
+    "ctaRead": "Read",
+    "ctaViewRecipe": "View recipe",
+    "placeholderTitle": "Content is on the way",
+    "placeholderSubtitle": "Ask your coach to publish sessions and recipes"
+  },
+  "training": {
+    "title": "Training",
+    "myPrograms": "My programs",
+    "allSessions": "All sessions",
+    "resume": "Resume",
+    "noSession": "No session",
+    "askCoach": "Ask your coach to publish content"
+  },
+  "nutrition": {
+    "title": "Nutrition",
+    "todaysMeals": "Today's meals",
+    "addMeal": "Add",
+    "recipeIdeas": "Recipe ideas",
+    "breakfast": "Breakfast",
+    "lunch": "Lunch",
+    "dinner": "Dinner",
+    "hydration": "Hydration",
+    "notLogged": "Not logged yet",
+    "macros": {
+      "title": "Your daily",
+      "titleItalic": "intake",
+      "subtitle": "Calculated from your profile and goal",
+      "caloriesPerDay": "CALORIES PER DAY",
+      "totalEnergy": "Total energy to aim for today",
+      "split": "Split",
+      "protein": "PROTEIN",
+      "fats": "FATS",
+      "carbs": "CARBS",
+      "perDay": "per day",
+      "understand": "Understand my calculation"
+    }
+  },
+  "mindset": {
+    "title": "Mindset",
+    "subtitle": "A few minutes for yourself",
+    "today": "Today",
+    "explore": "To explore",
+    "intentionTitle": "Today's intention",
+    "intentionEmpty": "Set your intention",
+    "meditationTitle": "Meditation",
+    "meditationSubtitle": "5 min · Conscious breathing",
+    "journalTitle": "Journal",
+    "journalSubtitle": "Write down how you feel today"
+  },
+  "auth": {
+    "welcome": "Welcome.",
+    "subtitle": "Your fitness, nutrition and mindset coaching, in one app.",
+    "googleContinue": "Continue with Google",
+    "or": "or",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signUp": "Create my account",
+    "switchToSignUp": "No account yet? Sign up",
+    "switchToSignIn": "Already a member? Sign in",
+    "termsAccept": "By continuing, you accept our",
+    "termsLink": "terms",
+    "and": "and our",
+    "privacyLink": "privacy policy",
+    "letsExplore": "Let's explore"
+  },
+  "account": {
+    "title": "My account",
+    "editProfile": "Edit profile",
+    "myPath": "My journey",
+    "myPrograms": "My programs",
+    "coach": "Coach",
+    "adminPanel": "Admin panel",
+    "accountSection": "Account",
+    "logout": "Sign out",
+    "logoutConfirmTitle": "Sign out?",
+    "logoutConfirmBody": "You can sign in again anytime.",
+    "deleteAccount": "Delete my account",
+    "legalSection": "Legal",
+    "privacyPolicy": "Privacy policy",
+    "terms": "Terms of service"
+  },
+  "language": {
+    "title": "Language",
+    "subtitle": "Choose your app language",
+    "fr": "Français",
+    "en": "English",
+    "he": "עברית",
+    "es": "Español",
+    "ru": "Русский"
+  }
+}

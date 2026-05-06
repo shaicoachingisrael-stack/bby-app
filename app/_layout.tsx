@@ -17,7 +17,9 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import '@/lib/i18n';
 import { AuthProvider, useAuth } from '@/lib/auth-provider';
+import { LocaleProvider } from '@/lib/locale-provider';
 import { useNotificationResponse } from '@/lib/use-notification-response';
 import { ProfileProvider, useProfile } from '@/lib/use-profile';
 import { usePushSetup } from '@/lib/use-push-setup';
@@ -109,6 +111,10 @@ function RootStack() {
         />
         <Stack.Screen name="recipe/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="mindset/[id]" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="language"
+          options={{ presentation: 'modal', headerShown: false }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
@@ -136,7 +142,9 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <ProfileProvider>
-        <RootStack />
+        <LocaleProvider>
+          <RootStack />
+        </LocaleProvider>
       </ProfileProvider>
     </AuthProvider>
   );

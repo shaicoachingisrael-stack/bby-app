@@ -1,0 +1,123 @@
+{
+  "common": {
+    "back": "חזרה",
+    "cancel": "ביטול",
+    "save": "שמירה",
+    "delete": "מחיקה",
+    "ok": "אישור",
+    "loading": "טוען…",
+    "error": "שגיאה",
+    "viewAll": "ראה הכול",
+    "comingSoon": "בקרוב",
+    "language": "שפה"
+  },
+  "tabs": {
+    "today": "היום",
+    "training": "אימון",
+    "nutrition": "תזונה",
+    "mindset": "מיינדסט",
+    "coachIa": "מאמן AI"
+  },
+  "today": {
+    "hello": "שלום, {{name}}",
+    "greeting": "שיהיה לך יום נפלא!",
+    "selectDate": "בחר תאריך",
+    "sectionMindset": "מיינדסט",
+    "sectionRecipes": "מתכונים",
+    "sectionSessions": "אימונים",
+    "sessionOfDay": "אימון היום",
+    "mindsetOfDay": "מיינדסט היום",
+    "recipeOfDay": "מתכון היום",
+    "ctaStart": "התחל",
+    "ctaRead": "קרא",
+    "ctaViewRecipe": "ראה מתכון",
+    "placeholderTitle": "תוכן בדרך",
+    "placeholderSubtitle": "בקשי מהמאמנת שלך לפרסם אימונים ומתכונים"
+  },
+  "training": {
+    "title": "אימון",
+    "myPrograms": "התוכניות שלי",
+    "allSessions": "כל האימונים",
+    "resume": "המשך",
+    "noSession": "אין אימון",
+    "askCoach": "בקשי מהמאמנת לפרסם תוכן"
+  },
+  "nutrition": {
+    "title": "תזונה",
+    "todaysMeals": "הארוחות שלי היום",
+    "addMeal": "הוסף",
+    "recipeIdeas": "רעיונות למתכון",
+    "breakfast": "ארוחת בוקר",
+    "lunch": "ארוחת צהריים",
+    "dinner": "ארוחת ערב",
+    "hydration": "שתייה",
+    "notLogged": "טרם נרשם",
+    "macros": {
+      "title": "הצריכה",
+      "titleItalic": "היומית שלך",
+      "subtitle": "מחושב לפי הפרופיל והיעד שלך",
+      "caloriesPerDay": "קלוריות ליום",
+      "totalEnergy": "סך האנרגיה שכדאי לכוון אליה היום",
+      "split": "חלוקה",
+      "protein": "חלבונים",
+      "fats": "שומנים",
+      "carbs": "פחמימות",
+      "perDay": "ליום",
+      "understand": "הבן את החישוב שלי"
+    }
+  },
+  "mindset": {
+    "title": "מיינדסט",
+    "subtitle": "כמה דקות לעצמך",
+    "today": "היום",
+    "explore": "לגלות",
+    "intentionTitle": "הכוונה של היום",
+    "intentionEmpty": "כתבי את הכוונה שלך",
+    "meditationTitle": "מדיטציה",
+    "meditationSubtitle": "5 דקות · נשימה מודעת",
+    "journalTitle": "יומן",
+    "journalSubtitle": "כתבי איך את מרגישה היום"
+  },
+  "auth": {
+    "welcome": "ברוכה הבאה.",
+    "subtitle": "אימוני כושר, תזונה ומיינדסט, באפליקציה אחת.",
+    "googleContinue": "המשך עם Google",
+    "or": "או",
+    "email": "אימייל",
+    "password": "סיסמה",
+    "signIn": "התחברות",
+    "signUp": "צרי חשבון",
+    "switchToSignUp": "אין לך חשבון? הירשמי",
+    "switchToSignIn": "כבר רשומה? התחברי",
+    "termsAccept": "בהמשך, את מסכימה ל",
+    "termsLink": "תנאים",
+    "and": "ול",
+    "privacyLink": "מדיניות פרטיות",
+    "letsExplore": "בואי נצא לדרך"
+  },
+  "account": {
+    "title": "החשבון שלי",
+    "editProfile": "עריכת פרופיל",
+    "myPath": "המסלול שלי",
+    "myPrograms": "התוכניות שלי",
+    "coach": "מאמנת",
+    "adminPanel": "פאנל ניהול",
+    "accountSection": "חשבון",
+    "logout": "התנתקות",
+    "logoutConfirmTitle": "להתנתק?",
+    "logoutConfirmBody": "תוכלי להתחבר שוב מתי שתרצי.",
+    "deleteAccount": "מחיקת החשבון שלי",
+    "legalSection": "משפטי",
+    "privacyPolicy": "מדיניות פרטיות",
+    "terms": "תנאי שירות"
+  },
+  "language": {
+    "title": "שפה",
+    "subtitle": "בחרי את שפת האפליקציה",
+    "fr": "Français",
+    "en": "English",
+    "he": "עברית",
+    "es": "Español",
+    "ru": "Русский"
+  }
+}

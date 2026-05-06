@@ -2,6 +2,7 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { Apple, Dumbbell, Home, Leaf, Sparkles } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -15,14 +16,14 @@ const ICONS = {
   mindset: Leaf,
 } as const;
 
-const LABELS: Record<string, string> = {
-  today: "Aujourd'hui",
-  training: 'Training',
-  nutrition: 'Nutrition',
-  mindset: 'Mindset',
-};
-
 export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+  const { t } = useTranslation();
+  const LABELS: Record<string, string> = {
+    today: t('tabs.today'),
+    training: t('tabs.training'),
+    nutrition: t('tabs.nutrition'),
+    mindset: t('tabs.mindset'),
+  };
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme() ?? 'light';
   const palette = Colors[scheme];
@@ -112,7 +113,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
       >
         <Sparkles size={20} color={palette.background} strokeWidth={2} />
         <Text style={[styles.fabLabel, { color: palette.background, fontFamily: Fonts.sansMedium }]}>
-          Coach IA
+          {t('tabs.coachIa')}
         </Text>
       </Pressable>
     </View>

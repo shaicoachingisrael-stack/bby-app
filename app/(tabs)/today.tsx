@@ -1,5 +1,6 @@
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Bell } from 'lucide-react-native';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -7,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AdminButton } from '@/components/ui/admin-button';
 import { DateStrip } from '@/components/ui/date-strip';
+import { LanguageButton } from '@/components/ui/language-button';
 import { HeroSwiper, type HeroItem } from '@/components/ui/hero-swiper';
 import { RecommendationCard } from '@/components/ui/recommendation-card';
 import { Colors, Fonts, Spacing } from '@/constants/theme';
@@ -34,6 +36,7 @@ export default function TodayScreen() {
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const router = useRouter();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { profile } = useProfile();
   const { refresh } = useDayData();
@@ -148,17 +151,18 @@ export default function TodayScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={[styles.hello, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                Hello, {firstName ? capitalize(firstName) : 'toi'}
+                {t('today.hello', { name: firstName ? capitalize(firstName) : '👋' })}
               </Text>
               <Text
                 style={[styles.helloTitle, { color: palette.text, fontFamily: Fonts.displayBold }]}
                 numberOfLines={1}
               >
-                Belle journée !
+                {t('today.greeting')}
               </Text>
             </View>
           </Pressable>
           <AdminButton />
+          <LanguageButton />
           <Pressable
             onPress={() => router.push('/notifications' as any)}
             hitSlop={8}
@@ -189,11 +193,11 @@ export default function TodayScreen() {
           <>
             <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
               <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                Mindset
+                {t('today.sectionMindset')}
               </Text>
               <Pressable onPress={() => router.push('/mindset' as any)} hitSlop={8}>
                 <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-                  Voir tout
+                  {t('common.viewAll')}
                 </Text>
               </Pressable>
             </View>
@@ -228,11 +232,11 @@ export default function TodayScreen() {
           <>
             <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
               <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                Recettes
+                {t('today.sectionRecipes')}
               </Text>
               <Pressable onPress={() => router.push('/nutrition' as any)} hitSlop={8}>
                 <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-                  Voir tout
+                  {t('common.viewAll')}
                 </Text>
               </Pressable>
             </View>
@@ -261,11 +265,11 @@ export default function TodayScreen() {
           <>
             <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
               <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                Séances
+                {t('today.sectionSessions')}
               </Text>
               <Pressable onPress={() => router.push('/training' as any)} hitSlop={8}>
                 <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-                  Voir tout
+                  {t('common.viewAll')}
                 </Text>
               </Pressable>
             </View>

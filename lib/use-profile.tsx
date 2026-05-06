@@ -29,6 +29,7 @@ export type Profile = {
   activity_level: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active' | null;
   goal_intensity: 'gentle' | 'moderate' | 'intense' | null;
   macro_split: 'balanced' | 'high_protein' | null;
+  locale: 'fr' | 'en' | 'he' | 'es' | 'ru' | null;
 };
 
 type ProfileContextValue = {

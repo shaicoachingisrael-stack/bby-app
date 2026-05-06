@@ -1,0 +1,123 @@
+{
+  "common": {
+    "back": "Назад",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "delete": "Удалить",
+    "ok": "OK",
+    "loading": "Загрузка…",
+    "error": "Ошибка",
+    "viewAll": "Все",
+    "comingSoon": "Скоро",
+    "language": "Язык"
+  },
+  "tabs": {
+    "today": "Сегодня",
+    "training": "Тренировки",
+    "nutrition": "Питание",
+    "mindset": "Mindset",
+    "coachIa": "Тренер ИИ"
+  },
+  "today": {
+    "hello": "Привет, {{name}}",
+    "greeting": "Хорошего дня!",
+    "selectDate": "Выбери дату",
+    "sectionMindset": "Mindset",
+    "sectionRecipes": "Рецепты",
+    "sectionSessions": "Тренировки",
+    "sessionOfDay": "Тренировка дня",
+    "mindsetOfDay": "Mindset дня",
+    "recipeOfDay": "Рецепт дня",
+    "ctaStart": "Начать",
+    "ctaRead": "Читать",
+    "ctaViewRecipe": "Посмотреть рецепт",
+    "placeholderTitle": "Контент скоро будет",
+    "placeholderSubtitle": "Попроси своего тренера опубликовать тренировки и рецепты"
+  },
+  "training": {
+    "title": "Тренировки",
+    "myPrograms": "Мои программы",
+    "allSessions": "Все тренировки",
+    "resume": "Продолжить",
+    "noSession": "Нет тренировки",
+    "askCoach": "Попроси своего тренера добавить контент"
+  },
+  "nutrition": {
+    "title": "Питание",
+    "todaysMeals": "Мои приёмы пищи на сегодня",
+    "addMeal": "Добавить",
+    "recipeIdeas": "Идеи рецептов",
+    "breakfast": "Завтрак",
+    "lunch": "Обед",
+    "dinner": "Ужин",
+    "hydration": "Вода",
+    "notLogged": "Ещё не записано",
+    "macros": {
+      "title": "Твоё дневное",
+      "titleItalic": "потребление",
+      "subtitle": "Рассчитано по твоему профилю и цели",
+      "caloriesPerDay": "КАЛОРИЙ В ДЕНЬ",
+      "totalEnergy": "Общая энергия на день",
+      "split": "Распределение",
+      "protein": "БЕЛКИ",
+      "fats": "ЖИРЫ",
+      "carbs": "УГЛЕВОДЫ",
+      "perDay": "в день",
+      "understand": "Понять мой расчёт"
+    }
+  },
+  "mindset": {
+    "title": "Mindset",
+    "subtitle": "Несколько минут для себя",
+    "today": "Сегодня",
+    "explore": "Изучить",
+    "intentionTitle": "Намерение дня",
+    "intentionEmpty": "Запиши своё намерение",
+    "meditationTitle": "Медитация",
+    "meditationSubtitle": "5 мин · Осознанное дыхание",
+    "journalTitle": "Дневник",
+    "journalSubtitle": "Опиши свои ощущения сегодня"
+  },
+  "auth": {
+    "welcome": "Добро пожаловать.",
+    "subtitle": "Тренировки, питание и mindset в одном приложении.",
+    "googleContinue": "Продолжить с Google",
+    "or": "или",
+    "email": "Email",
+    "password": "Пароль",
+    "signIn": "Войти",
+    "signUp": "Создать аккаунт",
+    "switchToSignUp": "Нет аккаунта? Зарегистрируйся",
+    "switchToSignIn": "Уже зарегистрирована? Войти",
+    "termsAccept": "Продолжая, ты принимаешь наши",
+    "termsLink": "условия",
+    "and": "и нашу",
+    "privacyLink": "политику конфиденциальности",
+    "letsExplore": "Поехали"
+  },
+  "account": {
+    "title": "Мой аккаунт",
+    "editProfile": "Редактировать профиль",
+    "myPath": "Мой путь",
+    "myPrograms": "Мои программы",
+    "coach": "Тренер",
+    "adminPanel": "Панель админа",
+    "accountSection": "Аккаунт",
+    "logout": "Выйти",
+    "logoutConfirmTitle": "Выйти?",
+    "logoutConfirmBody": "Ты сможешь войти снова в любое время.",
+    "deleteAccount": "Удалить мой аккаунт",
+    "legalSection": "Юридическое",
+    "privacyPolicy": "Политика конфиденциальности",
+    "terms": "Условия использования"
+  },
+  "language": {
+    "title": "Язык",
+    "subtitle": "Выбери язык приложения",
+    "fr": "Français",
+    "en": "English",
+    "he": "עברית",
+    "es": "Español",
+    "ru": "Русский"
+  }
+}
