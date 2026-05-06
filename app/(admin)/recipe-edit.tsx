@@ -22,6 +22,7 @@ import { Segmented } from '@/components/ui/segmented';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { supabase } from '@/lib/supabase';
+import { triggerTranslate } from '@/lib/translate-content';
 import type { Recipe } from '@/lib/types';
 
 const MEAL_OPTIONS = [
@@ -111,6 +112,7 @@ export default function RecipeEditScreen() {
         const { error } = await supabase.from('recipes').update(payload).eq('id', id!);
         if (error) throw error;
       }
+      triggerTranslate('recipes', recipeId);
       router.back();
     } catch (e: any) {
       Alert.alert('Sauvegarde impossible', e?.message ?? 'Erreur.');

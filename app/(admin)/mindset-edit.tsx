@@ -22,6 +22,7 @@ import { Segmented } from '@/components/ui/segmented';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { supabase } from '@/lib/supabase';
+import { triggerTranslate } from '@/lib/translate-content';
 import type { MindsetContent } from '@/lib/types';
 
 const KIND_OPTIONS = [
@@ -92,6 +93,7 @@ export default function MindsetEditScreen() {
         const { error } = await supabase.from('mindset_content').update(payload).eq('id', id!);
         if (error) throw error;
       }
+      triggerTranslate('mindset_content', itemId);
       router.back();
     } catch (e: any) {
       Alert.alert('Sauvegarde impossible', e?.message ?? 'Erreur.');

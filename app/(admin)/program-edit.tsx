@@ -21,6 +21,7 @@ import { Segmented } from '@/components/ui/segmented';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { supabase } from '@/lib/supabase';
+import { triggerTranslate } from '@/lib/translate-content';
 import type { Program } from '@/lib/types';
 
 const LEVEL_OPTIONS = [
@@ -96,6 +97,7 @@ export default function ProgramEditScreen() {
         const { error } = await supabase.from('programs').update(payload).eq('id', id!);
         if (error) throw error;
       }
+      triggerTranslate('programs', programId);
       router.back();
     } catch (e: any) {
       Alert.alert('Sauvegarde impossible', e?.message ?? 'Erreur.');

@@ -21,6 +21,7 @@ import { MediaUploader } from '@/components/ui/media-uploader';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { supabase } from '@/lib/supabase';
+import { triggerTranslate } from '@/lib/translate-content';
 import type { Program, Session } from '@/lib/types';
 
 export default function SessionEditScreen() {
@@ -101,6 +102,7 @@ export default function SessionEditScreen() {
         const { error } = await supabase.from('sessions').update(payload).eq('id', id!);
         if (error) throw error;
       }
+      triggerTranslate('sessions', sessionId);
       router.back();
     } catch (e: any) {
       Alert.alert('Sauvegarde impossible', e?.message ?? 'Erreur.');
