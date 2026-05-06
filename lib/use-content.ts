@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
+import { localize, localizeAll } from './localize';
 import { supabase } from './supabase';
 import type { MindsetContent, Program, Recipe, Session } from './types';
 
 // Fetch all programs (catalog read is open to authenticated users)
 export function usePrograms() {
+  const { i18n } = useTranslation();
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -15,9 +18,9 @@ export function usePrograms() {
       .select('*')
       .order('created_at', { ascending: false });
     if (error) console.warn('programs fetch', error);
-    setPrograms((data as Program[]) ?? []);
+    setPrograms(localizeAll(data as Program[] | null, 'programs', i18n.language));
     setLoading(false);
-  }, []);
+  }, [i18n.language]);
 
   useEffect(() => {
     refresh();
@@ -28,6 +31,7 @@ export function usePrograms() {
 
 // Fetch all sessions (optionally filter by program)
 export function useSessions(programId?: string | null) {
+  const { i18n } = useTranslation();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,9 +45,9 @@ export function useSessions(programId?: string | null) {
     if (programId) query = query.eq('program_id', programId);
     const { data, error } = await query;
     if (error) console.warn('sessions fetch', error);
-    setSessions((data as Session[]) ?? []);
+    setSessions(localizeAll(data as Session[] | null, 'sessions', i18n.language));
     setLoading(false);
-  }, [programId]);
+  }, [programId, i18n.language]);
 
   useEffect(() => {
     refresh();
@@ -55,6 +59,7 @@ export function useSessions(programId?: string | null) {
 // "Today's session" — first session in the most recent program for now.
 // Later we can plug a smarter rule (current week, last completed, etc.).
 export function useTodaySession() {
+  const { i18n } = useTranslation();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -68,9 +73,9 @@ export function useTodaySession() {
       .limit(1)
       .maybeSingle();
     if (error) console.warn("today's session fetch", error);
-    setSession((data as Session | null) ?? null);
+    setSession(localize(data as Session | null, 'sessions', i18n.language));
     setLoading(false);
-  }, []);
+  }, [i18n.language]);
 
   useEffect(() => {
     refresh();
@@ -81,6 +86,7 @@ export function useTodaySession() {
 
 // Fetch a single program by id
 export function useProgram(id: string | undefined) {
+  const { i18n } = useTranslation();
   const [program, setProgram] = useState<Program | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -97,9 +103,9 @@ export function useProgram(id: string | undefined) {
       .eq('id', id)
       .maybeSingle();
     if (error) console.warn('program fetch', error);
-    setProgram((data as Program | null) ?? null);
+    setProgram(localize(data as Program | null, 'programs', i18n.language));
     setLoading(false);
-  }, [id]);
+  }, [id, i18n.language]);
 
   useEffect(() => {
     refresh();
@@ -134,6 +140,7 @@ export function useCompletedSessions() {
 
 // Fetch a single session by id
 export function useSession(id: string | undefined) {
+  const { i18n } = useTranslation();
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -150,9 +157,9 @@ export function useSession(id: string | undefined) {
       .eq('id', id)
       .maybeSingle();
     if (error) console.warn('session fetch', error);
-    setSession((data as Session | null) ?? null);
+    setSession(localize(data as Session | null, 'sessions', i18n.language));
     setLoading(false);
-  }, [id]);
+  }, [id, i18n.language]);
 
   useEffect(() => {
     refresh();
@@ -163,6 +170,7 @@ export function useSession(id: string | undefined) {
 
 // Recipes catalog
 export function useRecipes() {
+  const { i18n } = useTranslation();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -173,15 +181,16 @@ export function useRecipes() {
       .select('*')
       .order('created_at', { ascending: false });
     if (error) console.warn('recipes fetch', error);
-    setRecipes((data as Recipe[]) ?? []);
+    setRecipes(localizeAll(data as Recipe[] | null, 'recipes', i18n.language));
     setLoading(false);
-  }, []);
+  }, [i18n.language]);
 
   useEffect(() => { refresh(); }, [refresh]);
   return { recipes, loading, refresh };
 }
 
 export function useRecipe(id: string | undefined) {
+  const { i18n } = useTranslation();
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -194,9 +203,9 @@ export function useRecipe(id: string | undefined) {
       .eq('id', id)
       .maybeSingle();
     if (error) console.warn('recipe fetch', error);
-    setRecipe((data as Recipe | null) ?? null);
+    setRecipe(localize(data as Recipe | null, 'recipes', i18n.language));
     setLoading(false);
-  }, [id]);
+  }, [id, i18n.language]);
 
   useEffect(() => { refresh(); }, [refresh]);
   return { recipe, loading, refresh };
@@ -204,6 +213,7 @@ export function useRecipe(id: string | undefined) {
 
 // Mindset content catalog
 export function useMindsetContent() {
+  const { i18n } = useTranslation();
   const [items, setItems] = useState<MindsetContent[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -214,15 +224,16 @@ export function useMindsetContent() {
       .select('*')
       .order('created_at', { ascending: false });
     if (error) console.warn('mindset_content fetch', error);
-    setItems((data as MindsetContent[]) ?? []);
+    setItems(localizeAll(data as MindsetContent[] | null, 'mindset_content', i18n.language));
     setLoading(false);
-  }, []);
+  }, [i18n.language]);
 
   useEffect(() => { refresh(); }, [refresh]);
   return { items, loading, refresh };
 }
 
 export function useMindsetItem(id: string | undefined) {
+  const { i18n } = useTranslation();
   const [item, setItem] = useState<MindsetContent | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -235,9 +246,9 @@ export function useMindsetItem(id: string | undefined) {
       .eq('id', id)
       .maybeSingle();
     if (error) console.warn('mindset_content fetch', error);
-    setItem((data as MindsetContent | null) ?? null);
+    setItem(localize(data as MindsetContent | null, 'mindset_content', i18n.language));
     setLoading(false);
-  }, [id]);
+  }, [id, i18n.language]);
 
   useEffect(() => { refresh(); }, [refresh]);
   return { item, loading, refresh };

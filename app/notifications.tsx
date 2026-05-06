@@ -168,7 +168,7 @@ export default function NotificationsScreen() {
                     styles.trashBtn,
                     { backgroundColor: palette.background, opacity: pressed ? 0.7 : 1 },
                   ]}
-                  accessibilityLabel="Supprimer la notification"
+                  accessibilityLabel={t('notifications.deleteOneTitle')}
                 >
                   <Trash2 size={16} color={palette.textSecondary} />
                 </Pressable>

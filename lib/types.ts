@@ -1,3 +1,5 @@
+type I18nMap = Record<string, Record<string, string>> | null;
+
 export type Program = {
   id: string;
   title: string;
@@ -6,6 +8,7 @@ export type Program = {
   level: 'debutant' | 'intermediaire' | 'avance' | null;
   cover_url: string | null;
   created_at: string;
+  i18n?: I18nMap;
 };
 
 export type Session = {
@@ -17,6 +20,7 @@ export type Session = {
   video_url: string | null;
   order_index: number;
   created_at: string;
+  i18n?: I18nMap;
 };
 
 export type Recipe = {
@@ -33,6 +37,7 @@ export type Recipe = {
   fat_g: number | null;
   ingredients: string | null;
   created_at: string;
+  i18n?: I18nMap;
 };
 
 export type MindsetContent = {
@@ -43,6 +48,7 @@ export type MindsetContent = {
   cover_url: string | null;
   duration_min: number | null;
   created_at: string;
+  i18n?: I18nMap;
 };
 
 export type AttachmentParentType = 'session' | 'recipe' | 'mindset';
