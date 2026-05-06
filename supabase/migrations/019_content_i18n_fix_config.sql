@@ -18,7 +18,7 @@ create or replace function public.schedule_translate_content(
 returns void
 language plpgsql
 security definer
-set search_path = public, extensions, private
+set search_path = public, net, private
 as $$
 declare
   v_url text;
@@ -30,7 +30,7 @@ begin
     return; -- not configured yet, skip silently
   end if;
 
-  perform extensions.http_post(
+  perform net.http_post(
     url := v_url,
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
