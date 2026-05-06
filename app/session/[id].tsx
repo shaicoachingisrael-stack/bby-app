@@ -1,7 +1,7 @@
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { useLocalSearchParams, useRouter } from 'expo-router';
 import { BarChart3, ChevronLeft, Clock, Dumbbell, Heart } from 'lucide-react-native';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -13,9 +13,11 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AttachmentCarousel } from '@/components/ui/attachment-carousel';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
+import { useAttachments } from '@/lib/use-attachments';
 import { useSession } from '@/lib/use-content';
 import { supabase } from '@/lib/supabase';
 
@@ -29,7 +31,10 @@ export default function SessionDetailScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
   const id = params.id;
   const { session, loading } = useSession(id);
+  const { items: attachments, refresh: refreshAttachments } = useAttachments('session', id);
   const [completing, setCompleting] = useState(false);
+
+  useFocusEffect(useCallback(() => { refreshAttachments(); }, [refreshAttachments]));
   const [favorite, setFavorite] = useState(false);
 
   const videoSource = session?.video_url ?? FALLBACK_VIDEO;
@@ -123,12 +128,12 @@ export default function SessionDetailScreen() {
         <View style={[styles.handle, { backgroundColor: palette.border }]} />
         <ScrollView
           contentContainerStyle={{
-            paddingHorizontal: Spacing.xl,
             paddingTop: Spacing.lg,
             paddingBottom: insets.bottom + 100,
           }}
           showsVerticalScrollIndicator={false}
         >
+          <View style={{ paddingHorizontal: Spacing.xl }}>
           <View style={styles.metaRow}>
             <View style={[styles.metaCard, { backgroundColor: palette.surface }]}>
               <Clock size={18} color={palette.text} />
@@ -178,6 +183,9 @@ export default function SessionDetailScreen() {
               </Text>
             </View>
           </View>
+          </View>
+
+          <AttachmentCarousel attachments={attachments} />
         </ScrollView>
 
         <View style={[styles.cta, { paddingBottom: insets.bottom + Spacing.md, backgroundColor: palette.background }]}>

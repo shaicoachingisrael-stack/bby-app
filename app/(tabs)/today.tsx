@@ -85,12 +85,7 @@ export default function TodayScreen() {
         imageSource: featuredMindset.cover_url ?? null,
         videoSource: featuredMindset.cover_url ? null : INTRO_VIDEO,
         cta: 'Lire',
-        onPress: () =>
-          router.push(
-            `/mindset-log?kind=${
-              featuredMindset.kind === 'meditation' ? 'meditation_done' : featuredMindset.kind
-            }` as any,
-          ),
+        onPress: () => router.push(`/mindset/${featuredMindset.id}` as any),
       });
     }
 
@@ -105,10 +100,7 @@ export default function TodayScreen() {
         imageSource: featuredRecipe.cover_url ?? null,
         videoSource: featuredRecipe.video_url ?? (featuredRecipe.cover_url ? null : NUTRITION_VIDEO),
         cta: 'Voir la recette',
-        onPress: () =>
-          router.push(
-            `/meal-log?type=${featuredRecipe.meal_type ?? 'dejeuner'}` as any,
-          ),
+        onPress: () => router.push(`/recipe/${featuredRecipe.id}` as any),
       });
     }
 
@@ -224,11 +216,7 @@ export default function TodayScreen() {
                         ? 'Article'
                         : 'Affirmation'
                   }
-                  onPress={() =>
-                    router.push(
-                      `/mindset-log?kind=${m.kind === 'meditation' ? 'meditation_done' : m.kind}` as any,
-                    )
-                  }
+                  onPress={() => router.push(`/mindset/${m.id}` as any)}
                 />
               ))}
             </ScrollView>
@@ -261,7 +249,7 @@ export default function TodayScreen() {
                   duration={r.prep_min ? `${r.prep_min} min` : '—'}
                   title={r.title}
                   subtitle={r.kcal ? `${r.kcal} kcal` : 'Recette'}
-                  onPress={() => router.push(`/meal-log?type=${r.meal_type ?? 'dejeuner'}` as any)}
+                  onPress={() => router.push(`/recipe/${r.id}` as any)}
                 />
               ))}
             </ScrollView>

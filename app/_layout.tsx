@@ -103,6 +103,12 @@ function RootStack() {
           name="macros-help"
           options={{ presentation: 'modal', headerShown: false }}
         />
+        <Stack.Screen
+          name="video-viewer"
+          options={{ presentation: 'fullScreenModal', headerShown: false }}
+        />
+        <Stack.Screen name="recipe/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="mindset/[id]" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

@@ -102,7 +102,7 @@ export default function NutritionScreen() {
             imageSource={featuredRecipe?.cover_url ?? null}
             onPress={() =>
               featuredRecipe
-                ? router.push(`/meal-log?type=${featuredRecipe.meal_type ?? 'dejeuner'}` as any)
+                ? router.push(`/recipe/${featuredRecipe.id}` as any)
                 : router.push('/meal-log' as any)
             }
           />
@@ -191,7 +191,7 @@ export default function NutritionScreen() {
                 duration={r.prep_min ? `${r.prep_min} min` : '—'}
                 title={r.title}
                 subtitle={r.kcal ? `${r.kcal} kcal` : 'Recette'}
-                onPress={() => router.push(`/meal-log?type=${r.meal_type ?? 'dejeuner'}` as any)}
+                onPress={() => router.push(`/recipe/${r.id}` as any)}
               />
             ))
           )}

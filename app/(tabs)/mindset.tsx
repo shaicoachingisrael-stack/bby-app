@@ -105,7 +105,7 @@ export default function MindsetScreen() {
             imageSource={featured?.cover_url ?? null}
             onPress={() =>
               featured
-                ? router.push(`/mindset-log?kind=${featured.kind === 'meditation' ? 'meditation_done' : featured.kind}` as any)
+                ? router.push(`/mindset/${featured.id}` as any)
                 : router.push('/mindset-log' as any)
             }
           />
@@ -170,11 +170,7 @@ export default function MindsetScreen() {
                       ? 'Article'
                       : 'Affirmation'
                 }
-                onPress={() =>
-                  router.push(
-                    `/mindset-log?kind=${m.kind === 'meditation' ? 'meditation_done' : m.kind}` as any,
-                  )
-                }
+                onPress={() => router.push(`/mindset/${m.id}` as any)}
               />
             ))
           )}
