@@ -1,36 +1,30 @@
-import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Activity, Bell, Bookmark, BookOpen, CheckCircle2, Circle, GitBranch, Heart, Moon, Plus, Sparkles, Wind } from 'lucide-react-native';
+import { Activity, Bookmark, BookOpen, CheckCircle2, Circle, GitBranch, Heart, Moon, Plus, Sparkles, Wind } from 'lucide-react-native';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ActivityCard } from '@/components/ui/activity-card';
-import { AdminButton } from '@/components/ui/admin-button';
 import { RecommendationCard } from '@/components/ui/recommendation-card';
 import { SessionCard } from '@/components/ui/session-card';
+import { TabHeader } from '@/components/ui/tab-header';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useAuth } from '@/lib/auth-provider';
 import { useMindsetContent } from '@/lib/use-content';
 import { useMindsetPrograms } from '@/lib/use-mindset-programs';
 import { useDailyAffirmation } from '@/lib/use-daily-affirmation';
 import { useDayData } from '@/lib/use-day-data';
-import { useProfile } from '@/lib/use-profile';
 import { ritualIcon } from '@/lib/ritual-icons';
 import { useRituals } from '@/lib/use-rituals';
 
 const INTRO_VIDEO = require('@/assets/videos/intro.mp4');
-const NUTRITION_VIDEO = require('@/assets/videos/nutrition.mp4');
 
 export default function MindsetScreen() {
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const router = useRouter();
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const { profile } = useProfile();
   const { data, refresh } = useDayData();
   const { items: mindsetItems, refresh: refreshMindset } = useMindsetContent();
   const { rituals, checkedToday, toggleCheck, refresh: refreshRituals } = useRituals();
@@ -56,54 +50,31 @@ export default function MindsetScreen() {
   // Le hero est désormais l'affirmation du jour ; le contenu featured rejoint « Explorer ».
   const others = showAffirmation ? mindsetItems.slice(0, 6) : mindsetItems.slice(1, 5);
 
-  const initial = (profile?.display_name || user?.email || '?')[0].toUpperCase();
-
   return (
     <View style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView
         contentContainerStyle={{
-          paddingTop: insets.top + Spacing.md,
+          paddingTop: insets.top + Spacing.lg,
           paddingBottom: 140,
         }}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.header, { paddingHorizontal: Spacing.xl }]}>
-          <Pressable
-            onPress={() => router.push('/account' as any)}
-            hitSlop={8}
-            style={styles.headerLeft}
-          >
-            <View style={[styles.avatar, { backgroundColor: palette.text }]}>
-              {profile?.avatar_url ? (
-                <Image
-                  source={{ uri: profile.avatar_url }}
-                  style={StyleSheet.absoluteFillObject}
-                  contentFit="cover"
-                />
-              ) : (
-                <Text style={[styles.avatarInitial, { color: palette.background, fontFamily: Fonts.sansBold }]}>
-                  {initial}
-                </Text>
-              )}
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.eyebrow, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                {t('mindset.subtitle')}
+        <TabHeader
+          title={t('mindset.title')}
+          subtitle={t('mindset.subtitle')}
+          action={
+            <Pressable
+              onPress={() => router.push('/mindset/favorites' as any)}
+              hitSlop={6}
+              style={[styles.favPill, { borderColor: palette.border }]}
+            >
+              <Bookmark size={14} color={palette.text} strokeWidth={1.8} />
+              <Text style={{ color: palette.text, fontFamily: Fonts.sansMedium, fontSize: 12 }}>
+                {t('favorites.title')}
               </Text>
-              <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                {t('mindset.title')}
-              </Text>
-            </View>
-          </Pressable>
-          <AdminButton />
-          <Pressable
-            onPress={() => router.push('/notifications' as any)}
-            hitSlop={8}
-            style={[styles.bell, { backgroundColor: palette.surface }]}
-          >
-            <Bell size={18} color={palette.text} />
-          </Pressable>
-        </View>
+            </Pressable>
+          }
+        />
 
         {showAffirmation ? (
           /* HERO — affirmation du jour : la même pour toutes, selon la date locale */
@@ -355,6 +326,15 @@ export default function MindsetScreen() {
 }
 
 const styles = StyleSheet.create({
+  favPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
   container: { flex: 1 },
   header: {
     flexDirection: 'row',

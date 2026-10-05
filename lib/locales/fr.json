@@ -45,7 +45,19 @@
     "ctaRead": "Lire",
     "ctaViewRecipe": "Voir la recette",
     "placeholderTitle": "Du contenu arrive",
-    "placeholderSubtitle": "Demande à ta coach de publier des séances et recettes"
+    "placeholderSubtitle": "Demande à ta coach de publier des séances et recettes",
+    "myDay": "Ma journée",
+    "forYou": "Pour toi",
+    "addTitle": "Ajouter à ma journée",
+    "addMeal": "Un repas",
+    "addWater": "De l’eau",
+    "addNote": "Une note",
+    "recipeTag": "Recette",
+    "breathingTag": "Respiration",
+    "noRituals": "Choisir mes rituels",
+    "nothingPlanned": "Rien de prévu pour l’instant",
+    "nothingPlannedSub": "Explore les séances quand tu veux.",
+    "explore": "Explorer"
   },
   "training": {
     "title": "Training",
@@ -59,7 +71,11 @@
       "debutant": "Débutante",
       "intermediaire": "Intermédiaire",
       "avance": "Avancée"
-    }
+    },
+    "myProgram": "Mon programme",
+    "sessionOf": "Séance {{current}} sur {{total}}",
+    "resumeSession": "Reprendre : {{title}}",
+    "programSessions": "Séances du programme"
   },
   "nutrition": {
     "title": "Nutrition",
@@ -93,7 +109,9 @@
       "on": "Avec suivi",
       "onHint": "Tu suis tes macros et tes calories au fil de la journée."
     },
-    "planSection": "Ma semaine"
+    "planSection": "Ma semaine",
+    "dailyGuide": "Tes repères du jour",
+    "understandShort": "Comprendre"
   },
   "mindset": {
     "title": "Mindset",

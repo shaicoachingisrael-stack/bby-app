@@ -45,7 +45,19 @@
     "ctaRead": "Leer",
     "ctaViewRecipe": "Ver receta",
     "placeholderTitle": "Pronto habrá contenido",
-    "placeholderSubtitle": "Pídele a tu coach que publique sesiones y recetas"
+    "placeholderSubtitle": "Pídele a tu coach que publique sesiones y recetas",
+    "myDay": "Mi día",
+    "forYou": "Para ti",
+    "addTitle": "Añadir a mi día",
+    "addMeal": "Una comida",
+    "addWater": "Agua",
+    "addNote": "Una nota",
+    "recipeTag": "Receta",
+    "breathingTag": "Respiración",
+    "noRituals": "Elegir mis rituales",
+    "nothingPlanned": "Nada previsto por ahora",
+    "nothingPlannedSub": "Explora las sesiones cuando quieras.",
+    "explore": "Explorar"
   },
   "training": {
     "title": "Entrena",
@@ -59,7 +71,11 @@
       "debutant": "Principiante",
       "intermediaire": "Intermedio",
       "avance": "Avanzado"
-    }
+    },
+    "myProgram": "Mi programa",
+    "sessionOf": "Sesión {{current}} de {{total}}",
+    "resumeSession": "Retomar: {{title}}",
+    "programSessions": "Sesiones del programa"
   },
   "nutrition": {
     "title": "Nutrición",
@@ -93,7 +109,9 @@
       "on": "Con seguimiento",
       "onHint": "Sigues tus macros y tus calorías a lo largo del día."
     },
-    "planSection": "Mi semana"
+    "planSection": "Mi semana",
+    "dailyGuide": "Tus referencias del día",
+    "understandShort": "Entender"
   },
   "mindset": {
     "title": "Mindset",

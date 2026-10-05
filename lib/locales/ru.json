@@ -45,7 +45,19 @@
     "ctaRead": "Читать",
     "ctaViewRecipe": "Посмотреть рецепт",
     "placeholderTitle": "Контент скоро будет",
-    "placeholderSubtitle": "Попроси своего тренера опубликовать тренировки и рецепты"
+    "placeholderSubtitle": "Попроси своего тренера опубликовать тренировки и рецепты",
+    "myDay": "Мой день",
+    "forYou": "Для тебя",
+    "addTitle": "Добавить в мой день",
+    "addMeal": "Приём пищи",
+    "addWater": "Воду",
+    "addNote": "Заметку",
+    "recipeTag": "Рецепт",
+    "breathingTag": "Дыхание",
+    "noRituals": "Выбрать мои ритуалы",
+    "nothingPlanned": "Пока ничего не запланировано",
+    "nothingPlannedSub": "Изучай тренировки, когда захочешь.",
+    "explore": "Смотреть"
   },
   "training": {
     "title": "Тренировки",
@@ -59,7 +71,11 @@
       "debutant": "Начинающая",
       "intermediaire": "Средний",
       "avance": "Продвинутая"
-    }
+    },
+    "myProgram": "Моя программа",
+    "sessionOf": "Тренировка {{current}} из {{total}}",
+    "resumeSession": "Продолжить: {{title}}",
+    "programSessions": "Тренировки программы"
   },
   "nutrition": {
     "title": "Питание",
@@ -93,7 +109,9 @@
       "on": "С отслеживанием",
       "onHint": "Ты следишь за макросами и калориями в течение дня."
     },
-    "planSection": "Моя неделя"
+    "planSection": "Моя неделя",
+    "dailyGuide": "Твои ориентиры на день",
+    "understandShort": "Как это считается"
   },
   "mindset": {
     "title": "Mindset",

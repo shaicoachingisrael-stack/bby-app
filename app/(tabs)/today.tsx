@@ -1,50 +1,34 @@
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Bell, CheckCircle2, ChevronRight, Circle, Star } from 'lucide-react-native';
-import { useCallback, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Bell, ChevronRight, Plus, Star, Wind } from 'lucide-react-native';
+import { useCallback, useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AccentFill } from '@/components/ui/accent-fill';
 import { AdminButton } from '@/components/ui/admin-button';
 import { DateStrip } from '@/components/ui/date-strip';
 import { LanguageButton } from '@/components/ui/language-button';
-import { HeroSwiper, type HeroItem } from '@/components/ui/hero-swiper';
-import { RecommendationCard } from '@/components/ui/recommendation-card';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
-import { ritualIcon } from '@/lib/ritual-icons';
 import { useRituals } from '@/lib/use-rituals';
 import { useMyCoaching } from '@/lib/use-coaching';
-import {
-  useMindsetContent,
-  useRecipes,
-  useSessions,
-  useTodaySession,
-} from '@/lib/use-content';
-import { useDayData } from '@/lib/use-day-data';
+import { useMindsetContent, useRecipes, useTodaySession } from '@/lib/use-content';
 import { useProfile } from '@/lib/use-profile';
 
-const TRAINING_VIDEO = require('@/assets/videos/exercise.mp4');
-const NUTRITION_VIDEO = require('@/assets/videos/nutrition.mp4');
-const INTRO_VIDEO = require('@/assets/videos/intro.mp4');
-
-const MONTHS = [
-  'Janvier','Février','Mars','Avril','Mai','Juin',
-  'Juillet','Août','Septembre','Octobre','Novembre','Décembre',
-];
-
+// Aujourd'hui (maquette Ember v2) : une seule grande action en haut, puis
+// « Ma journée » (les rituels en puces + le « + » qui ajoute un repas, de l'eau
+// ou une note), puis « Pour toi ». Aucun compteur de jours, aucune récompense.
 export default function TodayScreen() {
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { profile } = useProfile();
-  const { refresh } = useDayData();
   const { session: todaySession, refresh: refreshToday } = useTodaySession();
-  const { sessions: catalog, refresh: refreshCatalog } = useSessions();
   const { recipes, refresh: refreshRecipes } = useRecipes();
   const { items: mindsetItems, refresh: refreshMindset } = useMindsetContent();
   const { rituals, checkedToday, toggleCheck, refresh: refreshRituals } = useRituals();
@@ -53,421 +37,343 @@ export default function TodayScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      refresh();
       refreshToday();
-      refreshCatalog();
       refreshRecipes();
       refreshMindset();
       refreshRituals();
       refreshCoaching();
-    }, [refresh, refreshToday, refreshCatalog, refreshRecipes, refreshMindset, refreshRituals, refreshCoaching]),
+    }, [refreshToday, refreshRecipes, refreshMindset, refreshRituals, refreshCoaching]),
   );
 
   const firstName = (profile?.display_name || user?.email?.split('@')[0] || '').split(' ')[0];
   const initial = (firstName || '?')[0].toUpperCase();
-  const monthLabel = `${MONTHS[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
+  const dateLabel = capitalize(
+    new Date().toLocaleDateString(i18n.language, { weekday: 'long', day: 'numeric', month: 'long' }),
+  );
+  const tracking = profile?.nutrition_tracking === true;
 
-  // Build hero swiper from real content
-  const heroItems = useMemo<HeroItem[]>(() => {
-    const items: HeroItem[] = [];
+  // Le « + » de « Ma journée » : ajouter en deux gestes, depuis l'accueil.
+  function handleAdd() {
+    Alert.alert(t('today.addTitle'), undefined, [
+      // un repas ne s'enregistre que si le suivi nutrition est activé
+      ...(tracking ? [{ text: t('today.addMeal'), onPress: () => router.push('/meal-log' as any) }] : []),
+      { text: t('today.addWater'), onPress: () => router.push('/hydration-log' as any) },
+      { text: t('today.addNote'), onPress: () => router.push('/mindset-log' as any) },
+      { text: t('common.cancel'), style: 'cancel' as const },
+    ]);
+  }
 
-    if (todaySession) {
-      items.push({
-        id: `s-${todaySession.id}`,
-        eyebrow: t('today.sessionOfDay'),
-        title: todaySession.title,
-        subtitle: todaySession.description ?? undefined,
-        meta: todaySession.duration_min ? `${todaySession.duration_min} min` : undefined,
-        videoSource: todaySession.video_url ?? TRAINING_VIDEO,
-        cta: t('today.ctaStart'),
-        onPress: () => router.push(`/session/${todaySession.id}` as any),
-      });
-    }
-
-    const featuredMindset = mindsetItems[0];
-    if (featuredMindset) {
-      items.push({
-        id: `m-${featuredMindset.id}`,
-        eyebrow: t('today.mindsetOfDay'),
-        title: featuredMindset.title,
-        subtitle: featuredMindset.body?.split('\n')[0] ?? undefined,
-        meta: featuredMindset.duration_min ? `${featuredMindset.duration_min} min` : undefined,
-        imageSource: featuredMindset.cover_url ?? null,
-        videoSource: featuredMindset.cover_url ? null : INTRO_VIDEO,
-        cta: t('today.ctaRead'),
-        onPress: () => router.push(`/mindset/${featuredMindset.id}` as any),
-      });
-    }
-
-    const featuredRecipe = recipes[0];
-    if (featuredRecipe) {
-      items.push({
-        id: `r-${featuredRecipe.id}`,
-        eyebrow: t('today.recipeOfDay'),
-        title: featuredRecipe.title,
-        subtitle: featuredRecipe.description ?? undefined,
-        meta: featuredRecipe.kcal ? `${featuredRecipe.kcal} kcal` : undefined,
-        imageSource: featuredRecipe.cover_url ?? null,
-        videoSource: featuredRecipe.video_url ?? (featuredRecipe.cover_url ? null : NUTRITION_VIDEO),
-        cta: t('today.ctaViewRecipe'),
-        onPress: () => router.push(`/recipe/${featuredRecipe.id}` as any),
-      });
-    }
-
-    if (items.length === 0) {
-      items.push({
-        id: 'placeholder',
-        eyebrow: t('common.comingSoon'),
-        title: t('today.placeholderTitle'),
-        subtitle: t('today.placeholderSubtitle'),
-        videoSource: TRAINING_VIDEO,
-      });
-    }
-
-    return items;
-  }, [todaySession, mindsetItems, recipes, router, t]);
+  const featuredRecipe = recipes[0];
+  const featuredMindset = mindsetItems[0];
+  const macros = featuredRecipe
+    ? [
+        featuredRecipe.protein_g ? `P ${featuredRecipe.protein_g} g` : null,
+        featuredRecipe.fat_g ? `L ${featuredRecipe.fat_g} g` : null,
+        featuredRecipe.carbs_g ? `G ${featuredRecipe.carbs_g} g` : null,
+      ].filter(Boolean)
+    : [];
 
   return (
     <View style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView
-        contentContainerStyle={{
-          paddingTop: insets.top + Spacing.xxl,
-          paddingBottom: 140,
-        }}
+        contentContainerStyle={{ paddingTop: insets.top + Spacing.lg, paddingBottom: 140 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={[styles.header, { paddingHorizontal: Spacing.xl }]}>
-          <Pressable
-            onPress={() => router.push('/account' as any)}
-            hitSlop={8}
-            style={styles.headerLeft}
-          >
-            <View style={[styles.avatar, { backgroundColor: palette.text }]}>
-              {profile?.avatar_url ? (
-                <Image
-                  source={{ uri: profile.avatar_url }}
-                  style={StyleSheet.absoluteFillObject}
-                  contentFit="cover"
-                />
-              ) : (
-                <Text style={[styles.avatarInitial, { color: palette.background, fontFamily: Fonts.sansBold }]}>
-                  {initial}
-                </Text>
-              )}
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.hello, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                {t('today.hello', { name: firstName ? capitalize(firstName) : '👋' })}
-              </Text>
-              <Text
-                style={[styles.helloTitle, { color: palette.text, fontFamily: Fonts.displayBold }]}
-                numberOfLines={1}
-              >
-                {t('today.greeting')}
-              </Text>
-            </View>
-          </Pressable>
+        {/* En-tête : prénom + date à gauche, avatar à droite */}
+        <View style={styles.header}>
+          <View style={{ flex: 1 }}>
+            <Text numberOfLines={1} style={[styles.hello, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+              {t('today.hello', { name: firstName ? capitalize(firstName) : '' }).replace(/,\s*$/, '')}
+            </Text>
+            <Text style={[styles.date, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+              {dateLabel}
+            </Text>
+          </View>
           <AdminButton />
           <LanguageButton />
           <Pressable
             onPress={() => router.push('/notifications' as any)}
             hitSlop={8}
-            style={[styles.bell, { backgroundColor: palette.surface }]}
+            style={[styles.round, { backgroundColor: palette.surface }]}
             accessibilityLabel="Notifications"
           >
             <Bell size={18} color={palette.text} />
           </Pressable>
+          <Pressable
+            onPress={() => router.push('/account' as any)}
+            hitSlop={8}
+            style={styles.avatar}
+            accessibilityLabel={t('account.title')}
+          >
+            <AccentFill />
+            {profile?.avatar_url ? (
+              <Image source={{ uri: profile.avatar_url }} style={StyleSheet.absoluteFillObject} contentFit="cover" />
+            ) : (
+              <Text style={[styles.avatarInitial, { color: palette.onAccent, fontFamily: Fonts.sansBold }]}>
+                {initial}
+              </Text>
+            )}
+          </Pressable>
         </View>
 
-        {/* Date strip */}
-        <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl }}>
-          <Text style={[styles.month, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-            {monthLabel}
-          </Text>
-        </View>
-        <View style={{ marginTop: Spacing.sm }}>
+        <View style={{ marginTop: Spacing.lg }}>
           <DateStrip value={selectedDate} onChange={setSelectedDate} />
         </View>
 
-        {/* Mon coach perso (grande bannière, clientes premium) — au-dessus du carrousel */}
-        {hasCoach && (
-          <Pressable
-            onPress={() => router.push('/my-coach' as any)}
-            style={({ pressed }) => [styles.coachBanner, { backgroundColor: palette.text, opacity: pressed ? 0.92 : 1 }]}
-          >
-            <View style={styles.coachIcon}>
-              <Star size={22} color={palette.text} fill={palette.text} />
+        {/* La seule zone lumineuse de l'écran : la séance du jour */}
+        <Pressable
+          onPress={() => router.push((todaySession ? `/session/${todaySession.id}` : '/training') as any)}
+          style={({ pressed }) => [styles.hero, { opacity: pressed ? 0.92 : 1 }]}
+        >
+          <AccentFill />
+          <View>
+            <Text style={[styles.heroEyebrow, { color: palette.onAccent, fontFamily: Fonts.sansBold }]}>
+              {t('today.sessionOfDay').toUpperCase()}
+            </Text>
+            <Text numberOfLines={3} style={[styles.heroTitle, { color: palette.onAccent, fontFamily: Fonts.displayBold }]}>
+              {todaySession ? todaySession.title : t('today.nothingPlanned')}
+            </Text>
+            {!todaySession ? (
+              <Text style={[styles.heroSub, { color: palette.onAccent, fontFamily: Fonts.sans }]}>
+                {t('today.nothingPlannedSub')}
+              </Text>
+            ) : null}
+          </View>
+          <View style={styles.heroFoot}>
+            <View style={[styles.heroCta, { backgroundColor: palette.onAccent }]}>
+              <Text style={[styles.heroCtaText, { color: palette.text, fontFamily: Fonts.sansBold }]}>
+                {todaySession ? t('today.ctaStart') : t('today.explore')}
+              </Text>
             </View>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.coachEyebrow, { color: palette.background, fontFamily: Fonts.sansMedium }]}>
-                {t('coaching.eyebrow').toUpperCase()}
+            {todaySession?.duration_min ? (
+              <Text style={[styles.heroMeta, { color: palette.onAccent, fontFamily: Fonts.sansBold }]}>
+                {todaySession.duration_min} min
               </Text>
-              <Text style={[styles.coachBannerTitle, { color: palette.background, fontFamily: Fonts.displayBold }]}>
-                {t('coaching.myCoachTitle')}
-              </Text>
-              <Text style={[styles.coachSub, { color: palette.background, fontFamily: Fonts.sans }]}>
-                {t('coaching.todayCardSub')}
-              </Text>
-            </View>
-            <ChevronRight size={22} color={palette.background} />
-          </Pressable>
-        )}
+            ) : null}
+          </View>
+        </Pressable>
 
-        {/* Découverte coaching perso (non-premium) */}
-        {!hasCoach && (
-          <Pressable
-            onPress={() => router.push('/coaching-offer' as any)}
-            style={({ pressed }) => [styles.discoverCard, { backgroundColor: palette.surface, opacity: pressed ? 0.9 : 1 }]}
-          >
-            <View style={[styles.coachIcon, { backgroundColor: palette.text }]}>
-              <Star size={18} color={palette.background} strokeWidth={1.8} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.discoverTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                {t('coachingOffer.discoverTitle')}
-              </Text>
-              <Text style={[styles.discoverSub, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                {t('coachingOffer.discoverSub')}
-              </Text>
-            </View>
-            <ChevronRight size={20} color={palette.textSecondary} />
-          </Pressable>
-        )}
-
-        {/* Big hero swiper */}
-        <View style={{ marginTop: Spacing.xl }}>
-          <HeroSwiper items={heroItems} />
+        {/* Ma journée : rituels en puces, « + » pour ajouter */}
+        <View style={[styles.card, { backgroundColor: palette.surface, borderColor: palette.border }]}>
+          <View style={styles.cardHead}>
+            <Text style={[styles.cardTitle, { color: palette.text, fontFamily: Fonts.display }]}>
+              {t('today.myDay')}
+            </Text>
+            <Pressable
+              onPress={handleAdd}
+              hitSlop={10}
+              accessibilityLabel={t('today.addTitle')}
+              style={[styles.plus, { backgroundColor: palette.text }]}
+            >
+              <Plus size={18} color={palette.background} strokeWidth={2.4} />
+            </Pressable>
+          </View>
+          <View style={styles.chips}>
+            {rituals.map((r) => {
+              const checked = checkedToday.has(r.id);
+              return (
+                <Pressable
+                  key={r.id}
+                  onPress={() => toggleCheck(r.id)}
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked }}
+                  style={[
+                    styles.chip,
+                    checked
+                      ? { borderColor: palette.done, backgroundColor: palette.accentSoft }
+                      : { borderColor: palette.border },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      fontFamily: checked ? Fonts.sansSemibold : Fonts.sans,
+                      color: checked ? palette.done : palette.textSecondary,
+                    }}
+                  >
+                    {r.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+            {rituals.length === 0 ? (
+              <Pressable
+                onPress={() => router.push('/mindset/rituals' as any)}
+                style={[styles.chip, { borderColor: palette.border }]}
+              >
+                <Text style={{ fontSize: 13, fontFamily: Fonts.sansMedium, color: palette.text }}>
+                  {t('today.noRituals')}
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
         </View>
 
-        {/* Mes rituels du jour */}
-        {rituals.length > 0 && (
-          <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-              <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                {t('rituals.todayTitle')}
-              </Text>
-              <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                {t('rituals.counter', { done: checkedToday.size, total: rituals.length })}
-              </Text>
-            </View>
-            <View style={[styles.ritualCard, { backgroundColor: palette.surface }]}>
-              {rituals.map((r) => {
-                const Icon = ritualIcon(r.icon);
-                const checked = checkedToday.has(r.id);
-                return (
-                  <Pressable key={r.id} style={styles.ritualRow} onPress={() => toggleCheck(r.id)}>
-                    {checked ? (
-                      <CheckCircle2 size={22} color={palette.done} strokeWidth={1.8} />
-                    ) : (
-                      <Circle size={22} color={palette.textSecondary} strokeWidth={1.8} />
-                    )}
-                    <Icon size={16} color={palette.textSecondary} strokeWidth={1.8} />
-                    <Text
-                      style={{
-                        flex: 1,
-                        fontSize: 15,
-                        fontFamily: Fonts.sans,
-                        color: checked ? palette.textSecondary : palette.text,
-                        textDecorationLine: checked ? 'line-through' : 'none',
-                      }}
-                    >
-                      {r.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
+        {/* Coaching personnel : une ligne discrète, pas une seconde zone lumineuse */}
+        <Pressable
+          onPress={() => router.push((hasCoach ? '/my-coach' : '/coaching-offer') as any)}
+          style={({ pressed }) => [
+            styles.rowCard,
+            { backgroundColor: palette.surface, borderColor: palette.border, opacity: pressed ? 0.85 : 1 },
+          ]}
+        >
+          <View style={[styles.thumb, { backgroundColor: palette.surfaceAlt }]}>
+            <Star size={18} color={palette.text} strokeWidth={1.8} />
           </View>
-        )}
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+              {hasCoach ? t('coaching.myCoachTitle') : t('coachingOffer.discoverTitle')}
+            </Text>
+            <Text numberOfLines={1} style={[styles.rowSub, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+              {hasCoach ? t('coaching.todayCardSub') : t('coachingOffer.discoverSub')}
+            </Text>
+          </View>
+          <ChevronRight size={18} color={palette.textSecondary} />
+        </Pressable>
 
-        {/* Mindset du jour */}
-        {mindsetItems.length > 0 && (
-          <>
-            <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-              <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                {t('today.sectionMindset')}
-              </Text>
-              <Pressable onPress={() => router.push('/mindset' as any)} hitSlop={8}>
-                <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-                  {t('common.viewAll')}
-                </Text>
-              </Pressable>
-            </View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: Spacing.xl, gap: Spacing.md, marginTop: Spacing.md }}
+        {/* Pour toi */}
+        <View style={styles.sectionHead}>
+          <Text style={[styles.cardTitle, { color: palette.text, fontFamily: Fonts.display }]}>
+            {t('today.forYou')}
+          </Text>
+        </View>
+        <View style={styles.list}>
+          {featuredRecipe ? (
+            <Pressable
+              onPress={() => router.push(`/recipe/${featuredRecipe.id}` as any)}
+              style={({ pressed }) => [styles.row, { opacity: pressed ? 0.7 : 1 }]}
             >
-              {mindsetItems.slice(0, 6).map((m) => (
-                <RecommendationCard
-                  key={m.id}
-                  videoSource={null}
-                  imageSource={m.cover_url ?? null}
-                  duration={m.duration_min ? `${m.duration_min} min` : '—'}
-                  title={m.title}
-                  subtitle={
-                    m.kind === 'meditation'
-                      ? t('mindset.kind.meditation')
-                      : m.kind === 'article'
-                        ? t('mindset.kind.article')
-                        : t('mindset.kind.affirmation')
-                  }
-                  onPress={() => router.push(`/mindset/${m.id}` as any)}
-                />
-              ))}
-            </ScrollView>
-          </>
-        )}
-
-        {/* Recettes */}
-        {recipes.length > 0 && (
-          <>
-            <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-              <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                {t('today.sectionRecipes')}
-              </Text>
-              <Pressable onPress={() => router.push('/nutrition' as any)} hitSlop={8}>
-                <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-                  {t('common.viewAll')}
+              <View style={[styles.thumb, { backgroundColor: palette.surfaceAlt }]}>
+                {featuredRecipe.cover_url ? (
+                  <Image source={{ uri: featuredRecipe.cover_url }} style={StyleSheet.absoluteFillObject} contentFit="cover" />
+                ) : null}
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text numberOfLines={1} style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+                  {featuredRecipe.title}
                 </Text>
-              </Pressable>
-            </View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: Spacing.xl, gap: Spacing.md, marginTop: Spacing.md }}
-            >
-              {recipes.slice(0, 6).map((r) => (
-                <RecommendationCard
-                  key={r.id}
-                  videoSource={r.video_url ?? null}
-                  imageSource={r.cover_url ?? null}
-                  duration={r.prep_min ? `${r.prep_min} min` : '—'}
-                  title={r.title}
-                  subtitle={r.kcal ? `${r.kcal} kcal` : t('today.sectionRecipes')}
-                  onPress={() => router.push(`/recipe/${r.id}` as any)}
-                />
-              ))}
-            </ScrollView>
-          </>
-        )}
-
-        {/* Séances */}
-        {catalog.length > 0 && (
-          <>
-            <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-              <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                {t('today.sectionSessions')}
-              </Text>
-              <Pressable onPress={() => router.push('/training' as any)} hitSlop={8}>
-                <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-                  {t('common.viewAll')}
+                <Text numberOfLines={1} style={[styles.rowSub, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+                  {[t('today.recipeTag'), ...macros].join(' · ')}
                 </Text>
-              </Pressable>
+              </View>
+            </Pressable>
+          ) : null}
+          <Pressable
+            onPress={() => router.push('/mindset/breathing' as any)}
+            style={({ pressed }) => [styles.row, { opacity: pressed ? 0.7 : 1 }]}
+          >
+            <View style={[styles.thumb, { backgroundColor: palette.surfaceAlt }]}>
+              <Wind size={18} color={palette.text} strokeWidth={1.8} />
             </View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: Spacing.xl, gap: Spacing.md, marginTop: Spacing.md }}
+            <View style={{ flex: 1 }}>
+              <Text numberOfLines={1} style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+                {t('breathing.title')}
+              </Text>
+              <Text numberOfLines={1} style={[styles.rowSub, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+                {t('breathing.subtitle')}
+              </Text>
+            </View>
+          </Pressable>
+          {featuredMindset ? (
+            <Pressable
+              onPress={() => router.push(`/mindset/${featuredMindset.id}` as any)}
+              style={({ pressed }) => [styles.row, { opacity: pressed ? 0.7 : 1 }]}
             >
-              {catalog.slice(0, 6).map((s) => (
-                <RecommendationCard
-                  key={s.id}
-                  videoSource={s.video_url ?? INTRO_VIDEO}
-                  duration={s.duration_min ? `${s.duration_min} min` : '—'}
-                  title={s.title}
-                  subtitle={s.description ?? t('program.session')}
-                  onPress={() => router.push(`/session/${s.id}` as any)}
-                />
-              ))}
-            </ScrollView>
-          </>
-        )}
+              <View style={[styles.thumb, { backgroundColor: palette.surfaceAlt }]}>
+                {featuredMindset.cover_url ? (
+                  <Image source={{ uri: featuredMindset.cover_url }} style={StyleSheet.absoluteFillObject} contentFit="cover" />
+                ) : null}
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text numberOfLines={1} style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+                  {featuredMindset.title}
+                </Text>
+                <Text numberOfLines={1} style={[styles.rowSub, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+                  {[
+                    t(`mindset.kind.${featuredMindset.kind}`),
+                    featuredMindset.duration_min ? `${featuredMindset.duration_min} min` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </Text>
+              </View>
+            </Pressable>
+          ) : null}
+        </View>
       </ScrollView>
     </View>
   );
 }
 
 function capitalize(s: string) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
+  return s ? s[0].toUpperCase() + s.slice(1) : s;
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-  },
-  headerLeft: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-  },
+  header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingHorizontal: Spacing.xl },
+  hello: { fontSize: 26, letterSpacing: -0.6 },
+  date: { fontSize: 13, marginTop: 2 },
+  round: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  avatarInitial: { fontSize: 18 },
-  hello: { fontSize: 13 },
-  helloTitle: { fontSize: 18, letterSpacing: -0.3, marginTop: 2 },
-  bell: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  month: { fontSize: 18, letterSpacing: -0.3 },
-  section: { fontSize: 22, letterSpacing: -0.4 },
-  seeAll: { fontSize: 13 },
-  ritualCard: {
-    borderRadius: Radius.md,
-    marginTop: Spacing.md,
-    paddingVertical: Spacing.xs,
-  },
-  ritualRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.lg,
-  },
-  coachBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    borderRadius: Radius.lg,
-    padding: Spacing.xl,
+  avatarInitial: { fontSize: 16 },
+  hero: {
     marginHorizontal: Spacing.xl,
-    marginTop: Spacing.xl,
+    marginTop: Spacing.lg,
+    borderRadius: 28,
+    padding: Spacing.xl,
+    minHeight: 190,
+    justifyContent: 'space-between',
+    gap: Spacing.xl,
+    overflow: 'hidden',
   },
-  coachIcon: {
+  heroEyebrow: { fontSize: 11, letterSpacing: 1.6, opacity: 0.75 },
+  heroTitle: { fontSize: 30, lineHeight: 32, letterSpacing: -0.8, marginTop: 6 },
+  heroSub: { fontSize: 14, marginTop: 6, opacity: 0.8 },
+  heroFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  heroCta: { borderRadius: Radius.pill, paddingHorizontal: 20, paddingVertical: 11 },
+  heroCtaText: { fontSize: 14 },
+  heroMeta: { fontSize: 14 },
+  card: {
+    marginHorizontal: Spacing.xl,
+    marginTop: Spacing.md,
+    borderRadius: 22,
+    borderWidth: StyleSheet.hairlineWidth,
+    padding: Spacing.lg,
+  },
+  cardHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  cardTitle: { fontSize: 18, letterSpacing: -0.3 },
+  plus: { width: 32, height: 32, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginTop: Spacing.md },
+  chip: { borderWidth: 1, borderRadius: Radius.pill, paddingHorizontal: 14, paddingVertical: 8 },
+  rowCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    marginHorizontal: Spacing.xl,
+    marginTop: Spacing.md,
+    borderRadius: 22,
+    borderWidth: StyleSheet.hairlineWidth,
+    padding: Spacing.md,
+  },
+  sectionHead: { paddingHorizontal: Spacing.xl, marginTop: Spacing.xl },
+  list: { paddingHorizontal: Spacing.xl, marginTop: Spacing.md, gap: Spacing.md },
+  row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  thumb: {
     width: 48,
     height: 48,
-    borderRadius: 24,
-    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
-  coachEyebrow: { fontSize: 10, letterSpacing: 1.6, opacity: 0.7 },
-  coachBannerTitle: { fontSize: 22, letterSpacing: -0.4, marginTop: 2 },
-  coachSub: { fontSize: 13, marginTop: 2, opacity: 0.8 },
-  discoverCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    borderRadius: Radius.md,
-    padding: Spacing.lg,
-    marginHorizontal: Spacing.xl,
-    marginTop: Spacing.xl,
-  },
-  discoverTitle: { fontSize: 15 },
-  discoverSub: { fontSize: 13, marginTop: 2 },
+  rowTitle: { fontSize: 15 },
+  rowSub: { fontSize: 12, marginTop: 2 },
 });

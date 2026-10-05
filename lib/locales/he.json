@@ -45,7 +45,19 @@
     "ctaRead": "קריאה",
     "ctaViewRecipe": "ראה מתכון",
     "placeholderTitle": "תוכן בדרך",
-    "placeholderSubtitle": "בקשי מהמאמנת לפרסם אימונים ומתכונים"
+    "placeholderSubtitle": "בקשי מהמאמנת לפרסם אימונים ומתכונים",
+    "myDay": "היום שלי",
+    "forYou": "בשבילך",
+    "addTitle": "הוספה ליום שלי",
+    "addMeal": "ארוחה",
+    "addWater": "מים",
+    "addNote": "הערה",
+    "recipeTag": "מתכון",
+    "breathingTag": "נשימה",
+    "noRituals": "בחירת הריטואלים שלי",
+    "nothingPlanned": "אין משהו מתוכנן כרגע",
+    "nothingPlannedSub": "אפשר לגלות את האימונים מתי שתרצי.",
+    "explore": "לגלות"
   },
   "training": {
     "title": "אימון",
@@ -59,7 +71,11 @@
       "debutant": "מתחילה",
       "intermediaire": "בינוני",
       "avance": "מתקדמת"
-    }
+    },
+    "myProgram": "התוכנית שלי",
+    "sessionOf": "אימון {{current}} מתוך {{total}}",
+    "resumeSession": "להמשיך: {{title}}",
+    "programSessions": "אימוני התוכנית"
   },
   "nutrition": {
     "title": "תזונה",
@@ -93,7 +109,9 @@
       "on": "עם מעקב",
       "onHint": "את עוקבת אחרי המאקרו והקלוריות שלך לאורך היום."
     },
-    "planSection": "השבוע שלי"
+    "planSection": "השבוע שלי",
+    "dailyGuide": "נקודות הייחוס שלך להיום",
+    "understandShort": "איך זה מחושב"
   },
   "mindset": {
     "title": "מיינדסט",
