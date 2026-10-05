@@ -7,7 +7,7 @@ type WithI18n = {
 const FIELD_MAP: Record<string, string[]> = {
   programs: ['title', 'description'],
   sessions: ['title', 'description'],
-  recipes: ['title', 'description', 'ingredients'],
+  recipes: ['title', 'description', 'ingredients', 'steps'],
   mindset_content: ['title', 'body'],
   daily_affirmations: ['text'],
   mindset_ritual_catalog: ['label'],

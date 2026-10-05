@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { ChevronLeft, Clock, Flame } from 'lucide-react-native';
+import { ChevronLeft, Clock, Flame, Pencil } from 'lucide-react-native';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -17,13 +17,17 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AttachmentCarousel } from '@/components/ui/attachment-carousel';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAuth } from '@/lib/auth-provider';
+import { formatIngredient } from '@/lib/ingredients';
 import { useAttachments } from '@/lib/use-attachments';
 import { useRecipe } from '@/lib/use-content';
+import { useRecipeIngredients } from '@/lib/use-meal-plan';
 import { useProfile } from '@/lib/use-profile';
 
 export default function RecipeDetailScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const { profile } = useProfile();
@@ -38,13 +42,26 @@ export default function RecipeDetailScreen() {
     collation: t('nutrition.snack'),
   };
 
-  const { recipe, loading } = useRecipe(id);
+  const { recipe, loading, refresh: refreshRecipe } = useRecipe(id);
+  const { ingredients, refresh: refreshIngredients } = useRecipeIngredients(id);
+  const isMine = !!recipe?.owner_id && recipe.owner_id === user?.id;
+  // Les lignes structurées sont en français. Dans une autre langue, on garde le
+  // bloc traduit automatiquement tant qu'il existe.
+  const lang = i18n.language.slice(0, 2);
+  const translatedBlock = lang !== 'fr' && !!recipe?.i18n?.[lang]?.ingredients;
+  const showStructured = ingredients.length > 0 && !translatedBlock;
   const { items: attachments, refresh: refreshAttachments } = useAttachments(
     'recipe',
     id,
   );
 
-  useFocusEffect(useCallback(() => { refreshAttachments(); }, [refreshAttachments]));
+  useFocusEffect(
+    useCallback(() => {
+      refreshAttachments();
+      refreshRecipe();
+      refreshIngredients();
+    }, [refreshAttachments, refreshRecipe, refreshIngredients]),
+  );
 
   const heroVideoSource = recipe?.video_url ?? null;
   const heroImageSource = !heroVideoSource ? recipe?.cover_url ?? null : null;
@@ -106,6 +123,19 @@ export default function RecipeDetailScreen() {
           >
             <ChevronLeft size={20} color={Palette.encre} />
           </Pressable>
+          {isMine ? (
+            <Pressable
+              onPress={() => router.push(`/my-recipe-edit?id=${recipe.id}` as any)}
+              hitSlop={10}
+              accessibilityLabel={t('myRecipes.editTitle')}
+              style={({ pressed }) => [
+                styles.iconBtn,
+                { backgroundColor: Palette.albatre, opacity: pressed ? 0.8 : 1 },
+              ]}
+            >
+              <Pencil size={18} color={Palette.encre} />
+            </Pressable>
+          ) : null}
         </View>
         <View style={styles.heroTitleBlock}>
           <Text style={styles.heroEyebrow}>
@@ -119,7 +149,7 @@ export default function RecipeDetailScreen() {
         <View style={[styles.handle, { backgroundColor: palette.border }]} />
 
         <ScrollView
-          contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+          contentContainerStyle={{ paddingBottom: insets.bottom + (tracking ? 150 : 100) }}
           showsVerticalScrollIndicator={false}
         >
           <View style={{ paddingHorizontal: Spacing.xl, paddingTop: Spacing.lg }}>
@@ -152,7 +182,20 @@ export default function RecipeDetailScreen() {
               </>
             ) : null}
 
-            {recipe.ingredients ? (
+            {showStructured ? (
+              <>
+                <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+                  {t('recipe.ingredients')}
+                </Text>
+                <View style={{ gap: 6 }}>
+                  {ingredients.map((ing) => (
+                    <Text key={ing.id} style={[styles.ingredientLine, { color: palette.text, fontFamily: Fonts.sans }]}>
+                      {formatIngredient(ing, t)}
+                    </Text>
+                  ))}
+                </View>
+              </>
+            ) : recipe.ingredients ? (
               <>
                 <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
                   {t('recipe.ingredients')}
@@ -162,26 +205,47 @@ export default function RecipeDetailScreen() {
                 </Text>
               </>
             ) : null}
+
+            {recipe.steps ? (
+              <>
+                <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+                  {t('recipe.steps')}
+                </Text>
+                <Text style={[styles.ingredients, { color: palette.text, fontFamily: Fonts.sans }]}>
+                  {recipe.steps}
+                </Text>
+              </>
+            ) : null}
           </View>
 
           <AttachmentCarousel attachments={attachments} title={t('recipe.videosTitle')} />
         </ScrollView>
 
-        {tracking ? (
-          <View style={[styles.cta, { paddingBottom: insets.bottom + Spacing.md, backgroundColor: palette.background }]}>
+        <View style={[styles.cta, { paddingBottom: insets.bottom + Spacing.md, backgroundColor: palette.background }]}>
+          <Pressable
+            onPress={() => router.push(`/menu-add?recipe=${recipe.id}&meal=${recipe.meal_type ?? 'dejeuner'}` as any)}
+            style={({ pressed }) => [
+              styles.ctaButton,
+              { backgroundColor: palette.text, opacity: pressed ? 0.85 : 1 },
+            ]}
+          >
+            <Text style={[styles.ctaText, { color: palette.background, fontFamily: Fonts.sansSemibold }]}>
+              {t('menu.addToMenu')}
+            </Text>
+          </Pressable>
+          {/* « Logger ce repas » n'a de sens qu'avec le suivi activé */}
+          {tracking ? (
             <Pressable
               onPress={() => router.push(`/meal-log?type=${recipe.meal_type ?? 'dejeuner'}` as any)}
-              style={({ pressed }) => [
-                styles.ctaButton,
-                { backgroundColor: palette.text, opacity: pressed ? 0.85 : 1 },
-              ]}
+              hitSlop={6}
+              style={({ pressed }) => [styles.ctaSecondary, { opacity: pressed ? 0.6 : 1 }]}
             >
-              <Text style={[styles.ctaText, { color: palette.background, fontFamily: Fonts.sansSemibold }]}>
+              <Text style={[styles.ctaSecondaryText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
                 {t('recipe.logMeal')}
               </Text>
             </Pressable>
-          </View>
-        ) : null}
+          ) : null}
+        </View>
       </View>
     </View>
   );
@@ -234,6 +298,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: Spacing.xl,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   iconBtn: {
     width: 40,
@@ -326,4 +392,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   ctaText: { fontSize: 16 },
+  ctaSecondary: { height: 40, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
+  ctaSecondaryText: { fontSize: 14 },
+  ingredientLine: { fontSize: 14, lineHeight: 22 },
 });

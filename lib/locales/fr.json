@@ -92,7 +92,8 @@
       "offHint": "Tes macros s’affichent comme un simple repère. Rien à compter, rien à cocher.",
       "on": "Avec suivi",
       "onHint": "Tu suis tes macros et tes calories au fil de la journée."
-    }
+    },
+    "planSection": "Ma semaine"
   },
   "mindset": {
     "title": "Mindset",
@@ -297,7 +298,8 @@
     "description": "Description",
     "ingredients": "Ingrédients",
     "videosTitle": "Vidéos & étapes",
-    "logMeal": "Logger ce repas"
+    "logMeal": "Logger ce repas",
+    "steps": "Étapes"
   },
   "mindsetDetail": {
     "notFound": "Contenu introuvable.",
@@ -527,5 +529,95 @@
     "interestedTitle": "C'est noté !",
     "interestedSub": "Shy va te recontacter pour finaliser. Tu peux aussi lui écrire dès maintenant.",
     "disclaimer": "Le paiement se fait avec Shy après échange. Ton coaching s'active dès validation."
+  },
+  "ingredients": {
+    "qtyPlaceholder": "Qté",
+    "namePlaceholder": "Ingrédient",
+    "add": "Ajouter un ingrédient",
+    "unitLabel": "Changer d’unité",
+    "unit": {
+      "none": "unité",
+      "g": "g",
+      "kg": "kg",
+      "ml": "ml",
+      "cl": "cl",
+      "l": "L",
+      "cas": "c. à s.",
+      "cac": "c. à c."
+    }
+  },
+  "myRecipes": {
+    "title": "Mes recettes",
+    "subtitle": "Tes recettes à toi. Elles s’ajoutent à ton menu comme les autres.",
+    "hint": "Crée et garde tes propres recettes",
+    "create": "Créer une recette",
+    "empty": "Tu n’as pas encore de recette. Il suffit d’un titre, des ingrédients et des étapes.",
+    "badge": "Ma recette",
+    "newTitle": "Nouvelle recette",
+    "editTitle": "Modifier la recette",
+    "titleMissing": "Donne un titre à ta recette",
+    "fieldTitle": "Titre",
+    "titlePlaceholder": "Ex : Salade de quinoa",
+    "fieldMeal": "Type de repas",
+    "stepsPlaceholder": "1. …\n2. …",
+    "fieldMacros": "Macros (facultatif)",
+    "protein": "Protéines",
+    "fats": "Lipides",
+    "carbs": "Glucides",
+    "delete": "Supprimer la recette",
+    "deleteConfirmTitle": "Supprimer cette recette ?",
+    "deleteConfirmBody": "Elle sera aussi retirée de ton menu et de ta liste de courses."
+  },
+  "menu": {
+    "title": "Menu de la semaine",
+    "subtitle": "Compose-le toi-même ou laisse l’app le proposer. Tu peux tout modifier quand tu veux.",
+    "generate": "Générer",
+    "generateConfirmTitle": "Générer un nouveau menu ?",
+    "generateConfirmBody": "Le menu actuel sera remplacé.",
+    "generateEmptyTitle": "Pas encore assez de recettes",
+    "generateEmptyBody": "Il faut au moins une recette avec un type de repas : petit-déjeuner, déjeuner ou dîner.",
+    "clear": "Vider le menu",
+    "clearConfirmTitle": "Vider le menu ?",
+    "clearConfirmBody": "Les recettes seront retirées du menu et de la liste de courses.",
+    "remove": "Retirer du menu",
+    "addRecipe": "Ajouter une recette",
+    "pickTitle": "Choisis une recette",
+    "pickEmpty": "Aucune recette disponible pour l’instant.",
+    "addToMenu": "Ajouter à mon menu",
+    "whichDays": "Quels jours ?",
+    "whichMeal": "Quel repas ?",
+    "count": "Repas prévus : {{count}}",
+    "emptyHint": "Compose ou génère ta semaine",
+    "day": {
+      "mon": "Lundi",
+      "tue": "Mardi",
+      "wed": "Mercredi",
+      "thu": "Jeudi",
+      "fri": "Vendredi",
+      "sat": "Samedi",
+      "sun": "Dimanche"
+    }
+  },
+  "shopping": {
+    "title": "Liste de courses",
+    "subtitle": "Elle se remplit toute seule quand tu ajoutes des recettes à ton menu.",
+    "remaining": "À acheter : {{count}}",
+    "addPlaceholder": "Ajouter un article (ex : 2 kg pommes)",
+    "add": "Ajouter",
+    "clear": "Vider",
+    "clearConfirmTitle": "Vider la liste ?",
+    "clearConfirmBody": "Tous les articles seront retirés.",
+    "empty": "Ta liste est vide. Ajoute des recettes à ton menu : leurs ingrédients arriveront ici, regroupés.",
+    "goToMenu": "Voir mon menu",
+    "emptyHint": "Se remplit depuis ton menu",
+    "aisle": {
+      "fruits_legumes": "Fruits et légumes",
+      "viandes_poissons": "Viandes et poissons",
+      "cremerie": "Crèmerie et œufs",
+      "epicerie": "Épicerie",
+      "surgeles": "Surgelés",
+      "boissons": "Boissons",
+      "autre": "Autres"
+    }
   }
 }

@@ -92,7 +92,8 @@
       "offHint": "Tus macros se muestran como una simple referencia. Nada que contar, nada que marcar.",
       "on": "Con seguimiento",
       "onHint": "Sigues tus macros y tus calorías a lo largo del día."
-    }
+    },
+    "planSection": "Mi semana"
   },
   "mindset": {
     "title": "Mindset",
@@ -297,7 +298,8 @@
     "description": "Descripción",
     "ingredients": "Ingredientes",
     "videosTitle": "Vídeos y pasos",
-    "logMeal": "Registrar esta comida"
+    "logMeal": "Registrar esta comida",
+    "steps": "Pasos"
   },
   "mindsetDetail": {
     "notFound": "Contenido no encontrado.",
@@ -527,5 +529,95 @@
     "interestedTitle": "¡Anotado!",
     "interestedSub": "Shy se pondrá en contacto para finalizar. También puedes escribirle ahora.",
     "disclaimer": "El pago se acuerda con Shy tras hablar. Tu coaching se activa al confirmar."
+  },
+  "ingredients": {
+    "qtyPlaceholder": "Cant.",
+    "namePlaceholder": "Ingrediente",
+    "add": "Añadir un ingrediente",
+    "unitLabel": "Cambiar unidad",
+    "unit": {
+      "none": "unidad",
+      "g": "g",
+      "kg": "kg",
+      "ml": "ml",
+      "cl": "cl",
+      "l": "L",
+      "cas": "cda",
+      "cac": "cdta"
+    }
+  },
+  "myRecipes": {
+    "title": "Mis recetas",
+    "subtitle": "Tus propias recetas. Se añaden a tu menú como las demás.",
+    "hint": "Crea y guarda tus propias recetas",
+    "create": "Crear una receta",
+    "empty": "Todavía no tienes recetas. Basta con un título, los ingredientes y los pasos.",
+    "badge": "Mi receta",
+    "newTitle": "Nueva receta",
+    "editTitle": "Editar receta",
+    "titleMissing": "Ponle un título a tu receta",
+    "fieldTitle": "Título",
+    "titlePlaceholder": "Ej.: Ensalada de quinoa",
+    "fieldMeal": "Tipo de comida",
+    "stepsPlaceholder": "1. …\n2. …",
+    "fieldMacros": "Macros (opcional)",
+    "protein": "Proteínas",
+    "fats": "Grasas",
+    "carbs": "Carbohidratos",
+    "delete": "Eliminar receta",
+    "deleteConfirmTitle": "¿Eliminar esta receta?",
+    "deleteConfirmBody": "También se quitará de tu menú y de tu lista de la compra."
+  },
+  "menu": {
+    "title": "Menú de la semana",
+    "subtitle": "Créalo tú misma o deja que la app lo proponga. Puedes cambiarlo todo cuando quieras.",
+    "generate": "Generar",
+    "generateConfirmTitle": "¿Generar un nuevo menú?",
+    "generateConfirmBody": "El menú actual será reemplazado.",
+    "generateEmptyTitle": "Aún no hay suficientes recetas",
+    "generateEmptyBody": "Hace falta al menos una receta con tipo de comida: desayuno, almuerzo o cena.",
+    "clear": "Vaciar el menú",
+    "clearConfirmTitle": "¿Vaciar el menú?",
+    "clearConfirmBody": "Las recetas se quitarán del menú y de la lista de la compra.",
+    "remove": "Quitar del menú",
+    "addRecipe": "Añadir una receta",
+    "pickTitle": "Elige una receta",
+    "pickEmpty": "No hay recetas disponibles por ahora.",
+    "addToMenu": "Añadir a mi menú",
+    "whichDays": "¿Qué días?",
+    "whichMeal": "¿Qué comida?",
+    "count": "Comidas previstas: {{count}}",
+    "emptyHint": "Crea o genera tu semana",
+    "day": {
+      "mon": "Lunes",
+      "tue": "Martes",
+      "wed": "Miércoles",
+      "thu": "Jueves",
+      "fri": "Viernes",
+      "sat": "Sábado",
+      "sun": "Domingo"
+    }
+  },
+  "shopping": {
+    "title": "Lista de la compra",
+    "subtitle": "Se llena sola cuando añades recetas a tu menú.",
+    "remaining": "Por comprar: {{count}}",
+    "addPlaceholder": "Añadir un artículo (ej.: 2 kg manzanas)",
+    "add": "Añadir",
+    "clear": "Vaciar",
+    "clearConfirmTitle": "¿Vaciar la lista?",
+    "clearConfirmBody": "Se quitarán todos los artículos.",
+    "empty": "Tu lista está vacía. Añade recetas a tu menú: sus ingredientes llegarán aquí, agrupados.",
+    "goToMenu": "Ver mi menú",
+    "emptyHint": "Se llena desde tu menú",
+    "aisle": {
+      "fruits_legumes": "Frutas y verduras",
+      "viandes_poissons": "Carnes y pescados",
+      "cremerie": "Lácteos y huevos",
+      "epicerie": "Despensa",
+      "surgeles": "Congelados",
+      "boissons": "Bebidas",
+      "autre": "Otros"
+    }
   }
 }

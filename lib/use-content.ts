@@ -169,7 +169,9 @@ export function useSession(id: string | undefined) {
 }
 
 // Recipes catalog
-export function useRecipes() {
+// 'bby' (défaut) = catalogue de la marque ; 'mine' = recettes personnelles ;
+// 'all' = les deux (pour composer un menu).
+export function useRecipes(scope: 'bby' | 'mine' | 'all' = 'bby') {
   const { i18n } = useTranslation();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
@@ -181,9 +183,12 @@ export function useRecipes() {
       .select('*')
       .order('created_at', { ascending: false });
     if (error) console.warn('recipes fetch', error);
-    setRecipes(localizeAll(data as Recipe[] | null, 'recipes', i18n.language));
+    const all = localizeAll(data as Recipe[] | null, 'recipes', i18n.language);
+    setRecipes(
+      scope === 'all' ? all : all.filter((r) => (scope === 'mine' ? !!r.owner_id : !r.owner_id)),
+    );
     setLoading(false);
-  }, [i18n.language]);
+  }, [i18n.language, scope]);
 
   useEffect(() => { refresh(); }, [refresh]);
   return { recipes, loading, refresh };

@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Bell, Coffee, Cookie, Droplet, UtensilsCrossed } from 'lucide-react-native';
+import { Bell, BookOpen, CalendarDays, Coffee, Cookie, Droplet, ShoppingBasket, UtensilsCrossed } from 'lucide-react-native';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -16,6 +16,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
 import { useRecipes } from '@/lib/use-content';
 import { useDayData } from '@/lib/use-day-data';
+import { useMenu, useShoppingList } from '@/lib/use-meal-plan';
 import { useProfile } from '@/lib/use-profile';
 
 const NUTRITION_VIDEO = require('@/assets/videos/nutrition.mp4');
@@ -30,12 +31,17 @@ export default function NutritionScreen() {
   const { profile } = useProfile();
   const { data, refresh } = useDayData();
   const { recipes, refresh: refreshRecipes } = useRecipes();
+  const { items: menuItems, refresh: refreshMenu } = useMenu();
+  const { items: shoppingItems, refresh: refreshShopping } = useShoppingList();
+  const shoppingRemaining = shoppingItems.filter((i) => !i.checked).length;
 
   useFocusEffect(
     useCallback(() => {
       refresh();
       refreshRecipes();
-    }, [refresh, refreshRecipes]),
+      refreshMenu();
+      refreshShopping();
+    }, [refresh, refreshRecipes, refreshMenu, refreshShopping]),
   );
 
   const featuredRecipe = recipes[0];
@@ -117,6 +123,32 @@ export default function NutritionScreen() {
                 : router.push('/meal-log' as any)
             }
           />
+        </View>
+
+        <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>
+          <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+            {t('nutrition.planSection')}
+          </Text>
+          <View style={{ gap: Spacing.md, marginTop: Spacing.md }}>
+            <ActivityCard
+              icon={CalendarDays}
+              title={t('menu.title')}
+              subtitle={menuItems.length > 0 ? t('menu.count', { count: menuItems.length }) : t('menu.emptyHint')}
+              onPress={() => router.push('/menu' as any)}
+            />
+            <ActivityCard
+              icon={ShoppingBasket}
+              title={t('shopping.title')}
+              subtitle={shoppingItems.length > 0 ? t('shopping.remaining', { count: shoppingRemaining }) : t('shopping.emptyHint')}
+              onPress={() => router.push('/shopping-list' as any)}
+            />
+            <ActivityCard
+              icon={BookOpen}
+              title={t('myRecipes.title')}
+              subtitle={t('myRecipes.hint')}
+              onPress={() => router.push('/my-recipes' as any)}
+            />
+          </View>
         </View>
 
         <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>

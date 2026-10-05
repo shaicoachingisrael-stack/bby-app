@@ -36,8 +36,51 @@ export type Recipe = {
   carbs_g: number | null;
   fat_g: number | null;
   ingredients: string | null;
+  // null = recette BBY ; sinon recette personnelle de cette utilisatrice
+  owner_id?: string | null;
+  steps?: string | null;
   created_at: string;
   i18n?: I18nMap;
+};
+
+export type MealType = 'petit_dejeuner' | 'dejeuner' | 'diner' | 'collation';
+export type IngredientUnit = 'g' | 'kg' | 'ml' | 'cl' | 'l' | 'cas' | 'cac';
+export type Aisle =
+  | 'fruits_legumes'
+  | 'viandes_poissons'
+  | 'cremerie'
+  | 'epicerie'
+  | 'surgeles'
+  | 'boissons'
+  | 'autre';
+
+export type RecipeIngredient = {
+  id: string;
+  recipe_id: string;
+  position: number;
+  name: string;
+  quantity: number | null;
+  unit: IngredientUnit | null;
+  aisle: Aisle | null;
+};
+
+export type MenuItem = {
+  id: string;
+  user_id: string;
+  day: number; // 0 = lundi … 6 = dimanche
+  meal_type: MealType;
+  recipe_id: string;
+  recipe: Recipe | null;
+};
+
+export type ShoppingItem = {
+  id: string;
+  name: string;
+  unit: string; // unité de base : 'g' | 'ml' | 'cas' | 'cac' | ''
+  quantity: number | null;
+  aisle: Aisle | null;
+  checked: boolean;
+  manual: boolean;
 };
 
 export type MindsetContent = {

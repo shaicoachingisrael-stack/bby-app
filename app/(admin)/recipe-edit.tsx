@@ -2,6 +2,7 @@ import * as Crypto from 'expo-crypto';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ChevronLeft, Trash2 } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ActivityIndicator,
   Alert,
@@ -16,14 +17,17 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { IngredientsEditor } from '@/components/ui/ingredients-editor';
 import { MediaList } from '@/components/ui/media-list';
 import { MediaUploader } from '@/components/ui/media-uploader';
 import { Segmented } from '@/components/ui/segmented';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { draftsToPayload, IngredientDraft, ingredientsToText, newDraft } from '@/lib/ingredients';
 import { supabase } from '@/lib/supabase';
 import { triggerTranslate } from '@/lib/translate-content';
-import type { Recipe } from '@/lib/types';
+import type { Recipe, RecipeIngredient } from '@/lib/types';
+import { saveRecipeIngredients } from '@/lib/use-meal-plan';
 
 const MEAL_OPTIONS = [
   { value: 'petit_dejeuner', label: 'Petit-déj' },
@@ -38,6 +42,7 @@ export default function RecipeEditScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
+  const { t } = useTranslation();
   const params = useLocalSearchParams<{ id?: string }>();
   const id = params.id;
   const isNew = !id;
@@ -51,7 +56,9 @@ export default function RecipeEditScreen() {
   const [protein, setProtein] = useState('');
   const [carbs, setCarbs] = useState('');
   const [fat, setFat] = useState('');
-  const [ingredients, setIngredients] = useState('');
+  // Ingrédients structurés (nom + quantité + unité) : ils alimentent la liste de courses.
+  const [drafts, setDrafts] = useState<IngredientDraft[]>(() => [newDraft(), newDraft(), newDraft()]);
+  const [steps, setSteps] = useState('');
   const [coverUrl, setCoverUrl] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
   const [loading, setLoading] = useState(!isNew);
@@ -73,9 +80,22 @@ export default function RecipeEditScreen() {
         setProtein(r.protein_g?.toString() ?? '');
         setCarbs(r.carbs_g?.toString() ?? '');
         setFat(r.fat_g?.toString() ?? '');
-        setIngredients(r.ingredients ?? '');
+        setSteps(r.steps ?? '');
         setCoverUrl(r.cover_url ?? '');
         setVideoUrl(r.video_url ?? '');
+      }
+      const ingRes = await supabase.from('recipe_ingredients').select('*').eq('recipe_id', id!).order('position');
+      const ings = (ingRes.data as RecipeIngredient[] | null) ?? [];
+      if (ings.length > 0) {
+        setDrafts(
+          ings.map((i) =>
+            newDraft({
+              name: i.name,
+              quantity: i.quantity === null ? '' : `${Number(i.quantity)}`.replace('.', ','),
+              unit: i.unit,
+            }),
+          ),
+        );
       }
       setLoading(false);
     })();
@@ -101,7 +121,9 @@ export default function RecipeEditScreen() {
         protein_g: num(protein),
         carbs_g: num(carbs),
         fat_g: num(fat),
-        ingredients: ingredients.trim() || null,
+        // champ texte régénéré : repli d'affichage + source de la traduction automatique
+        ingredients: ingredientsToText(drafts, t) || null,
+        steps: steps.trim() || null,
         cover_url: coverUrl?.trim() || null,
         video_url: videoUrl?.trim() || null,
       };
@@ -112,6 +134,7 @@ export default function RecipeEditScreen() {
         const { error } = await supabase.from('recipes').update(payload).eq('id', id!);
         if (error) throw error;
       }
+      await saveRecipeIngredients(recipeId, draftsToPayload(drafts));
       triggerTranslate('recipes', recipeId);
       router.back();
     } catch (e: any) {
@@ -312,10 +335,14 @@ export default function RecipeEditScreen() {
         </View>
 
         <Field label="Ingrédients" palette={palette}>
+          <IngredientsEditor value={drafts} onChange={setDrafts} />
+        </Field>
+
+        <Field label="Étapes" palette={palette}>
           <TextInput
-            value={ingredients}
-            onChangeText={setIngredients}
-            placeholder={'150 g de saumon\n100 g de riz\n1/2 avocat\n…'}
+            value={steps}
+            onChangeText={setSteps}
+            placeholder={'1. …\n2. …'}
             placeholderTextColor={palette.textSecondary}
             multiline
             style={[styles.textarea, inputStyle(palette)]}

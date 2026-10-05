@@ -110,6 +110,12 @@ function RootStack() {
           options={{ presentation: 'fullScreenModal', headerShown: false }}
         />
         <Stack.Screen name="recipe/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="menu" options={{ headerShown: false }} />
+        <Stack.Screen name="menu-pick" options={{ headerShown: false }} />
+        <Stack.Screen name="menu-add" options={{ presentation: 'modal', headerShown: false }} />
+        <Stack.Screen name="shopping-list" options={{ headerShown: false }} />
+        <Stack.Screen name="my-recipes" options={{ headerShown: false }} />
+        <Stack.Screen name="my-recipe-edit" options={{ headerShown: false }} />
         <Stack.Screen name="mindset/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="mindset/rituals" options={{ headerShown: false }} />
         <Stack.Screen name="mindset/entries" options={{ headerShown: false }} />

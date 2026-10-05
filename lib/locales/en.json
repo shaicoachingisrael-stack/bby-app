@@ -92,7 +92,8 @@
       "offHint": "Your macros are shown as a simple guide. Nothing to count, nothing to tick.",
       "on": "With tracking",
       "onHint": "You follow your macros and calories through the day."
-    }
+    },
+    "planSection": "My week"
   },
   "mindset": {
     "title": "Mindset",
@@ -297,7 +298,8 @@
     "description": "Description",
     "ingredients": "Ingredients",
     "videosTitle": "Videos & steps",
-    "logMeal": "Log this meal"
+    "logMeal": "Log this meal",
+    "steps": "Steps"
   },
   "mindsetDetail": {
     "notFound": "Content not found.",
@@ -527,5 +529,95 @@
     "interestedTitle": "Noted!",
     "interestedSub": "Shy will get back to you to finalise. You can also message her right now.",
     "disclaimer": "Payment is arranged with Shy after a chat. Your coaching activates once confirmed."
+  },
+  "ingredients": {
+    "qtyPlaceholder": "Qty",
+    "namePlaceholder": "Ingredient",
+    "add": "Add an ingredient",
+    "unitLabel": "Change unit",
+    "unit": {
+      "none": "unit",
+      "g": "g",
+      "kg": "kg",
+      "ml": "ml",
+      "cl": "cl",
+      "l": "L",
+      "cas": "tbsp",
+      "cac": "tsp"
+    }
+  },
+  "myRecipes": {
+    "title": "My recipes",
+    "subtitle": "Your own recipes. They go into your menu like any other.",
+    "hint": "Create and keep your own recipes",
+    "create": "Create a recipe",
+    "empty": "You have no recipes yet. All it takes is a title, ingredients and steps.",
+    "badge": "My recipe",
+    "newTitle": "New recipe",
+    "editTitle": "Edit recipe",
+    "titleMissing": "Give your recipe a title",
+    "fieldTitle": "Title",
+    "titlePlaceholder": "E.g. Quinoa salad",
+    "fieldMeal": "Meal type",
+    "stepsPlaceholder": "1. …\n2. …",
+    "fieldMacros": "Macros (optional)",
+    "protein": "Protein",
+    "fats": "Fats",
+    "carbs": "Carbs",
+    "delete": "Delete recipe",
+    "deleteConfirmTitle": "Delete this recipe?",
+    "deleteConfirmBody": "It will also be removed from your menu and your shopping list."
+  },
+  "menu": {
+    "title": "Weekly menu",
+    "subtitle": "Build it yourself or let the app suggest one. You can change anything, anytime.",
+    "generate": "Generate",
+    "generateConfirmTitle": "Generate a new menu?",
+    "generateConfirmBody": "Your current menu will be replaced.",
+    "generateEmptyTitle": "Not enough recipes yet",
+    "generateEmptyBody": "You need at least one recipe with a meal type: breakfast, lunch or dinner.",
+    "clear": "Clear menu",
+    "clearConfirmTitle": "Clear the menu?",
+    "clearConfirmBody": "The recipes will be removed from the menu and the shopping list.",
+    "remove": "Remove from menu",
+    "addRecipe": "Add a recipe",
+    "pickTitle": "Choose a recipe",
+    "pickEmpty": "No recipes available yet.",
+    "addToMenu": "Add to my menu",
+    "whichDays": "Which days?",
+    "whichMeal": "Which meal?",
+    "count": "Meals planned: {{count}}",
+    "emptyHint": "Build or generate your week",
+    "day": {
+      "mon": "Monday",
+      "tue": "Tuesday",
+      "wed": "Wednesday",
+      "thu": "Thursday",
+      "fri": "Friday",
+      "sat": "Saturday",
+      "sun": "Sunday"
+    }
+  },
+  "shopping": {
+    "title": "Shopping list",
+    "subtitle": "It fills itself as you add recipes to your menu.",
+    "remaining": "To buy: {{count}}",
+    "addPlaceholder": "Add an item (e.g. 2 kg apples)",
+    "add": "Add",
+    "clear": "Clear",
+    "clearConfirmTitle": "Clear the list?",
+    "clearConfirmBody": "All items will be removed.",
+    "empty": "Your list is empty. Add recipes to your menu: their ingredients will land here, grouped.",
+    "goToMenu": "See my menu",
+    "emptyHint": "Fills from your menu",
+    "aisle": {
+      "fruits_legumes": "Fruit and vegetables",
+      "viandes_poissons": "Meat and fish",
+      "cremerie": "Dairy and eggs",
+      "epicerie": "Pantry",
+      "surgeles": "Frozen",
+      "boissons": "Drinks",
+      "autre": "Other"
+    }
   }
 }
