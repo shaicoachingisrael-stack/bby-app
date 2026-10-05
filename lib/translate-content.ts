@@ -1,6 +1,13 @@
 import { supabase } from './supabase';
 
-type Table = 'programs' | 'sessions' | 'recipes' | 'mindset_content';
+type Table =
+  | 'programs'
+  | 'sessions'
+  | 'recipes'
+  | 'mindset_content'
+  | 'mindset_ritual_catalog'
+  | 'mindset_programs'
+  | 'mindset_program_steps';
 
 // Fire-and-forget: invoke the translate-content edge function for the given
 // row. Failures are logged but never thrown — translation is best-effort.

@@ -9,6 +9,9 @@ const FIELD_MAP: Record<string, string[]> = {
   sessions: ['title', 'description'],
   recipes: ['title', 'description', 'ingredients'],
   mindset_content: ['title', 'body'],
+  mindset_ritual_catalog: ['label'],
+  mindset_programs: ['title', 'subtitle', 'description'],
+  mindset_program_steps: ['title', 'prompt_text'],
 };
 
 export function localize<T extends WithI18n>(

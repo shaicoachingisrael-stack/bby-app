@@ -56,6 +56,9 @@ export default function MindsetLogScreen() {
     meditation_done: t('mindsetLog.placeholderMeditation'),
   };
 
+  const rawPrompts = t('mindsetLog.journalPrompts', { returnObjects: true });
+  const journalPrompts = Array.isArray(rawPrompts) ? (rawPrompts as string[]) : [];
+
   const [kind, setKind] = useState<Kind>(
     KIND_VALUES.some((k) => k === params.kind)
       ? (params.kind as Kind)
@@ -138,6 +141,29 @@ export default function MindsetLogScreen() {
           />
         </View>
 
+        {/* Prompts suggérés (journal) */}
+        {kind === 'journal' && body.trim().length === 0 && journalPrompts.length > 0 && (
+          <View style={{ gap: Spacing.sm }}>
+            <Label palette={palette}>{t('mindsetLog.promptsLabel')}</Label>
+            <View style={{ gap: Spacing.sm }}>
+              {journalPrompts.map((p) => (
+                <Pressable
+                  key={p}
+                  onPress={() => setBody(p + '\n\n')}
+                  style={({ pressed }) => [
+                    styles.prompt,
+                    { backgroundColor: palette.surface, opacity: pressed ? 0.85 : 1 },
+                  ]}
+                >
+                  <Text style={[styles.promptText, { color: palette.text, fontFamily: Fonts.sans }]}>
+                    {p}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        )}
+
         <View style={{ gap: Spacing.sm }}>
           <Label palette={palette}>{t('mindsetLog.content')}</Label>
           <TextInput
@@ -146,6 +172,7 @@ export default function MindsetLogScreen() {
             placeholder={PLACEHOLDERS[kind]}
             placeholderTextColor={palette.textSecondary}
             multiline
+            maxLength={kind === 'intention' ? 100 : undefined}
             textAlignVertical="top"
             style={[
               styles.textarea,
@@ -157,7 +184,21 @@ export default function MindsetLogScreen() {
               },
             ]}
           />
+          {kind === 'intention' && (
+            <Text style={[styles.counter, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+              {body.length}/100
+            </Text>
+          )}
         </View>
+
+        <Pressable
+          onPress={() => router.push(`/mindset/entries?kind=${kind}` as any)}
+          style={styles.historyLink}
+        >
+          <Text style={[styles.historyText, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
+            {t('mindsetLog.viewHistory')}
+          </Text>
+        </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -203,4 +244,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 22,
   },
+  prompt: {
+    borderRadius: Radius.md,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+  },
+  promptText: { fontSize: 15, lineHeight: 21 },
+  counter: { fontSize: 12, textAlign: 'right' },
+  historyLink: { alignItems: 'center', paddingVertical: Spacing.sm },
+  historyText: { fontSize: 14 },
 });

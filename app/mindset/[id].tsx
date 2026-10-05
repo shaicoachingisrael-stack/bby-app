@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { ChevronLeft, Clock } from 'lucide-react-native';
+import { ChevronLeft, Clock, Heart } from 'lucide-react-native';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -18,6 +18,7 @@ import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAttachments } from '@/lib/use-attachments';
 import { useMindsetItem } from '@/lib/use-content';
+import { useFavorites } from '@/lib/use-favorites';
 
 export default function MindsetDetailScreen() {
   const router = useRouter();
@@ -34,6 +35,7 @@ export default function MindsetDetailScreen() {
   };
 
   const { item, loading } = useMindsetItem(id);
+  const { isFavorite, toggle } = useFavorites();
   const { items: attachments, refresh: refreshAttachments } = useAttachments(
     'mindset',
     id,
@@ -85,6 +87,22 @@ export default function MindsetDetailScreen() {
           >
             <ChevronLeft size={20} color={Palette.encre} />
           </Pressable>
+          {id ? (
+            <Pressable
+              onPress={() => toggle('content', id)}
+              hitSlop={10}
+              style={({ pressed }) => [
+                styles.iconBtn,
+                { backgroundColor: Palette.albatre, opacity: pressed ? 0.8 : 1 },
+              ]}
+            >
+              <Heart
+                size={20}
+                color={Palette.encre}
+                fill={isFavorite('content', id) ? Palette.encre : 'transparent'}
+              />
+            </Pressable>
+          ) : null}
         </View>
         <View style={styles.heroTitleBlock}>
           <Text style={styles.heroEyebrow}>{(KIND_LABELS[item.kind] ?? item.kind).toUpperCase()}</Text>
@@ -150,6 +168,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: Spacing.xl,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   iconBtn: {
     width: 40, height: 40, borderRadius: 20,

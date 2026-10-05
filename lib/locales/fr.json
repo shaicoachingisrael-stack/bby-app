@@ -334,7 +334,16 @@
     "placeholderJournal": "Comment tu te sens, ce qui s'est passé aujourd'hui…",
     "placeholderMeditation": "Quelques mots sur ta séance de méditation.",
     "emptyTitle": "Vide",
-    "emptyBody": "Écris quelque chose avant de sauvegarder."
+    "emptyBody": "Écris quelque chose avant de sauvegarder.",
+    "promptsLabel": "Ou pars d'une invitation",
+    "viewHistory": "Voir l'historique",
+    "journalPrompts": [
+      "Qu'est-ce qui m'a fait du bien aujourd'hui ?",
+      "De quoi ai-je besoin, là, maintenant ?",
+      "Qu'est-ce que je peux déposer ce soir ?",
+      "Un moment où je me suis sentie fière de moi.",
+      "Si j'étais douce avec moi, que me dirais-je ?"
+    ]
   },
   "notifications": {
     "title": "Notifications",
@@ -401,5 +410,122 @@
     "thu": "Jeu",
     "fri": "Ven",
     "sat": "Sam"
+  },
+  "rituals": {
+    "title": "Mes rituels",
+    "todayTitle": "Mes rituels du jour",
+    "counter": "{{done}} / {{total}} aujourd'hui",
+    "manage": "Gérer mes rituels",
+    "manageTitle": "Gérer mes rituels",
+    "empty": "Compose ta première liste de rituels",
+    "resetHint": "Tes rituels se réinitialisent chaque jour à minuit.",
+    "custom": "Créer le mien",
+    "customLabel": "Nom du rituel",
+    "chooseIcon": "Choisir une icône",
+    "add": "Ajouter",
+    "fromCatalog": "Depuis le catalogue"
+  },
+  "affirmation": {
+    "eyebrow": "Ton ancrage du jour",
+    "invite": "Tire ta carte du jour",
+    "draw": "Tirer une carte",
+    "drawAnother": "Tirer une autre carte"
+  },
+  "entries": {
+    "journalTitle": "Journal",
+    "intentionsTitle": "Mes intentions",
+    "search": "Rechercher dans mes entrées",
+    "empty": "Rien d'écrit pour l'instant. Commence quand tu veux."
+  },
+  "breathing": {
+    "title": "Respirations",
+    "subtitle": "Choisis un souffle, laisse le rythme te guider.",
+    "cardTitle": "Respiration",
+    "cardSubtitle": "Quelques minutes pour revenir à soi",
+    "duration": "Durée",
+    "min": "{{count}} min",
+    "start": "Commencer",
+    "finished": "C'est fait.",
+    "finishedSub": "Prends un instant avant de repartir.",
+    "close": "Terminer",
+    "phase": {
+      "inhale": "Inspire",
+      "hold": "Retiens",
+      "exhale": "Expire",
+      "hold_out": "Pause"
+    },
+    "patterns": {
+      "coherence": {
+        "name": "Cohérence cardiaque",
+        "desc": "Cinq secondes pour inspirer, cinq pour expirer. Le souffle le plus simple pour retrouver son calme."
+      },
+      "478": {
+        "name": "4-7-8",
+        "desc": "Un souffle qui invite au repos. Idéal le soir ou quand la tension monte."
+      },
+      "box": {
+        "name": "Respiration carrée",
+        "desc": "Quatre temps égaux — inspire, retiens, expire, pause. Pour s'ancrer."
+      },
+      "calm": {
+        "name": "Souffle apaisant",
+        "desc": "Une expiration plus longue que l'inspiration. Le corps comprend qu'il peut relâcher."
+      }
+    }
+  },
+  "programs": {
+    "title": "Parcours",
+    "subtitle": "Des parcours qui prennent soin, jour après jour.",
+    "access": "Voir tous les parcours",
+    "dayCount": "{{count}} jours",
+    "dayProgress": "Jour {{current}} / {{total}}",
+    "start": "Commencer",
+    "resume": "Reprendre",
+    "continueTitle": "Continuer",
+    "completed": "Parcours terminé",
+    "day": "Jour",
+    "markDone": "Marquer le jour comme fait"
+  },
+  "favorites": {
+    "title": "Favoris",
+    "empty": "Tes favoris apparaîtront ici.",
+    "filter_all": "Tous",
+    "filter_content": "Contenus",
+    "filter_breathing": "Respirations"
+  },
+  "history": {
+    "title": "Ton chemin",
+    "subtitle": "Célébrer la régularité, tout en douceur.",
+    "thisWeek": "Cette semaine",
+    "thisMonth": "Ce mois-ci",
+    "byType": "Par type",
+    "rituals": "Rituels cochés"
+  },
+  "coaching": {
+    "eyebrow": "Suivi personnalisé",
+    "myCoachTitle": "Mon coach",
+    "todayCardSub": "Ton plan + ta messagerie",
+    "messageCoach": "Écrire à mon coach",
+    "messageSub": "Réponse dès que possible",
+    "myPlan": "Mon plan",
+    "notActive": "Le coaching perso n'est pas activé sur ton compte.",
+    "planEmpty": "Ton coach prépare ton plan. Reviens bientôt.",
+    "chatEmpty": "Écris ton premier message à ton coach.",
+    "chatPlaceholder": "Ton message…",
+    "type_session": "Séance",
+    "type_recipe": "Recette",
+    "type_mindset": "Mindset",
+    "type_custom": "Étape"
+  },
+  "coachingOffer": {
+    "title": "Un accompagnement rien que pour toi",
+    "discoverTitle": "Coaching perso avec Shy",
+    "discoverSub": "Un suivi sur-mesure, rien que pour toi",
+    "plansTitle": "Choisis ta formule",
+    "months": "{{count}} mois",
+    "interestMessage": "Bonjour Shy ! Je suis intéressée par le coaching perso — formule {{months}} mois ({{price}}).",
+    "interestedTitle": "C'est noté !",
+    "interestedSub": "Shy va te recontacter pour finaliser. Tu peux aussi lui écrire dès maintenant.",
+    "disclaimer": "Le paiement se fait avec Shy après échange. Ton coaching s'active dès validation."
   }
 }

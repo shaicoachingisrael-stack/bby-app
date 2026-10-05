@@ -111,6 +111,17 @@ function RootStack() {
         />
         <Stack.Screen name="recipe/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="mindset/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="mindset/rituals" options={{ headerShown: false }} />
+        <Stack.Screen name="mindset/entries" options={{ headerShown: false }} />
+        <Stack.Screen name="mindset/breathing" options={{ headerShown: false }} />
+        <Stack.Screen name="mindset/breathe" options={{ presentation: 'fullScreenModal', headerShown: false }} />
+        <Stack.Screen name="mindset/programs" options={{ headerShown: false }} />
+        <Stack.Screen name="mindset/program/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="mindset/favorites" options={{ headerShown: false }} />
+        <Stack.Screen name="mindset/history" options={{ headerShown: false }} />
+        <Stack.Screen name="my-coach" options={{ headerShown: false }} />
+        <Stack.Screen name="coach-chat" options={{ presentation: 'modal', headerShown: false }} />
+        <Stack.Screen name="coaching-offer" options={{ headerShown: false }} />
         <Stack.Screen
           name="language"
           options={{ presentation: 'modal', headerShown: false }}

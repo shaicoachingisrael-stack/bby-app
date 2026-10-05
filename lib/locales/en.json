@@ -334,7 +334,16 @@
     "placeholderJournal": "How you feel, what happened today…",
     "placeholderMeditation": "A few words about your meditation.",
     "emptyTitle": "Empty",
-    "emptyBody": "Write something before saving."
+    "emptyBody": "Write something before saving.",
+    "promptsLabel": "Or start from a prompt",
+    "viewHistory": "View history",
+    "journalPrompts": [
+      "What felt good today?",
+      "What do I need, right now?",
+      "What can I set down tonight?",
+      "A moment I felt proud of myself.",
+      "If I were kind to myself, what would I say?"
+    ]
   },
   "notifications": {
     "title": "Notifications",
@@ -401,5 +410,122 @@
     "thu": "Thu",
     "fri": "Fri",
     "sat": "Sat"
+  },
+  "rituals": {
+    "title": "My rituals",
+    "todayTitle": "My rituals today",
+    "counter": "{{done}} / {{total}} today",
+    "manage": "Manage my rituals",
+    "manageTitle": "Manage my rituals",
+    "empty": "Build your first list of rituals",
+    "resetHint": "Your rituals reset every day at midnight.",
+    "custom": "Create my own",
+    "customLabel": "Ritual name",
+    "chooseIcon": "Choose an icon",
+    "add": "Add",
+    "fromCatalog": "From the catalog"
+  },
+  "affirmation": {
+    "eyebrow": "Your anchor for today",
+    "invite": "Draw your card for today",
+    "draw": "Draw a card",
+    "drawAnother": "Draw another card"
+  },
+  "entries": {
+    "journalTitle": "Journal",
+    "intentionsTitle": "My intentions",
+    "search": "Search my entries",
+    "empty": "Nothing written yet. Start whenever you like."
+  },
+  "breathing": {
+    "title": "Breathing",
+    "subtitle": "Pick a breath, let the rhythm guide you.",
+    "cardTitle": "Breathing",
+    "cardSubtitle": "A few minutes to come back to yourself",
+    "duration": "Duration",
+    "min": "{{count}} min",
+    "start": "Start",
+    "finished": "Done.",
+    "finishedSub": "Take a moment before you go.",
+    "close": "Finish",
+    "phase": {
+      "inhale": "Inhale",
+      "hold": "Hold",
+      "exhale": "Exhale",
+      "hold_out": "Pause"
+    },
+    "patterns": {
+      "coherence": {
+        "name": "Cardiac coherence",
+        "desc": "Five seconds in, five seconds out. The simplest breath to find your calm."
+      },
+      "478": {
+        "name": "4-7-8",
+        "desc": "A breath that invites rest. Ideal at night or when tension rises."
+      },
+      "box": {
+        "name": "Box breathing",
+        "desc": "Four equal counts — in, hold, out, pause. To ground yourself."
+      },
+      "calm": {
+        "name": "Calming breath",
+        "desc": "A longer exhale than inhale. The body understands it can let go."
+      }
+    }
+  },
+  "programs": {
+    "title": "Journeys",
+    "subtitle": "Journeys that care for you, day by day.",
+    "access": "See all journeys",
+    "dayCount": "{{count}} days",
+    "dayProgress": "Day {{current}} / {{total}}",
+    "start": "Start",
+    "resume": "Resume",
+    "continueTitle": "Continue",
+    "completed": "Journey completed",
+    "day": "Day",
+    "markDone": "Mark day as done"
+  },
+  "favorites": {
+    "title": "Favorites",
+    "empty": "Your favorites will appear here.",
+    "filter_all": "All",
+    "filter_content": "Content",
+    "filter_breathing": "Breathing"
+  },
+  "history": {
+    "title": "Your path",
+    "subtitle": "Celebrating consistency, gently.",
+    "thisWeek": "This week",
+    "thisMonth": "This month",
+    "byType": "By type",
+    "rituals": "Rituals checked"
+  },
+  "coaching": {
+    "eyebrow": "Personal coaching",
+    "myCoachTitle": "My coach",
+    "todayCardSub": "Your plan + messaging",
+    "messageCoach": "Message my coach",
+    "messageSub": "Reply as soon as possible",
+    "myPlan": "My plan",
+    "notActive": "Personal coaching isn't active on your account.",
+    "planEmpty": "Your coach is preparing your plan. Check back soon.",
+    "chatEmpty": "Write your first message to your coach.",
+    "chatPlaceholder": "Your message…",
+    "type_session": "Session",
+    "type_recipe": "Recipe",
+    "type_mindset": "Mindset",
+    "type_custom": "Step"
+  },
+  "coachingOffer": {
+    "title": "Support just for you",
+    "discoverTitle": "Personal coaching with Shy",
+    "discoverSub": "Tailored support, just for you",
+    "plansTitle": "Choose your plan",
+    "months": "{{count}} months",
+    "interestMessage": "Hi Shy! I'm interested in personal coaching — {{months}}-month plan ({{price}}).",
+    "interestedTitle": "Noted!",
+    "interestedSub": "Shy will get back to you to finalise. You can also message her right now.",
+    "disclaimer": "Payment is arranged with Shy after a chat. Your coaching activates once confirmed."
   }
 }

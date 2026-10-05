@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Bell } from 'lucide-react-native';
+import { Bell, CheckCircle2, ChevronRight, Circle, Star } from 'lucide-react-native';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,9 +11,12 @@ import { DateStrip } from '@/components/ui/date-strip';
 import { LanguageButton } from '@/components/ui/language-button';
 import { HeroSwiper, type HeroItem } from '@/components/ui/hero-swiper';
 import { RecommendationCard } from '@/components/ui/recommendation-card';
-import { Colors, Fonts, Spacing } from '@/constants/theme';
+import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
+import { ritualIcon } from '@/lib/ritual-icons';
+import { useRituals } from '@/lib/use-rituals';
+import { useMyCoaching } from '@/lib/use-coaching';
 import {
   useMindsetContent,
   useRecipes,
@@ -44,6 +47,8 @@ export default function TodayScreen() {
   const { sessions: catalog, refresh: refreshCatalog } = useSessions();
   const { recipes, refresh: refreshRecipes } = useRecipes();
   const { items: mindsetItems, refresh: refreshMindset } = useMindsetContent();
+  const { rituals, checkedToday, toggleCheck, refresh: refreshRituals } = useRituals();
+  const { isClient: hasCoach, refresh: refreshCoaching } = useMyCoaching();
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   useFocusEffect(
@@ -53,7 +58,9 @@ export default function TodayScreen() {
       refreshCatalog();
       refreshRecipes();
       refreshMindset();
-    }, [refresh, refreshToday, refreshCatalog, refreshRecipes, refreshMindset]),
+      refreshRituals();
+      refreshCoaching();
+    }, [refresh, refreshToday, refreshCatalog, refreshRecipes, refreshMindset, refreshRituals, refreshCoaching]),
   );
 
   const firstName = (profile?.display_name || user?.email?.split('@')[0] || '').split(' ')[0];
@@ -183,10 +190,96 @@ export default function TodayScreen() {
           <DateStrip value={selectedDate} onChange={setSelectedDate} />
         </View>
 
+        {/* Mon coach perso (grande bannière, clientes premium) — au-dessus du carrousel */}
+        {hasCoach && (
+          <Pressable
+            onPress={() => router.push('/my-coach' as any)}
+            style={({ pressed }) => [styles.coachBanner, { backgroundColor: palette.text, opacity: pressed ? 0.92 : 1 }]}
+          >
+            <View style={styles.coachIcon}>
+              <Star size={22} color={palette.text} fill={palette.text} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.coachEyebrow, { color: palette.background, fontFamily: Fonts.sansMedium }]}>
+                {t('coaching.eyebrow').toUpperCase()}
+              </Text>
+              <Text style={[styles.coachBannerTitle, { color: palette.background, fontFamily: Fonts.displayBold }]}>
+                {t('coaching.myCoachTitle')}
+              </Text>
+              <Text style={[styles.coachSub, { color: palette.background, fontFamily: Fonts.sans }]}>
+                {t('coaching.todayCardSub')}
+              </Text>
+            </View>
+            <ChevronRight size={22} color={palette.background} />
+          </Pressable>
+        )}
+
+        {/* Découverte coaching perso (non-premium) */}
+        {!hasCoach && (
+          <Pressable
+            onPress={() => router.push('/coaching-offer' as any)}
+            style={({ pressed }) => [styles.discoverCard, { backgroundColor: palette.surface, opacity: pressed ? 0.9 : 1 }]}
+          >
+            <View style={[styles.coachIcon, { backgroundColor: palette.text }]}>
+              <Star size={18} color={palette.background} strokeWidth={1.8} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.discoverTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+                {t('coachingOffer.discoverTitle')}
+              </Text>
+              <Text style={[styles.discoverSub, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+                {t('coachingOffer.discoverSub')}
+              </Text>
+            </View>
+            <ChevronRight size={20} color={palette.textSecondary} />
+          </Pressable>
+        )}
+
         {/* Big hero swiper */}
         <View style={{ marginTop: Spacing.xl }}>
           <HeroSwiper items={heroItems} />
         </View>
+
+        {/* Mes rituels du jour */}
+        {rituals.length > 0 && (
+          <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+              <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+                {t('rituals.todayTitle')}
+              </Text>
+              <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+                {t('rituals.counter', { done: checkedToday.size, total: rituals.length })}
+              </Text>
+            </View>
+            <View style={[styles.ritualCard, { backgroundColor: palette.surface }]}>
+              {rituals.map((r) => {
+                const Icon = ritualIcon(r.icon);
+                const checked = checkedToday.has(r.id);
+                return (
+                  <Pressable key={r.id} style={styles.ritualRow} onPress={() => toggleCheck(r.id)}>
+                    {checked ? (
+                      <CheckCircle2 size={22} color={palette.text} strokeWidth={1.8} />
+                    ) : (
+                      <Circle size={22} color={palette.textSecondary} strokeWidth={1.8} />
+                    )}
+                    <Icon size={16} color={palette.textSecondary} strokeWidth={1.8} />
+                    <Text
+                      style={{
+                        flex: 1,
+                        fontSize: 15,
+                        fontFamily: Fonts.sans,
+                        color: checked ? palette.textSecondary : palette.text,
+                        textDecorationLine: checked ? 'line-through' : 'none',
+                      }}
+                    >
+                      {r.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        )}
 
         {/* Mindset du jour */}
         {mindsetItems.length > 0 && (
@@ -334,4 +427,47 @@ const styles = StyleSheet.create({
   month: { fontSize: 18, letterSpacing: -0.3 },
   section: { fontSize: 22, letterSpacing: -0.4 },
   seeAll: { fontSize: 13 },
+  ritualCard: {
+    borderRadius: Radius.md,
+    marginTop: Spacing.md,
+    paddingVertical: Spacing.xs,
+  },
+  ritualRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+  },
+  coachBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    borderRadius: Radius.lg,
+    padding: Spacing.xl,
+    marginHorizontal: Spacing.xl,
+    marginTop: Spacing.xl,
+  },
+  coachIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  coachEyebrow: { fontSize: 10, letterSpacing: 1.6, opacity: 0.7 },
+  coachBannerTitle: { fontSize: 22, letterSpacing: -0.4, marginTop: 2 },
+  coachSub: { fontSize: 13, marginTop: 2, opacity: 0.8 },
+  discoverCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    borderRadius: Radius.md,
+    padding: Spacing.lg,
+    marginHorizontal: Spacing.xl,
+    marginTop: Spacing.xl,
+  },
+  discoverTitle: { fontSize: 15 },
+  discoverSub: { fontSize: 13, marginTop: 2 },
 });

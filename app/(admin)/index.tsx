@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Bell, ChevronLeft, ChevronRight, Dumbbell, FileText, Leaf, UtensilsCrossed } from 'lucide-react-native';
+import { Bell, CheckCircle2, ChevronLeft, ChevronRight, Dumbbell, FileText, GitBranch, Leaf, Users, UtensilsCrossed } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,7 +12,7 @@ export default function AdminDashboard() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
-  const [counts, setCounts] = useState({ programs: 0, sessions: 0, recipes: 0, mindset: 0 });
+  const [counts, setCounts] = useState({ programs: 0, sessions: 0, recipes: 0, mindset: 0, rituals: 0, journeys: 0 });
 
   const refresh = useCallback(async () => {
     const [
@@ -20,17 +20,23 @@ export default function AdminDashboard() {
       { count: sessions },
       { count: recipes },
       { count: mindset },
+      { count: rituals },
+      { count: journeys },
     ] = await Promise.all([
       supabase.from('programs').select('*', { count: 'exact', head: true }),
       supabase.from('sessions').select('*', { count: 'exact', head: true }),
       supabase.from('recipes').select('*', { count: 'exact', head: true }),
       supabase.from('mindset_content').select('*', { count: 'exact', head: true }),
+      supabase.from('mindset_ritual_catalog').select('*', { count: 'exact', head: true }),
+      supabase.from('mindset_programs').select('*', { count: 'exact', head: true }),
     ]);
     setCounts({
       programs: programs ?? 0,
       sessions: sessions ?? 0,
       recipes: recipes ?? 0,
       mindset: mindset ?? 0,
+      rituals: rituals ?? 0,
+      journeys: journeys ?? 0,
     });
   }, []);
 
@@ -92,6 +98,27 @@ export default function AdminDashboard() {
             title="Mindset"
             count={counts.mindset}
             onPress={() => router.push('/(admin)/mindset' as any)}
+            palette={palette}
+          />
+          <Tile
+            icon={CheckCircle2}
+            title="Rituels"
+            count={counts.rituals}
+            onPress={() => router.push('/(admin)/rituals' as any)}
+            palette={palette}
+          />
+          <Tile
+            icon={GitBranch}
+            title="Parcours"
+            count={counts.journeys}
+            onPress={() => router.push('/(admin)/mindset-programs' as any)}
+            palette={palette}
+          />
+          <Tile
+            icon={Users}
+            title="Clientes (coaching perso)"
+            count="Suivi personnalisé"
+            onPress={() => router.push('/(admin)/clients' as any)}
             palette={palette}
           />
           <Tile

@@ -14,7 +14,8 @@
       "usesAppleSignIn": true,
       "entitlements": {
         "aps-environment": "development"
-      }
+      },
+      "buildNumber": "3"
     },
     "android": {
       "package": "com.bodybyyou.app",
