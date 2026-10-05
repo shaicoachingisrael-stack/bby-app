@@ -97,7 +97,9 @@ export default function TrainingScreen() {
                     ]}
                   >
                     <Text numberOfLines={1} style={{ color: palette.text, fontFamily: Fonts.sansSemibold, fontSize: 14 }}>
-                      {t('training.resumeSession', { title: next.title })}
+                      {doneCount === 0
+                        ? t('training.startSession')
+                        : t('training.resumeSession', { n: doneCount + 1 })}
                     </Text>
                   </Pressable>
                 ) : null}

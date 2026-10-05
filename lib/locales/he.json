@@ -74,8 +74,9 @@
     },
     "myProgram": "התוכנית שלי",
     "sessionOf": "אימון {{current}} מתוך {{total}}",
-    "resumeSession": "להמשיך: {{title}}",
-    "programSessions": "אימוני התוכנית"
+    "resumeSession": "להמשיך לאימון {{n}}",
+    "programSessions": "אימוני התוכנית",
+    "startSession": "להתחיל את האימון הראשון"
   },
   "nutrition": {
     "title": "תזונה",

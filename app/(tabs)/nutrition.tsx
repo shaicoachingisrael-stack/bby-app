@@ -255,7 +255,9 @@ export default function NutritionScreen() {
                   <View style={[styles.thumb, { backgroundColor: palette.surface }]}>
                     {r.cover_url ? (
                       <Image source={{ uri: r.cover_url }} style={StyleSheet.absoluteFillObject} contentFit="cover" />
-                    ) : null}
+                    ) : (
+                      <UtensilsCrossed size={18} color={palette.text} strokeWidth={1.8} />
+                    )}
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text numberOfLines={1} style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>

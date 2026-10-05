@@ -65,13 +65,11 @@ export default function MindsetScreen() {
           action={
             <Pressable
               onPress={() => router.push('/mindset/favorites' as any)}
-              hitSlop={6}
-              style={[styles.favPill, { borderColor: palette.border }]}
+              hitSlop={8}
+              accessibilityLabel={t('favorites.title')}
+              style={[styles.favRound, { backgroundColor: palette.surface }]}
             >
-              <Bookmark size={14} color={palette.text} strokeWidth={1.8} />
-              <Text style={{ color: palette.text, fontFamily: Fonts.sansMedium, fontSize: 12 }}>
-                {t('favorites.title')}
-              </Text>
+              <Bookmark size={18} color={palette.text} strokeWidth={1.8} />
             </Pressable>
           }
         />
@@ -326,15 +324,7 @@ export default function MindsetScreen() {
 }
 
 const styles = StyleSheet.create({
-  favPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    borderWidth: 1,
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-  },
+  favRound: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   container: { flex: 1 },
   header: {
     flexDirection: 'row',

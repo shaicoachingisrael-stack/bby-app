@@ -74,8 +74,9 @@
     },
     "myProgram": "Mi programa",
     "sessionOf": "Sesión {{current}} de {{total}}",
-    "resumeSession": "Retomar: {{title}}",
-    "programSessions": "Sesiones del programa"
+    "resumeSession": "Retomar la sesión {{n}}",
+    "programSessions": "Sesiones del programa",
+    "startSession": "Empezar la primera sesión"
   },
   "nutrition": {
     "title": "Nutrición",

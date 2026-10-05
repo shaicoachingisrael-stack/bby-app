@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Bell, ChevronRight, Plus, Star, Wind } from 'lucide-react-native';
+import { Bell, ChevronRight, Leaf, Plus, Star, UtensilsCrossed, Wind } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -246,7 +246,9 @@ export default function TodayScreen() {
               <View style={[styles.thumb, { backgroundColor: palette.surfaceAlt }]}>
                 {featuredRecipe.cover_url ? (
                   <Image source={{ uri: featuredRecipe.cover_url }} style={StyleSheet.absoluteFillObject} contentFit="cover" />
-                ) : null}
+                ) : (
+                  <UtensilsCrossed size={18} color={palette.text} strokeWidth={1.8} />
+                )}
               </View>
               <View style={{ flex: 1 }}>
                 <Text numberOfLines={1} style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
@@ -282,7 +284,9 @@ export default function TodayScreen() {
               <View style={[styles.thumb, { backgroundColor: palette.surfaceAlt }]}>
                 {featuredMindset.cover_url ? (
                   <Image source={{ uri: featuredMindset.cover_url }} style={StyleSheet.absoluteFillObject} contentFit="cover" />
-                ) : null}
+                ) : (
+                  <Leaf size={18} color={palette.text} strokeWidth={1.8} />
+                )}
               </View>
               <View style={{ flex: 1 }}>
                 <Text numberOfLines={1} style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>

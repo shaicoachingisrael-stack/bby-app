@@ -46,7 +46,8 @@ export default function ShoppingListScreen() {
   const groups = useMemo(() => {
     const by = new Map<Aisle, ShoppingItem[]>();
     for (const item of items) {
-      const aisle = (item.aisle && AISLES.includes(item.aisle) ? item.aisle : 'autre') as Aisle;
+      // pas de rayon enregistré (ingrédient repris d'une ancienne recette) : on le devine du nom
+      const aisle: Aisle = item.aisle && AISLES.includes(item.aisle) ? item.aisle : guessAisle(item.name);
       by.set(aisle, [...(by.get(aisle) ?? []), item]);
     }
     return AISLES.filter((a) => by.has(a)).map((a) => ({

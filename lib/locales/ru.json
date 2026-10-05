@@ -74,8 +74,9 @@
     },
     "myProgram": "Моя программа",
     "sessionOf": "Тренировка {{current}} из {{total}}",
-    "resumeSession": "Продолжить: {{title}}",
-    "programSessions": "Тренировки программы"
+    "resumeSession": "Продолжить: тренировка {{n}}",
+    "programSessions": "Тренировки программы",
+    "startSession": "Начать первую тренировку"
   },
   "nutrition": {
     "title": "Питание",

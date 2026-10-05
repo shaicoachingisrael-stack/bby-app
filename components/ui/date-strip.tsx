@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
-import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
+import { AccentFill } from '@/components/ui/accent-fill';
+import { Colors, Fonts, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 type Props = {
@@ -55,34 +56,30 @@ export function DateStrip({ value, onChange, range = 14 }: Props) {
           <Pressable
             key={d.toISOString()}
             onPress={() => onChange(d)}
-            style={[
-              styles.cell,
-              {
-                backgroundColor: selected ? palette.text : palette.surface,
-              },
-            ]}
+            style={[styles.cell, { backgroundColor: palette.surface }]}
           >
-            <Text
-              style={[
-                styles.num,
-                {
-                  color: selected ? palette.background : palette.text,
-                  fontFamily: Fonts.displayBold,
-                },
-              ]}
-            >
-              {d.getDate()}
-            </Text>
+            {selected ? <AccentFill /> : null}
             <Text
               style={[
                 styles.label,
                 {
-                  color: selected ? palette.background : palette.textSecondary,
+                  color: selected ? palette.onAccent : palette.textSecondary,
                   fontFamily: Fonts.sansMedium,
                 },
               ]}
             >
               {DAY_LABELS[d.getDay()]}
+            </Text>
+            <Text
+              style={[
+                styles.num,
+                {
+                  color: selected ? palette.onAccent : palette.text,
+                  fontFamily: Fonts.displayBold,
+                },
+              ]}
+            >
+              {d.getDate()}
             </Text>
           </Pressable>
         );
@@ -97,12 +94,13 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   cell: {
-    width: 56,
-    height: 76,
-    borderRadius: Radius.md,
+    width: 54,
+    height: 64,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 2,
+    overflow: 'hidden',
   },
   num: { fontSize: 20, letterSpacing: -0.4 },
   label: { fontSize: 11, letterSpacing: 0.6 },
