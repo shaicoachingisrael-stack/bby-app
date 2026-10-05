@@ -11,7 +11,8 @@ export function useThemeColor(
   colorName: keyof typeof Colors.light & keyof typeof Colors.dark
 ) {
   const theme = useColorScheme() ?? 'light';
-  const colorFromProps = props[theme];
+  // « ember » est une apparence sombre : elle prend la valeur `dark` des props
+  const colorFromProps = props[theme === 'light' ? 'light' : 'dark'];
 
   if (colorFromProps) {
     return colorFromProps;

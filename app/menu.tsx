@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AccentFill } from '@/components/ui/accent-fill';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { DAY_KEYS, MEAL_LABEL_KEYS, MEAL_TYPES } from '@/lib/ingredients';
@@ -91,14 +92,15 @@ export default function MenuScreen() {
           <Pressable
             onPress={handleGenerate}
             disabled={busy}
-            style={({ pressed }) => [styles.action, { backgroundColor: palette.text, opacity: pressed || busy ? 0.8 : 1 }]}
+            style={({ pressed }) => [styles.action, { backgroundColor: palette.accent, overflow: 'hidden', opacity: pressed || busy ? 0.8 : 1 }]}
           >
+            <AccentFill />
             {busy ? (
-              <ActivityIndicator color={palette.background} />
+              <ActivityIndicator color={palette.onAccent} />
             ) : (
               <>
-                <Sparkles size={16} color={palette.background} />
-                <Text style={[styles.actionText, { color: palette.background, fontFamily: Fonts.sansSemibold }]}>
+                <Sparkles size={16} color={palette.onAccent} />
+                <Text style={[styles.actionText, { color: palette.onAccent, fontFamily: Fonts.sansSemibold }]}>
                   {t('menu.generate')}
                 </Text>
               </>

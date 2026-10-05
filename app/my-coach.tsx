@@ -107,7 +107,7 @@ export default function MyCoachScreen() {
                   <View style={styles.cardRow}>
                     <Pressable hitSlop={6} onPress={() => toggleDone(a.id, a.done)}>
                       {a.done ? (
-                        <CheckCircle2 size={24} color={palette.text} strokeWidth={1.8} />
+                        <CheckCircle2 size={24} color={palette.done} strokeWidth={1.8} />
                       ) : (
                         <Circle size={24} color={palette.textSecondary} strokeWidth={1.8} />
                       )}

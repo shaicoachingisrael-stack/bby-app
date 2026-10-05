@@ -5,6 +5,7 @@ import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'rea
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Segmented } from '@/components/ui/segmented';
+import { AccentFill } from '@/components/ui/accent-fill';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
@@ -105,13 +106,14 @@ export default function MenuAddScreen() {
         disabled={saving || days.length === 0}
         style={({ pressed }) => [
           styles.cta,
-          { backgroundColor: palette.text, opacity: days.length === 0 ? 0.35 : pressed || saving ? 0.85 : 1 },
+          { backgroundColor: palette.accent, overflow: 'hidden', opacity: days.length === 0 ? 0.35 : pressed || saving ? 0.85 : 1 },
         ]}
       >
+        <AccentFill />
         {saving ? (
-          <ActivityIndicator color={palette.background} />
+          <ActivityIndicator color={palette.onAccent} />
         ) : (
-          <Text style={{ color: palette.background, fontFamily: Fonts.sansSemibold, fontSize: 15 }}>
+          <Text style={{ color: palette.onAccent, fontFamily: Fonts.sansSemibold, fontSize: 15 }}>
             {t('menu.addToMenu')}
           </Text>
         )}

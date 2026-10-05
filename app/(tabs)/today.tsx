@@ -258,7 +258,7 @@ export default function TodayScreen() {
                 return (
                   <Pressable key={r.id} style={styles.ritualRow} onPress={() => toggleCheck(r.id)}>
                     {checked ? (
-                      <CheckCircle2 size={22} color={palette.text} strokeWidth={1.8} />
+                      <CheckCircle2 size={22} color={palette.done} strokeWidth={1.8} />
                     ) : (
                       <Circle size={22} color={palette.textSecondary} strokeWidth={1.8} />
                     )}

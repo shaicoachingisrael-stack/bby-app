@@ -20,6 +20,7 @@ import { SectionTitle } from '@/components/ui/section-title';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { deleteAccount, signOut } from '@/lib/auth';
+import { setAppearance, useAppearance } from '@/lib/appearance';
 import { useAuth } from '@/lib/auth-provider';
 import { useProfile } from '@/lib/use-profile';
 
@@ -31,6 +32,7 @@ export default function AccountScreen() {
   const { user } = useAuth();
   const { profile, loading, refresh, update } = useProfile();
   const tracking = profile?.nutrition_tracking === true;
+  const appearance = useAppearance();
 
   const GOAL_LABELS: Record<string, string> = {
     perte_de_poids: t('onboarding.goal.perte_de_poids'),
@@ -242,6 +244,27 @@ export default function AccountScreen() {
           </View>
         </View>
 
+        <View style={{ marginTop: Spacing.xxl }}>
+          <SectionTitle title={t('account.appearance.title')} />
+          <View style={[styles.card, { backgroundColor: palette.surface }]}>
+            <TrackingOption
+              selected={appearance === 'ember'}
+              title={t('account.appearance.ember')}
+              hint={t('account.appearance.emberHint')}
+              onPress={() => setAppearance('ember')}
+              palette={palette}
+            />
+            <Divider color={palette.border} />
+            <TrackingOption
+              selected={appearance === 'encre'}
+              title={t('account.appearance.encre')}
+              hint={t('account.appearance.encreHint')}
+              onPress={() => setAppearance('encre')}
+              palette={palette}
+            />
+          </View>
+        </View>
+
         <View style={{ marginTop: Spacing.xxl, gap: Spacing.md }}>
           <SectionTitle title={t('account.myPath')} />
           <Pressable
@@ -402,7 +425,7 @@ function TrackingOption({
       accessibilityState={{ selected }}
       style={({ pressed }) => [styles.option, { opacity: pressed ? 0.7 : 1 }]}
     >
-      <Icon size={20} color={selected ? palette.text : palette.textSecondary} strokeWidth={1.8} />
+      <Icon size={20} color={selected ? palette.done : palette.textSecondary} strokeWidth={1.8} />
       <View style={{ flex: 1 }}>
         <Text style={[styles.optionTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
           {title}

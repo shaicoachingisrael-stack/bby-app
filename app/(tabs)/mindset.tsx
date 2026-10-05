@@ -107,8 +107,8 @@ export default function MindsetScreen() {
 
         {showAffirmation ? (
           /* HERO — affirmation du jour : la même pour toutes, selon la date locale */
-          <View style={styles.hero}>
-            <Text style={[styles.heroEyebrow, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
+          <View style={[styles.hero, { backgroundColor: palette.accentSoft }]}>
+            <Text style={[styles.heroEyebrow, { color: palette.accentEnd, fontFamily: Fonts.sansMedium }]}>
               {t('affirmation.eyebrow').toUpperCase()}
             </Text>
             {affirmationText ? (
@@ -207,7 +207,7 @@ export default function MindsetScreen() {
                 return (
                   <Pressable key={r.id} style={styles.ritualRow} onPress={() => toggleCheck(r.id)}>
                     {checked ? (
-                      <CheckCircle2 size={22} color={palette.text} strokeWidth={1.8} />
+                      <CheckCircle2 size={22} color={palette.done} strokeWidth={1.8} />
                     ) : (
                       <Circle size={22} color={palette.textSecondary} strokeWidth={1.8} />
                     )}
@@ -388,9 +388,11 @@ const styles = StyleSheet.create({
   section: { fontSize: 18, letterSpacing: -0.3 },
   hero: {
     alignItems: 'center',
+    marginHorizontal: Spacing.xl,
+    marginTop: Spacing.xl,
+    borderRadius: Radius.xl,
     paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.xxxl,
-    paddingBottom: Spacing.xl,
+    paddingVertical: Spacing.xxl,
     gap: Spacing.lg,
   },
   heroEyebrow: { fontSize: 11, letterSpacing: 2 },

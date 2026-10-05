@@ -5,18 +5,24 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import {
+  BricolageGrotesque_600SemiBold,
+  BricolageGrotesque_800ExtraBold,
+} from '@expo-google-fonts/bricolage-grotesque';
+import {
   Montserrat_600SemiBold,
   Montserrat_700Bold,
 } from '@expo-google-fonts/montserrat';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
+import { applyDisplayFonts, Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { loadAppearance, useAppearance } from '@/lib/appearance';
 import '@/lib/i18n';
 import { AuthProvider, useAuth } from '@/lib/auth-provider';
 import { LocaleProvider } from '@/lib/locale-provider';
@@ -31,7 +37,7 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function RootStack() {
-  const colorScheme = useColorScheme();
+  const palette = Colors[useColorScheme()];
   const { session, loading: authLoading } = useAuth();
   const { profile, loading: profileLoading } = useProfile();
   const segments = useSegments();
@@ -64,7 +70,12 @@ function RootStack() {
   }, [session, authLoading, profile, profileLoading, segments, router]);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider
+      value={{
+        ...DarkTheme,
+        colors: { ...DarkTheme.colors, background: palette.background, card: palette.background, border: palette.border, text: palette.text },
+      }}
+    >
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
@@ -133,7 +144,7 @@ function RootStack() {
           options={{ presentation: 'modal', headerShown: false }}
         />
       </Stack>
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
     </ThemeProvider>
   );
 }
@@ -146,21 +157,30 @@ export default function RootLayout() {
     Inter_700Bold,
     Montserrat_600SemiBold,
     Montserrat_700Bold,
+    BricolageGrotesque_600SemiBold,
+    BricolageGrotesque_800ExtraBold,
   });
+  // Apparence (Ember / encre) : lue une fois avant le premier écran, puis suivie.
+  const appearance = useAppearance();
+  const [appearanceReady, setAppearanceReady] = useState(false);
+  useEffect(() => {
+    loadAppearance().finally(() => setAppearanceReady(true));
+  }, []);
+  applyDisplayFonts(appearance);
 
   useEffect(() => {
-    if (fontsLoaded || fontError) {
+    if ((fontsLoaded || fontError) && appearanceReady) {
       SplashScreen.hideAsync().catch(() => {});
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded, fontError, appearanceReady]);
 
-  if (!fontsLoaded && !fontError) return null;
+  if ((!fontsLoaded && !fontError) || !appearanceReady) return null;
 
   return (
     <AuthProvider>
       <ProfileProvider>
         <LocaleProvider>
-          <RootStack />
+          <RootStack key={appearance} />
         </LocaleProvider>
       </ProfileProvider>
     </AuthProvider>

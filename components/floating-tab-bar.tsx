@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AccentFill } from '@/components/ui/accent-fill';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -35,17 +36,14 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
     <View pointerEvents="box-none" style={[styles.container, { bottom }]}>
       <View style={[styles.tabPill, { borderColor: palette.border }]}>
         <BlurView
-          intensity={scheme === 'dark' ? 40 : 60}
-          tint={scheme === 'dark' ? 'dark' : 'light'}
+          intensity={scheme === 'light' ? 60 : 40}
+          tint={scheme === 'light' ? 'light' : 'dark'}
           style={StyleSheet.absoluteFill}
         />
         <View
           style={[
             styles.tabBg,
-            {
-              backgroundColor:
-                scheme === 'dark' ? 'rgba(20,20,18,0.7)' : 'rgba(250,250,248,0.82)',
-            },
+            { backgroundColor: palette.tabBar },
           ]}
         />
 
@@ -79,7 +77,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
               >
                 <Icon
                   size={22}
-                  color={isFocused ? palette.text : palette.textSecondary}
+                  color={isFocused ? palette.tint : palette.textSecondary}
                   strokeWidth={isFocused ? 2.2 : 1.8}
                 />
                 <Text
@@ -105,14 +103,12 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
         onPress={() => router.push('/chat')}
         style={({ pressed }) => [
           styles.fab,
-          {
-            backgroundColor: palette.text,
-            transform: [{ scale: pressed ? 0.94 : 1 }],
-          },
+          { transform: [{ scale: pressed ? 0.94 : 1 }] },
         ]}
       >
-        <Sparkles size={20} color={palette.background} strokeWidth={2} />
-        <Text style={[styles.fabLabel, { color: palette.background, fontFamily: Fonts.sansMedium }]}>
+        <AccentFill />
+        <Sparkles size={20} color={palette.onAccent} strokeWidth={2} />
+        <Text style={[styles.fabLabel, { color: palette.onAccent, fontFamily: Fonts.sansSemibold }]}>
           {t('tabs.coachIa')}
         </Text>
       </Pressable>
@@ -163,6 +159,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 4,
     paddingHorizontal: 6,
+    overflow: 'hidden',
   },
   fabLabel: { fontSize: 9, letterSpacing: 0.2 },
 });

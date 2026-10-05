@@ -15,6 +15,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AttachmentCarousel } from '@/components/ui/attachment-carousel';
+import { AccentFill } from '@/components/ui/accent-fill';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
@@ -197,18 +198,19 @@ export default function SessionDetailScreen() {
             style={({ pressed }) => [
               styles.ctaButton,
               {
-                backgroundColor: palette.text,
+                backgroundColor: palette.accent, overflow: 'hidden',
                 opacity: pressed || completing ? 0.85 : 1,
               },
             ]}
           >
+            <AccentFill />
             {completing ? (
-              <ActivityIndicator color={palette.background} />
+              <ActivityIndicator color={palette.onAccent} />
             ) : (
               <Text
                 style={[
                   styles.ctaText,
-                  { color: palette.background, fontFamily: Fonts.sansSemibold },
+                  { color: palette.onAccent, fontFamily: Fonts.sansSemibold },
                 ]}
               >
                 {t('session.start')}

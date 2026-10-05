@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AccentFill } from '@/components/ui/accent-fill';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { MEAL_LABEL_KEYS } from '@/lib/ingredients';
@@ -45,10 +46,11 @@ export default function MyRecipesScreen() {
 
         <Pressable
           onPress={() => router.push('/my-recipe-edit' as any)}
-          style={({ pressed }) => [styles.cta, { backgroundColor: palette.text, opacity: pressed ? 0.85 : 1 }]}
+          style={({ pressed }) => [styles.cta, { backgroundColor: palette.accent, overflow: 'hidden', opacity: pressed ? 0.85 : 1 }]}
         >
-          <Plus size={18} color={palette.background} />
-          <Text style={[styles.ctaText, { color: palette.background, fontFamily: Fonts.sansSemibold }]}>
+          <AccentFill />
+          <Plus size={18} color={palette.onAccent} />
+          <Text style={[styles.ctaText, { color: palette.onAccent, fontFamily: Fonts.sansSemibold }]}>
             {t('myRecipes.create')}
           </Text>
         </Pressable>

@@ -15,6 +15,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AttachmentCarousel } from '@/components/ui/attachment-carousel';
+import { AccentFill } from '@/components/ui/accent-fill';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
@@ -225,10 +226,11 @@ export default function RecipeDetailScreen() {
             onPress={() => router.push(`/menu-add?recipe=${recipe.id}&meal=${recipe.meal_type ?? 'dejeuner'}` as any)}
             style={({ pressed }) => [
               styles.ctaButton,
-              { backgroundColor: palette.text, opacity: pressed ? 0.85 : 1 },
+              { backgroundColor: palette.accent, overflow: 'hidden', opacity: pressed ? 0.85 : 1 },
             ]}
           >
-            <Text style={[styles.ctaText, { color: palette.background, fontFamily: Fonts.sansSemibold }]}>
+            <AccentFill />
+            <Text style={[styles.ctaText, { color: palette.onAccent, fontFamily: Fonts.sansSemibold }]}>
               {t('menu.addToMenu')}
             </Text>
           </Pressable>

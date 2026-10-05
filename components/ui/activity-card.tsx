@@ -63,8 +63,8 @@ export function ActivityCard({
         </Text>
       </View>
       {status === 'done' && (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>✓</Text>
+        <View style={[styles.badge, { backgroundColor: palette.done }]}>
+          <Text style={[styles.badgeText, { color: palette.background }]}>✓</Text>
         </View>
       )}
     </Pressable>

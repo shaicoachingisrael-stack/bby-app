@@ -244,6 +244,13 @@
       "kcalTarget": "Calorie target / day",
       "proteinTarget": "Protein target / day",
       "hydrationTarget": "Hydration target / day"
+    },
+    "appearance": {
+      "title": "Appearance",
+      "ember": "Ember",
+      "emberHint": "Night background, warm light.",
+      "encre": "Ink and alabaster",
+      "encreHint": "The original black and white."
     }
   },
   "editProfile": {

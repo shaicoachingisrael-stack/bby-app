@@ -244,6 +244,13 @@
       "kcalTarget": "יעד קלוריות / יום",
       "proteinTarget": "יעד חלבון / יום",
       "hydrationTarget": "יעד שתייה / יום"
+    },
+    "appearance": {
+      "title": "מראה",
+      "ember": "Ember",
+      "emberHint": "רקע לילי ואור חם.",
+      "encre": "דיו ובהט",
+      "encreHint": "השחור־לבן המקורי."
     }
   },
   "editProfile": {

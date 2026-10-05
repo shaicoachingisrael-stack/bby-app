@@ -244,6 +244,13 @@
       "kcalTarget": "Цель калорий / день",
       "proteinTarget": "Цель белков / день",
       "hydrationTarget": "Цель воды / день"
+    },
+    "appearance": {
+      "title": "Оформление",
+      "ember": "Ember",
+      "emberHint": "Ночной фон и тёплый свет.",
+      "encre": "Чернила и алебастр",
+      "encreHint": "Исходный чёрно-белый стиль."
     }
   },
   "editProfile": {
