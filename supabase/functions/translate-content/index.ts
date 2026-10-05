@@ -32,7 +32,9 @@ const LOCALE_NAMES: Record<Locale, string> = {
 const FIELDS_BY_TABLE: Record<string, string[]> = {
   programs: ['title', 'description'],
   sessions: ['title', 'description'],
-  recipes: ['title', 'description', 'ingredients'],
+  recipes: ['title', 'description', 'ingredients', 'steps'],
+  // dictionnaire des noms d'ingrédients (fiche recette + liste de courses)
+  ingredient_names: ['name'],
   mindset_content: ['title', 'body'],
   mindset_ritual_catalog: ['label'],
   mindset_programs: ['title', 'subtitle', 'description'],
@@ -88,6 +90,7 @@ Deno.serve(async (req) => {
       'For Russian, write in Cyrillic.',
       'Keep brand names (BBY, Body by you) as-is.',
       'Keep numeric values (e.g., "150 g", "5 min") as-is, but translate units when appropriate.',
+      'A lone food ingredient name (e.g., "riz basmati") is translated as the everyday grocery word, lowercase unless it is a proper noun.',
       '',
       'Return STRICT JSON in this shape:',
       '{ "en": { ...same keys as source... }, "he": {...}, "es": {...}, "ru": {...} }',

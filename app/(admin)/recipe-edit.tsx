@@ -25,7 +25,7 @@ import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { draftsToPayload, IngredientDraft, ingredientsToText, newDraft } from '@/lib/ingredients';
 import { supabase } from '@/lib/supabase';
-import { triggerTranslate } from '@/lib/translate-content';
+import { translateMissingIngredientNames, triggerTranslate } from '@/lib/translate-content';
 import type { Recipe, RecipeIngredient } from '@/lib/types';
 import { saveRecipeIngredients } from '@/lib/use-meal-plan';
 
@@ -136,6 +136,7 @@ export default function RecipeEditScreen() {
       }
       await saveRecipeIngredients(recipeId, draftsToPayload(drafts));
       triggerTranslate('recipes', recipeId);
+      void translateMissingIngredientNames();
       router.back();
     } catch (e: any) {
       Alert.alert('Sauvegarde impossible', e?.message ?? 'Erreur.');

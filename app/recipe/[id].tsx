@@ -20,13 +20,14 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
 import { formatIngredient } from '@/lib/ingredients';
 import { useAttachments } from '@/lib/use-attachments';
+import { useIngredientNames } from '@/lib/use-ingredient-names';
 import { useRecipe } from '@/lib/use-content';
 import { useRecipeIngredients } from '@/lib/use-meal-plan';
 import { useProfile } from '@/lib/use-profile';
 
 export default function RecipeDetailScreen() {
   const router = useRouter();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
@@ -45,11 +46,9 @@ export default function RecipeDetailScreen() {
   const { recipe, loading, refresh: refreshRecipe } = useRecipe(id);
   const { ingredients, refresh: refreshIngredients } = useRecipeIngredients(id);
   const isMine = !!recipe?.owner_id && recipe.owner_id === user?.id;
-  // Les lignes structurées sont en français. Dans une autre langue, on garde le
-  // bloc traduit automatiquement tant qu'il existe.
-  const lang = i18n.language.slice(0, 2);
-  const translatedBlock = lang !== 'fr' && !!recipe?.i18n?.[lang]?.ingredients;
-  const showStructured = ingredients.length > 0 && !translatedBlock;
+  // Noms traduits par le dictionnaire des ingrédients (repli : nom d'origine).
+  const { tr } = useIngredientNames();
+  const showStructured = ingredients.length > 0;
   const { items: attachments, refresh: refreshAttachments } = useAttachments(
     'recipe',
     id,
@@ -190,7 +189,7 @@ export default function RecipeDetailScreen() {
                 <View style={{ gap: 6 }}>
                   {ingredients.map((ing) => (
                     <Text key={ing.id} style={[styles.ingredientLine, { color: palette.text, fontFamily: Fonts.sans }]}>
-                      {formatIngredient(ing, t)}
+                      {formatIngredient({ ...ing, name: tr(ing.name) }, t)}
                     </Text>
                   ))}
                 </View>

@@ -19,6 +19,7 @@ import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AISLES, formatShoppingQuantity, guessAisle, parseQuantity } from '@/lib/ingredients';
 import type { Aisle, ShoppingItem } from '@/lib/types';
+import { useIngredientNames } from '@/lib/use-ingredient-names';
 import { useShoppingList } from '@/lib/use-meal-plan';
 
 // « 2 kg pommes », « 500 g riz », « 6 œufs » → quantité + unité + nom ; sinon tout est le nom.
@@ -38,6 +39,7 @@ export default function ShoppingListScreen() {
   const palette = Colors[useColorScheme() ?? 'light'];
   const { items, loading, refresh, toggle, addManual, clear } = useShoppingList();
   const [draft, setDraft] = useState('');
+  const { tr } = useIngredientNames();
 
   useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
 
@@ -190,7 +192,7 @@ export default function ShoppingListScreen() {
                           },
                         ]}
                       >
-                        {item.name}
+                        {tr(item.name)}
                       </Text>
                       {qty ? (
                         <Text style={[styles.qty, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
