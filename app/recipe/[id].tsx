@@ -19,12 +19,15 @@ import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAttachments } from '@/lib/use-attachments';
 import { useRecipe } from '@/lib/use-content';
+import { useProfile } from '@/lib/use-profile';
 
 export default function RecipeDetailScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
+  const { profile } = useProfile();
+  const tracking = profile?.nutrition_tracking === true;
   const params = useLocalSearchParams<{ id?: string }>();
   const id = params.id;
 
@@ -164,19 +167,21 @@ export default function RecipeDetailScreen() {
           <AttachmentCarousel attachments={attachments} title={t('recipe.videosTitle')} />
         </ScrollView>
 
-        <View style={[styles.cta, { paddingBottom: insets.bottom + Spacing.md, backgroundColor: palette.background }]}>
-          <Pressable
-            onPress={() => router.push(`/meal-log?type=${recipe.meal_type ?? 'dejeuner'}` as any)}
-            style={({ pressed }) => [
-              styles.ctaButton,
-              { backgroundColor: palette.text, opacity: pressed ? 0.85 : 1 },
-            ]}
-          >
-            <Text style={[styles.ctaText, { color: palette.background, fontFamily: Fonts.sansSemibold }]}>
-              {t('recipe.logMeal')}
-            </Text>
-          </Pressable>
-        </View>
+        {tracking ? (
+          <View style={[styles.cta, { paddingBottom: insets.bottom + Spacing.md, backgroundColor: palette.background }]}>
+            <Pressable
+              onPress={() => router.push(`/meal-log?type=${recipe.meal_type ?? 'dejeuner'}` as any)}
+              style={({ pressed }) => [
+                styles.ctaButton,
+                { backgroundColor: palette.text, opacity: pressed ? 0.85 : 1 },
+              ]}
+            >
+              <Text style={[styles.ctaText, { color: palette.background, fontFamily: Fonts.sansSemibold }]}>
+                {t('recipe.logMeal')}
+              </Text>
+            </Pressable>
+          </View>
+        ) : null}
       </View>
     </View>
   );

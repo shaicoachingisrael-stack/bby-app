@@ -3,11 +3,16 @@ import { ChevronRight } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
+import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useNutritionTargets } from '@/lib/use-nutrition-targets';
 
-export function MacrosSummary() {
+export type MacrosConsumed = { kcal: number; protein: number; carbs: number; fats: number };
+
+// Brief Nutrition de Shy §1 : les macros sont l'information principale, le total
+// calorique vient en dessous, nettement plus petit. Sans `consumed` = simple repère
+// (on ne compte rien) ; avec `consumed` = suivi au fil de la journée.
+export function MacrosSummary({ consumed }: { consumed?: MacrosConsumed }) {
   const router = useRouter();
   const palette = Colors[useColorScheme() ?? 'light'];
   const { t } = useTranslation();
@@ -20,6 +25,7 @@ export function MacrosSummary() {
   const fats = targets.fats_g ?? 0;
   const carbs = targets.carbs_g ?? 0;
   const water = targets.water_ml ?? 0;
+  const fmt = (n: number) => n.toLocaleString('fr-FR').replace(/[\u202f\u00a0,]/g, ' ');
 
   return (
     <View style={[styles.outer, { backgroundColor: palette.background }]}>
@@ -36,31 +42,17 @@ export function MacrosSummary() {
         {t('nutrition.macros.subtitle')}
       </Text>
 
-      <View style={[styles.bigCard, { backgroundColor: palette.surface }]}>
-        <Text style={[styles.bigEyebrow, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-          {t('nutrition.macros.caloriesPerDay')}
-        </Text>
-        <View style={styles.bigRow}>
-          <Text style={[styles.bigValue, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-            {calories.toLocaleString('fr-FR').replace(',', ' ')}
-          </Text>
-          <Text style={[styles.bigUnit, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-            {t('common.kcal')}
-          </Text>
-        </View>
-        <Text style={[styles.bigHint, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          {t('nutrition.macros.totalEnergy')}
-        </Text>
+      <View style={[styles.row3, { marginTop: Spacing.lg }]}>
+        <Macro label={t('nutrition.macros.protein')} target={protein} consumed={consumed?.protein} palette={palette} />
+        <Macro label={t('nutrition.macros.fats')} target={fats} consumed={consumed?.fats} palette={palette} />
+        <Macro label={t('nutrition.macros.carbs')} target={carbs} consumed={consumed?.carbs} palette={palette} />
       </View>
 
-      <Text style={[styles.sectionLabel, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-        {t('nutrition.macros.split')}
+      <Text style={[styles.kcalLine, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+        {consumed
+          ? t('nutrition.kcalProgress', { current: fmt(consumed.kcal), target: fmt(calories) })
+          : t('nutrition.macros.kcalPerDay', { kcal: fmt(calories) })}
       </Text>
-      <View style={styles.row3}>
-        <Macro label={t('nutrition.macros.protein')} value={protein} kcal={protein * 4} palette={palette} />
-        <Macro label={t('nutrition.macros.fats')} value={fats} kcal={fats * 9} palette={palette} />
-        <Macro label={t('nutrition.macros.carbs')} value={carbs} kcal={carbs * 4} palette={palette} />
-      </View>
 
       <View style={[styles.bigCard, { backgroundColor: palette.surface, marginTop: Spacing.md }]}>
         <Text style={[styles.bigEyebrow, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
@@ -97,16 +89,17 @@ export function MacrosSummary() {
 
 function Macro({
   label,
-  value,
-  kcal,
+  target,
+  consumed,
   palette,
 }: {
   label: string;
-  value: number;
-  kcal: number;
+  target: number;
+  consumed?: number;
   palette: any;
 }) {
   const { t } = useTranslation();
+  const tracking = consumed !== undefined;
   return (
     <View style={[styles.macroCard, { backgroundColor: palette.surface }]}>
       <Text style={[styles.macroLabel, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
@@ -115,14 +108,14 @@ function Macro({
       <View style={[styles.macroRule, { backgroundColor: palette.text }]} />
       <View style={styles.macroRow}>
         <Text style={[styles.macroValue, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          {value}
+          {tracking ? consumed : target}
         </Text>
         <Text style={[styles.macroUnit, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
           {t('common.g')}
         </Text>
       </View>
       <Text style={[styles.macroSub, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-        {t('nutrition.macros.soitKcal', { kcal })}
+        {tracking ? t('nutrition.macros.ofTarget', { target }) : t('nutrition.macros.perDay')}
       </Text>
     </View>
   );
@@ -151,16 +144,10 @@ const styles = StyleSheet.create({
   },
   bigEyebrow: { fontSize: 11, letterSpacing: 1.6, marginBottom: 8 },
   bigRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },
-  bigValue: { fontSize: 64, lineHeight: 64, letterSpacing: -1.2 },
   midValue: { fontSize: 36, lineHeight: 38, letterSpacing: -0.6 },
   bigUnit: { fontSize: 16 },
   bigHint: { fontSize: 12, marginTop: 4 },
-  sectionLabel: {
-    fontSize: 18,
-    letterSpacing: -0.3,
-    marginTop: Spacing.lg,
-    marginBottom: Spacing.md,
-  },
+  kcalLine: { fontSize: 12, marginTop: Spacing.sm },
   row3: { flexDirection: 'row', gap: Spacing.sm },
   macroCard: {
     flex: 1,

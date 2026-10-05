@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { ChevronLeft, Dumbbell, FileText, LogOut, Pencil, Settings, Shield, Trash2 } from 'lucide-react-native';
+import { CheckCircle2, ChevronLeft, Circle, Dumbbell, FileText, LogOut, Pencil, Settings, Shield, Trash2 } from 'lucide-react-native';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -29,7 +29,8 @@ export default function AccountScreen() {
   const palette = Colors[useColorScheme() ?? 'light'];
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { profile, loading, refresh } = useProfile();
+  const { profile, loading, refresh, update } = useProfile();
+  const tracking = profile?.nutrition_tracking === true;
 
   const GOAL_LABELS: Record<string, string> = {
     perte_de_poids: t('onboarding.goal.perte_de_poids'),
@@ -50,6 +51,15 @@ export default function AccountScreen() {
       refresh();
     }, [refresh]),
   );
+
+  async function setTracking(next: boolean) {
+    if (next === tracking) return;
+    try {
+      await update({ nutrition_tracking: next });
+    } catch (e: any) {
+      Alert.alert(t('common.saveImpossible'), e?.message ?? t('common.error'));
+    }
+  }
 
   function handleLogout() {
     Alert.alert(t('account.logoutConfirmTitle'), t('account.logoutConfirmBody'), [
@@ -192,20 +202,41 @@ export default function AccountScreen() {
             />
             <Divider color={palette.border} />
             <Row
-              label={t('account.profile.kcalTarget')}
-              value={profile?.daily_kcal_target ? `${profile.daily_kcal_target} kcal` : '—'}
-              palette={palette}
-            />
-            <Divider color={palette.border} />
-            <Row
               label={t('account.profile.proteinTarget')}
               value={profile?.protein_target_g ? `${profile.protein_target_g} g` : '—'}
               palette={palette}
             />
             <Divider color={palette.border} />
             <Row
+              label={t('account.profile.kcalTarget')}
+              value={profile?.daily_kcal_target ? `${profile.daily_kcal_target} kcal` : '—'}
+              palette={palette}
+            />
+            <Divider color={palette.border} />
+            <Row
               label={t('account.profile.hydrationTarget')}
               value={profile?.hydration_target_ml ? `${profile.hydration_target_ml} ml` : '—'}
+              palette={palette}
+            />
+          </View>
+        </View>
+
+        <View style={{ marginTop: Spacing.xxl }}>
+          <SectionTitle title={t('nutrition.tracking.title')} />
+          <View style={[styles.card, { backgroundColor: palette.surface }]}>
+            <TrackingOption
+              selected={!tracking}
+              title={t('nutrition.tracking.off')}
+              hint={t('nutrition.tracking.offHint')}
+              onPress={() => setTracking(false)}
+              palette={palette}
+            />
+            <Divider color={palette.border} />
+            <TrackingOption
+              selected={tracking}
+              title={t('nutrition.tracking.on')}
+              hint={t('nutrition.tracking.onHint')}
+              onPress={() => setTracking(true)}
               palette={palette}
             />
           </View>
@@ -350,6 +381,40 @@ function Row({
   );
 }
 
+function TrackingOption({
+  selected,
+  title,
+  hint,
+  onPress,
+  palette,
+}: {
+  selected: boolean;
+  title: string;
+  hint: string;
+  onPress: () => void;
+  palette: any;
+}) {
+  const Icon = selected ? CheckCircle2 : Circle;
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="radio"
+      accessibilityState={{ selected }}
+      style={({ pressed }) => [styles.option, { opacity: pressed ? 0.7 : 1 }]}
+    >
+      <Icon size={20} color={selected ? palette.text : palette.textSecondary} strokeWidth={1.8} />
+      <View style={{ flex: 1 }}>
+        <Text style={[styles.optionTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+          {title}
+        </Text>
+        <Text style={[styles.optionHint, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
+          {hint}
+        </Text>
+      </View>
+    </Pressable>
+  );
+}
+
 function Divider({ color }: { color: string }) {
   return <View style={[styles.divider, { backgroundColor: color }]} />;
 }
@@ -406,6 +471,9 @@ const styles = StyleSheet.create({
   rowLabel: { fontSize: 14 },
   rowValue: { fontSize: 14, maxWidth: '60%', textAlign: 'right' },
   divider: { height: StyleSheet.hairlineWidth },
+  option: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, paddingVertical: Spacing.md },
+  optionTitle: { fontSize: 14 },
+  optionHint: { fontSize: 12, lineHeight: 17, marginTop: 2 },
   hint: {
     fontSize: 12,
     marginTop: Spacing.sm,

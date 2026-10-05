@@ -42,7 +42,8 @@ export default function NutritionScreen() {
   const otherRecipes = recipes.slice(1, 5);
 
   const initial = (profile?.display_name || user?.email || '?')[0].toUpperCase();
-  const target = profile?.daily_kcal_target ?? 1980;
+  // Sans suivi (défaut) : les macros sont un simple repère, on ne compte rien.
+  const tracking = profile?.nutrition_tracking === true;
 
   return (
     <View style={[styles.container, { backgroundColor: palette.background }]}>
@@ -73,9 +74,6 @@ export default function NutritionScreen() {
               )}
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.eyebrow, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                {t('nutrition.kcalProgress', { current: data.meals.total_kcal, target })}
-              </Text>
               <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
                 {t('nutrition.title')}
               </Text>
@@ -91,7 +89,18 @@ export default function NutritionScreen() {
           </Pressable>
         </View>
 
-        <MacrosSummary />
+        <MacrosSummary
+          consumed={
+            tracking
+              ? {
+                  kcal: data.meals.total_kcal,
+                  protein: data.meals.total_protein,
+                  carbs: data.meals.total_carbs,
+                  fats: data.meals.total_fat,
+                }
+              : undefined
+          }
+        />
 
         <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl }}>
           <SessionCard
@@ -111,50 +120,56 @@ export default function NutritionScreen() {
         </View>
 
         <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xxl }}>
-          <View style={styles.sectionRow}>
-            <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-              {t('nutrition.todaysMeals')}
-            </Text>
-            <Pressable hitSlop={8} onPress={() => router.push('/meal-log' as any)}>
-              <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-                {t('nutrition.addMeal')}
+          {tracking ? (
+            <View style={styles.sectionRow}>
+              <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+                {t('nutrition.todaysMeals')}
               </Text>
-            </Pressable>
-          </View>
-          <View style={{ gap: Spacing.md, marginTop: Spacing.md }}>
-            <ActivityCard
-              icon={Coffee}
-              title={t('nutrition.breakfast')}
-              subtitle={
-                data.meals.petit_dejeuner.logged
-                  ? `${data.meals.petit_dejeuner.kcal} kcal · ${data.meals.petit_dejeuner.protein} g`
-                  : t('nutrition.notLogged')
-              }
-              status={data.meals.petit_dejeuner.logged ? 'done' : 'pending'}
-              onPress={() => router.push('/meal-log?type=petit_dejeuner' as any)}
-            />
-            <ActivityCard
-              icon={UtensilsCrossed}
-              title={t('nutrition.lunch')}
-              subtitle={
-                data.meals.dejeuner.logged
-                  ? `${data.meals.dejeuner.kcal} kcal · ${data.meals.dejeuner.protein} g`
-                  : t('nutrition.notLogged')
-              }
-              status={data.meals.dejeuner.logged ? 'done' : 'pending'}
-              onPress={() => router.push('/meal-log?type=dejeuner' as any)}
-            />
-            <ActivityCard
-              icon={Cookie}
-              title={t('nutrition.dinner')}
-              subtitle={
-                data.meals.diner.logged
-                  ? `${data.meals.diner.kcal} kcal · ${data.meals.diner.protein} g`
-                  : t('nutrition.notLogged')
-              }
-              status={data.meals.diner.logged ? 'done' : 'pending'}
-              onPress={() => router.push('/meal-log?type=diner' as any)}
-            />
+              <Pressable hitSlop={8} onPress={() => router.push('/meal-log' as any)}>
+                <Text style={[styles.seeAll, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
+                  {t('nutrition.addMeal')}
+                </Text>
+              </Pressable>
+            </View>
+          ) : null}
+          <View style={{ gap: Spacing.md, marginTop: tracking ? Spacing.md : 0 }}>
+            {tracking ? (
+              <>
+                <ActivityCard
+                  icon={Coffee}
+                  title={t('nutrition.breakfast')}
+                  subtitle={
+                    data.meals.petit_dejeuner.logged
+                      ? `${data.meals.petit_dejeuner.kcal} kcal · ${data.meals.petit_dejeuner.protein} g`
+                      : t('nutrition.notLogged')
+                  }
+                  status={data.meals.petit_dejeuner.logged ? 'done' : 'pending'}
+                  onPress={() => router.push('/meal-log?type=petit_dejeuner' as any)}
+                />
+                <ActivityCard
+                  icon={UtensilsCrossed}
+                  title={t('nutrition.lunch')}
+                  subtitle={
+                    data.meals.dejeuner.logged
+                      ? `${data.meals.dejeuner.kcal} kcal · ${data.meals.dejeuner.protein} g`
+                      : t('nutrition.notLogged')
+                  }
+                  status={data.meals.dejeuner.logged ? 'done' : 'pending'}
+                  onPress={() => router.push('/meal-log?type=dejeuner' as any)}
+                />
+                <ActivityCard
+                  icon={Cookie}
+                  title={t('nutrition.dinner')}
+                  subtitle={
+                    data.meals.diner.logged
+                      ? `${data.meals.diner.kcal} kcal · ${data.meals.diner.protein} g`
+                      : t('nutrition.notLogged')
+                  }
+                  status={data.meals.diner.logged ? 'done' : 'pending'}
+                  onPress={() => router.push('/meal-log?type=diner' as any)}
+                />
+              </>
+            ) : null}
             <ActivityCard
               icon={Droplet}
               title={t('nutrition.hydration')}
@@ -225,8 +240,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   avatarInitial: { fontSize: 18 },
-  eyebrow: { fontSize: 13 },
-  title: { fontSize: 22, letterSpacing: -0.4, marginTop: 2 },
+  title: { fontSize: 22, letterSpacing: -0.4 },
   bell: {
     width: 40,
     height: 40,

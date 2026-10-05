@@ -78,15 +78,20 @@
       "title": "Your daily",
       "titleItalic": "intake",
       "subtitle": "Calculated from your profile and goal",
-      "caloriesPerDay": "CALORIES PER DAY",
-      "totalEnergy": "Total energy to aim for today",
-      "split": "Split",
       "protein": "PROTEIN",
       "fats": "FATS",
       "carbs": "CARBS",
       "perDay": "per day",
       "understand": "Understand my calculation",
-      "soitKcal": "= {{kcal}} kcal"
+      "kcalPerDay": "{{kcal}} kcal per day",
+      "ofTarget": "of {{target}} g"
+    },
+    "tracking": {
+      "title": "Nutrition tracking",
+      "off": "No tracking",
+      "offHint": "Your macros are shown as a simple guide. Nothing to count, nothing to tick.",
+      "on": "With tracking",
+      "onHint": "You follow your macros and calories through the day."
     }
   },
   "mindset": {
@@ -203,8 +208,6 @@
       "title": "Your daily intake",
       "subtitle": "Computed from your profile. You can adjust them in settings.",
       "computing": "Computing…",
-      "calories": "CALORIES PER DAY",
-      "totalEnergy": "Total energy to aim for today",
       "protein": "PROTEIN",
       "fats": "FATS",
       "carbs": "CARBS",
@@ -426,10 +429,7 @@
     "fromCatalog": "From the catalog"
   },
   "affirmation": {
-    "eyebrow": "Your anchor for today",
-    "invite": "Draw your card for today",
-    "draw": "Draw a card",
-    "drawAnother": "Draw another card"
+    "eyebrow": "Your anchor for today"
   },
   "entries": {
     "journalTitle": "Journal",

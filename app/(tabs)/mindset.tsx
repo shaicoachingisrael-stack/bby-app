@@ -34,7 +34,7 @@ export default function MindsetScreen() {
   const { data, refresh } = useDayData();
   const { items: mindsetItems, refresh: refreshMindset } = useMindsetContent();
   const { rituals, checkedToday, toggleCheck, refresh: refreshRituals } = useRituals();
-  const { affirmation, hasPool, drawing, draw, refresh: refreshAffirmation } = useDailyAffirmation();
+  const { affirmation: affirmationText, loading: affirmationLoading, refresh: refreshAffirmation } = useDailyAffirmation();
   const { programs, progress, refresh: refreshPrograms } = useMindsetPrograms();
 
   useFocusEffect(
@@ -49,10 +49,12 @@ export default function MindsetScreen() {
 
   const activeProgram = programs.find((p) => progress[p.id] && !progress[p.id].completed_at);
 
+  // Tant que la phrase du jour charge (ou existe), elle tient le haut de l'écran ;
+  // sans elle (hors ligne, table vide), le contenu mis en avant reprend la place.
+  const showAffirmation = affirmationLoading || !!affirmationText;
   const featured = mindsetItems[0];
   // Le hero est désormais l'affirmation du jour ; le contenu featured rejoint « Explorer ».
-  const others = hasPool ? mindsetItems.slice(0, 6) : mindsetItems.slice(1, 5);
-  const affirmationText = affirmation ? (affirmation.body?.trim() || affirmation.title) : null;
+  const others = showAffirmation ? mindsetItems.slice(0, 6) : mindsetItems.slice(1, 5);
 
   const initial = (profile?.display_name || user?.email || '?')[0].toUpperCase();
 
@@ -103,45 +105,17 @@ export default function MindsetScreen() {
           </Pressable>
         </View>
 
-        {hasPool ? (
-          /* HERO — affirmation du jour (Note dev §3.4 / §4.1) */
+        {showAffirmation ? (
+          /* HERO — affirmation du jour : la même pour toutes, selon la date locale */
           <View style={styles.hero}>
             <Text style={[styles.heroEyebrow, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
               {t('affirmation.eyebrow').toUpperCase()}
             </Text>
             {affirmationText ? (
-              <>
-                <Text style={[styles.heroText, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                  {affirmationText}
-                </Text>
-                <Pressable
-                  onPress={draw}
-                  disabled={drawing}
-                  style={[styles.heroPill, { borderColor: palette.border, opacity: drawing ? 0.6 : 1 }]}
-                >
-                  <Sparkles size={14} color={palette.text} />
-                  <Text style={[styles.heroPillText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-                    {t('affirmation.drawAnother')}
-                  </Text>
-                </Pressable>
-              </>
-            ) : (
-              <>
-                <Text style={[styles.heroInvite, { color: palette.text, fontFamily: Fonts.display }]}>
-                  {t('affirmation.invite')}
-                </Text>
-                <Pressable
-                  onPress={draw}
-                  disabled={drawing}
-                  style={[styles.heroPill, { borderColor: palette.border, opacity: drawing ? 0.6 : 1 }]}
-                >
-                  <Sparkles size={14} color={palette.text} />
-                  <Text style={[styles.heroPillText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-                    {t('affirmation.draw')}
-                  </Text>
-                </Pressable>
-              </>
-            )}
+              <Text style={[styles.heroText, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+                {affirmationText}
+              </Text>
+            ) : null}
           </View>
         ) : (
           <View style={{ paddingHorizontal: Spacing.xl, marginTop: Spacing.xl }}>
@@ -426,21 +400,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: -0.5,
   },
-  heroInvite: {
-    fontSize: 22,
-    lineHeight: 30,
-    textAlign: 'center',
-  },
-  heroPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    borderWidth: 1,
-    borderRadius: Radius.pill,
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-  },
-  heroPillText: { fontSize: 13 },
   sectionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

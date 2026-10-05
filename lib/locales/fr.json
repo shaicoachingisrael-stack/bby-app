@@ -78,15 +78,20 @@
       "title": "Tes apports",
       "titleItalic": "quotidiens",
       "subtitle": "Calculés selon ton profil et ton objectif",
-      "caloriesPerDay": "CALORIES PAR JOUR",
-      "totalEnergy": "Énergie totale à viser sur la journée",
-      "split": "Répartition",
       "protein": "PROTÉINES",
       "fats": "LIPIDES",
       "carbs": "GLUCIDES",
       "perDay": "par jour",
       "understand": "Comprendre mon calcul",
-      "soitKcal": "soit {{kcal}} kcal"
+      "kcalPerDay": "{{kcal}} kcal par jour",
+      "ofTarget": "sur {{target}} g"
+    },
+    "tracking": {
+      "title": "Suivi nutrition",
+      "off": "Sans suivi",
+      "offHint": "Tes macros s’affichent comme un simple repère. Rien à compter, rien à cocher.",
+      "on": "Avec suivi",
+      "onHint": "Tu suis tes macros et tes calories au fil de la journée."
     }
   },
   "mindset": {
@@ -203,8 +208,6 @@
       "title": "Tes apports quotidiens",
       "subtitle": "Calculés à partir de ton profil. Tu pourras les ajuster depuis tes paramètres.",
       "computing": "Calcul en cours…",
-      "calories": "CALORIES PAR JOUR",
-      "totalEnergy": "Énergie totale à viser sur la journée",
       "protein": "PROTÉINES",
       "fats": "LIPIDES",
       "carbs": "GLUCIDES",
@@ -426,10 +429,7 @@
     "fromCatalog": "Depuis le catalogue"
   },
   "affirmation": {
-    "eyebrow": "Ton ancrage du jour",
-    "invite": "Tire ta carte du jour",
-    "draw": "Tirer une carte",
-    "drawAnother": "Tirer une autre carte"
+    "eyebrow": "Ton ancrage du jour"
   },
   "entries": {
     "journalTitle": "Journal",

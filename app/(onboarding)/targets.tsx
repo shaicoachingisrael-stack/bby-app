@@ -52,19 +52,15 @@ export default function OnboardingTargetsStep() {
     >
       {targets ? (
         <View style={{ gap: Spacing.md }}>
-          <BigCard
-            label={t('onboarding.targets.calories')}
-            value={`${targets.calories ?? '—'}`}
-            unit={t('common.kcal')}
-            hint={t('onboarding.targets.totalEnergy')}
-            palette={palette}
-          />
-
           <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
-            <MacroCard label={t('onboarding.targets.protein')} value={targets.protein_g} unit={t('common.g')} sub={t('nutrition.macros.soitKcal', { kcal: (targets.protein_g ?? 0) * 4 })} palette={palette} />
-            <MacroCard label={t('onboarding.targets.fats')} value={targets.fats_g} unit={t('common.g')} sub={t('nutrition.macros.soitKcal', { kcal: (targets.fats_g ?? 0) * 9 })} palette={palette} />
-            <MacroCard label={t('onboarding.targets.carbs')} value={targets.carbs_g} unit={t('common.g')} sub={t('nutrition.macros.soitKcal', { kcal: (targets.carbs_g ?? 0) * 4 })} palette={palette} />
+            <MacroCard label={t('onboarding.targets.protein')} value={targets.protein_g} unit={t('common.g')} sub={t('onboarding.targets.perDay')} palette={palette} />
+            <MacroCard label={t('onboarding.targets.fats')} value={targets.fats_g} unit={t('common.g')} sub={t('onboarding.targets.perDay')} palette={palette} />
+            <MacroCard label={t('onboarding.targets.carbs')} value={targets.carbs_g} unit={t('common.g')} sub={t('onboarding.targets.perDay')} palette={palette} />
           </View>
+          {/* Brief Nutrition de Shy : les macros d'abord, le total calorique en simple repère dessous */}
+          <Text style={{ color: palette.textSecondary, fontFamily: Fonts.sans, fontSize: 12 }}>
+            {t('nutrition.macros.kcalPerDay', { kcal: targets.calories ?? '—' })}
+          </Text>
 
           <BigCard
             label={t('onboarding.targets.hydration')}

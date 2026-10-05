@@ -11,6 +11,8 @@ export type DaySummary = {
     collation: { kcal: number; protein: number; logged: boolean };
     total_kcal: number;
     total_protein: number;
+    total_carbs: number;
+    total_fat: number;
   };
   hydration_ml: number;
   session_completed_today: boolean;
@@ -25,6 +27,8 @@ const EMPTY: DaySummary = {
     collation: { kcal: 0, protein: 0, logged: false },
     total_kcal: 0,
     total_protein: 0,
+    total_carbs: 0,
+    total_fat: 0,
   },
   hydration_ml: 0,
   session_completed_today: false,
@@ -53,7 +57,7 @@ export function useDayData() {
     const [mealsRes, hydrationRes, sessionRes, mindsetRes] = await Promise.all([
       supabase
         .from('meal_entries')
-        .select('meal_type, kcal, protein_g')
+        .select('meal_type, kcal, protein_g, carbs_g, fat_g')
         .eq('user_id', user.id)
         .gte('eaten_at', since),
       supabase
@@ -79,7 +83,15 @@ export function useDayData() {
         .maybeSingle(),
     ]);
 
-    const meals = { ...EMPTY.meals };
+    // Copie profonde : les créneaux sont des objets, une copie de surface les
+    // partagerait avec EMPTY et les totaux gonfleraient à chaque rafraîchissement.
+    const meals: DaySummary['meals'] = {
+      ...EMPTY.meals,
+      petit_dejeuner: { ...EMPTY.meals.petit_dejeuner },
+      dejeuner: { ...EMPTY.meals.dejeuner },
+      diner: { ...EMPTY.meals.diner },
+      collation: { ...EMPTY.meals.collation },
+    };
     for (const m of mealsRes.data ?? []) {
       const slot = meals[m.meal_type as keyof typeof meals];
       if (slot && typeof slot === 'object' && 'kcal' in slot) {
@@ -89,6 +101,8 @@ export function useDayData() {
       }
       meals.total_kcal += m.kcal ?? 0;
       meals.total_protein += m.protein_g ?? 0;
+      meals.total_carbs += m.carbs_g ?? 0;
+      meals.total_fat += m.fat_g ?? 0;
     }
 
     const hydration_ml =

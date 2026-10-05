@@ -51,6 +51,13 @@ export type MindsetContent = {
   i18n?: I18nMap;
 };
 
+export type DailyAffirmation = {
+  month: number;
+  day: number;
+  text: string;
+  i18n?: I18nMap;
+};
+
 export type CoachingClient = {
   id: string;
   display_name: string | null;

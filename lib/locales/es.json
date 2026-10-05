@@ -78,15 +78,20 @@
       "title": "Tu ingesta",
       "titleItalic": "diaria",
       "subtitle": "Calculada según tu perfil y tu objetivo",
-      "caloriesPerDay": "CALORÍAS POR DÍA",
-      "totalEnergy": "Energía total a alcanzar en el día",
-      "split": "Distribución",
       "protein": "PROTEÍNAS",
       "fats": "GRASAS",
       "carbs": "CARBOHIDRATOS",
       "perDay": "por día",
       "understand": "Entender mi cálculo",
-      "soitKcal": "= {{kcal}} kcal"
+      "kcalPerDay": "{{kcal}} kcal al día",
+      "ofTarget": "de {{target}} g"
+    },
+    "tracking": {
+      "title": "Seguimiento de nutrición",
+      "off": "Sin seguimiento",
+      "offHint": "Tus macros se muestran como una simple referencia. Nada que contar, nada que marcar.",
+      "on": "Con seguimiento",
+      "onHint": "Sigues tus macros y tus calorías a lo largo del día."
     }
   },
   "mindset": {
@@ -203,8 +208,6 @@
       "title": "Tu ingesta diaria",
       "subtitle": "Calculada desde tu perfil. Puedes ajustarla en los ajustes.",
       "computing": "Calculando…",
-      "calories": "CALORÍAS POR DÍA",
-      "totalEnergy": "Energía total a alcanzar en el día",
       "protein": "PROTEÍNAS",
       "fats": "GRASAS",
       "carbs": "CARBOHIDRATOS",
@@ -426,10 +429,7 @@
     "fromCatalog": "Desde el catálogo"
   },
   "affirmation": {
-    "eyebrow": "Tu ancla de hoy",
-    "invite": "Saca tu carta de hoy",
-    "draw": "Sacar una carta",
-    "drawAnother": "Sacar otra carta"
+    "eyebrow": "Tu ancla de hoy"
   },
   "entries": {
     "journalTitle": "Diario",
