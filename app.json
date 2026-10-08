@@ -35,6 +35,7 @@
     "plugins": [
       "expo-router",
       "./plugins/with-fix-ios-spaces",
+      "./plugins/scenes-ios.js",
       [
         "expo-splash-screen",
         {
