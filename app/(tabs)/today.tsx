@@ -32,9 +32,9 @@ export default function TodayScreen() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { profile } = useProfile();
-  const { session: todaySession, refresh: refreshToday } = useTodaySession();
+  const { session: todaySession, loading: sessionLoading, refresh: refreshToday } = useTodaySession();
   const { recipes, refresh: refreshRecipes } = useRecipes();
-  const { rituals, checkedToday, toggleCheck, refresh: refreshRituals } = useRituals();
+  const { rituals, checkedToday, loading: ritualsLoading, toggleCheck, refresh: refreshRituals } = useRituals();
   const { isClient: hasCoach, refresh: refreshCoaching } = useMyCoaching();
 
   useFocusEffect(
@@ -46,8 +46,11 @@ export default function TodayScreen() {
     }, [refreshToday, refreshRecipes, refreshRituals, refreshCoaching]),
   );
 
-  const firstName = (profile?.display_name || user?.email?.split('@')[0] || '').split(' ')[0];
-  const initial = (firstName || '?')[0].toUpperCase();
+  // Tant que le profil n'est pas là, pas de repli sur l'e-mail (sinon « Bonjour Appreview.bby » une seconde).
+  const firstName = profile
+    ? (profile.display_name || user?.email?.split('@')[0] || '').split(' ')[0]
+    : '';
+  const initial = (firstName || ' ')[0].toUpperCase();
   const dateLabel = new Date().toLocaleDateString(i18n.language, { weekday: 'long', day: 'numeric', month: 'long' });
   // un repas ne s'enregistre que si le suivi nutrition est activé ; sinon le carré ouvre le menu
   const tracking = profile?.nutrition_tracking === true;
@@ -110,14 +113,14 @@ export default function TodayScreen() {
               </Text>
             </View>
             <Text numberOfLines={2} style={[styles.heroTitle, { color: palette.onAccent, fontFamily: Fonts.displayBold }]}>
-              {todaySession ? todaySession.title : t('today.nothingPlanned')}
+              {todaySession ? todaySession.title : sessionLoading ? ' ' : t('today.nothingPlanned')}
             </Text>
             {todaySession?.duration_min ? (
               <View style={styles.heroMeta}>
                 <Clock size={15} color={palette.onAccent} strokeWidth={2.2} />
                 <Text style={[styles.heroMetaText, { color: palette.onAccent }]}>{todaySession.duration_min} min</Text>
               </View>
-            ) : !todaySession ? (
+            ) : !todaySession && !sessionLoading ? (
               <Text style={[styles.heroMetaText, { color: palette.onAccent, marginTop: 8 }]}>
                 {t('today.nothingPlannedSub')}
               </Text>
@@ -147,7 +150,10 @@ export default function TodayScreen() {
           {t('rituals.title')}
         </SectionLabel>
         <TileCard radius={24} style={styles.ritualCard}>
-          {rituals.length === 0 ? (
+          {rituals.length === 0 && ritualsLoading ? (
+            // Pendant le chargement : un emplacement neutre, pas « choisis tes rituels ».
+            <View style={styles.ritualEmpty} />
+          ) : rituals.length === 0 ? (
             <Pressable onPress={() => router.push('/mindset/rituals' as any)} style={styles.ritualEmpty}>
               <IconBadge icon={Star} color="rose" size={44} round />
               <Text style={styles.ritualEmptyText}>{t('today.noRituals')}</Text>

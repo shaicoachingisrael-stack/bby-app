@@ -635,7 +635,7 @@
     "title": "Lista de la compra",
     "subtitle": "Se llena sola cuando añades recetas a tu menú.",
     "remaining": "Por comprar: {{count}}",
-    "addPlaceholder": "Añadir un artículo (ej.: 2 kg manzanas)",
+    "addPlaceholder": "Ej.: 2 kg de manzanas",
     "add": "Añadir",
     "clear": "Vaciar",
     "clearConfirmTitle": "¿Vaciar la lista?",

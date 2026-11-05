@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
+import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
 import { supabase } from '@/lib/supabase';
@@ -92,8 +92,8 @@ export default function HydrationLogScreen() {
               >
                 <Droplet
                   size={20}
-                  color={busy === ml ? Palette.encre : Palette.albatre}
-                  fill={busy === ml ? Palette.encre : Palette.albatre}
+                  color={busy === ml ? palette.text : palette.background}
+                  fill={busy === ml ? palette.text : palette.background}
                 />
               </View>
               <Text

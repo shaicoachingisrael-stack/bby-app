@@ -67,6 +67,8 @@ export async function signInWithGoogle() {
   try {
     await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
     const result = await GoogleSignin.signIn();
+    // Depuis la v13, une annulation ne lève plus d'erreur : elle renvoie type « cancelled ».
+    if (result.type === 'cancelled') return null;
 
     const idToken = result.data?.idToken;
     if (!idToken) {

@@ -54,6 +54,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  // Compte pour lequel le profil a fini de charger. Sans lui, au retour de session il y a
+  // un rendu « chargé mais vide » et l'appli file vers l'inscription pendant un instant.
+  const [loadedFor, setLoadedFor] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     if (!user) {
@@ -69,6 +72,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       .maybeSingle();
     if (error) console.warn('profile fetch error', error);
     setProfile((data as Profile | null) ?? null);
+    setLoadedFor(user.id);
     setLoading(false);
   }, [user]);
 
@@ -93,7 +97,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <ProfileContext.Provider value={{ profile, loading, update, refresh }}>
+    <ProfileContext.Provider
+      value={{ profile, loading: loading || (!!user && loadedFor !== user.id), update, refresh }}
+    >
       {children}
     </ProfileContext.Provider>
   );

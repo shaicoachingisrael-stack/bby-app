@@ -33,7 +33,7 @@ export function AiConsent({ onAccept, onDecline }: { onAccept: () => void; onDec
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.flex, { paddingBottom: insets.bottom + 16 }]}>
+    <View style={[styles.flex, { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 }]}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <IconBadge icon={Sparkles} color="violet" size={56} />
         <Text style={[styles.title, { fontFamily: Fonts.displayBold }]}>{t('aiConsent.title')}</Text>

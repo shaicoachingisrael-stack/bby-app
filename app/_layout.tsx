@@ -84,7 +84,7 @@ function RootStack() {
         <Stack.Screen name="(admin)" options={{ headerShown: false }} />
         <Stack.Screen
           name="chat"
-          options={{ presentation: 'modal', title: 'Coach IA' }}
+          options={{ presentation: 'modal', headerShown: false }}
         />
         <Stack.Screen
           name="account"

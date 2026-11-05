@@ -635,7 +635,7 @@
     "title": "Shopping list",
     "subtitle": "It fills itself as you add recipes to your menu.",
     "remaining": "To buy: {{count}}",
-    "addPlaceholder": "Add an item (e.g. 2 kg apples)",
+    "addPlaceholder": "E.g. 2 kg apples",
     "add": "Add",
     "clear": "Clear",
     "clearConfirmTitle": "Clear the list?",

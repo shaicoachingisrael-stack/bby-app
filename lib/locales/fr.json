@@ -635,7 +635,7 @@
     "title": "Liste de courses",
     "subtitle": "Elle se remplit toute seule quand tu ajoutes des recettes à ton menu.",
     "remaining": "À acheter : {{count}}",
-    "addPlaceholder": "Ajouter un article (ex : 2 kg pommes)",
+    "addPlaceholder": "Ex : 2 kg de pommes",
     "add": "Ajouter",
     "clear": "Vider",
     "clearConfirmTitle": "Vider la liste ?",
