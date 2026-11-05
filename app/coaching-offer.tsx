@@ -19,7 +19,7 @@ export default function CoachingOfferScreen() {
   const perks = (config?.perks ?? '').split('\n').map((s) => s.trim()).filter(Boolean);
 
   async function choose(plan: CoachingPlan) {
-    await requestInterest(t('coachingOffer.interestMessage', { months: plan.months, price: plan.price_text }));
+    await requestInterest(t('coachingOffer.interestMessage', { months: plan.months }));
     router.push('/coach-chat' as any);
   }
 
@@ -102,15 +102,12 @@ export default function CoachingOfferScreen() {
                     <Text style={[styles.planMonths, { color: plan.highlighted ? palette.background : palette.text, fontFamily: Fonts.sansSemibold }]}>
                       {t('coachingOffer.months', { count: plan.months })}
                     </Text>
-                    {plan.subtitle ? (
+                    {plan.subtitle && !hasPrice(plan.subtitle) ? (
                       <Text style={[styles.planSub, { color: plan.highlighted ? palette.background : palette.textSecondary, fontFamily: Fonts.sans }]}>
                         {plan.subtitle}
                       </Text>
                     ) : null}
                   </View>
-                  <Text style={[styles.planPrice, { color: plan.highlighted ? palette.background : palette.text, fontFamily: Fonts.displayBold }]}>
-                    {plan.price_text}
-                  </Text>
                 </Pressable>
               ))}
             </View>
@@ -150,3 +147,9 @@ const styles = StyleSheet.create({
   interestedSub: { fontSize: 14, textAlign: 'center', lineHeight: 20 },
   chatBtn: { borderRadius: Radius.pill, paddingVertical: 12, paddingHorizontal: Spacing.xl, marginTop: Spacing.md },
 });
+
+// Aucun montant à l'écran (règle Apple 3.1.1) : un sous-titre saisi par la coach
+// qui parle de prix (« soit 387 € · -13% ») n'est pas affiché.
+function hasPrice(text: string) {
+  return /[€$£₪₽%]|\d/.test(text);
+}

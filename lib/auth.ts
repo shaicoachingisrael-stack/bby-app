@@ -6,6 +6,7 @@ import {
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 
+import { unregisterCurrentDevicePushToken } from './notifications';
 import { supabase } from './supabase';
 
 const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
@@ -122,6 +123,9 @@ export async function deleteAccount() {
 }
 
 export async function signOut() {
+  // tant que la session existe encore : ce téléphone ne reçoit plus les push du compte
+  const { data } = await supabase.auth.getUser();
+  if (data.user) await unregisterCurrentDevicePushToken(data.user.id).catch(() => {});
   try {
     await GoogleSignin.signOut();
   } catch {

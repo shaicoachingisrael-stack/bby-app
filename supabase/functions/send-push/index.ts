@@ -1,5 +1,5 @@
 // deno-lint-ignore-file
-// Admin-only push broadcast. Talks directly to APNs (HTTP/2 + JWT ES256).
+// Admin push broadcast, plus `to: 'coach'` (any signed-in client notifies the admins). Talks directly to APNs (HTTP/2 + JWT ES256).
 // No Expo Push dependency.
 //
 // Required Supabase Edge Function secrets:
@@ -7,7 +7,7 @@
 //   APNS_KEY_ID        10-char Key ID from Apple Developer
 //   APNS_TEAM_ID       10-char Team ID from Apple Developer
 //   APNS_BUNDLE_ID     com.bodybyyou.app
-//   APNS_USE_SANDBOX   "true" while building from Xcode (debug), "false" once shipped via App Store
+//   APNS_USE_SANDBOX   "true" = try the sandbox first (Xcode builds); both servers are tried anyway
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
@@ -40,39 +40,54 @@ Deno.serve(async (req) => {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('is_admin')
+    .select('is_admin, display_name')
     .eq('id', user.id)
     .maybeSingle();
-  if (!profile?.is_admin) return json({ error: 'Forbidden' }, 403);
 
   const body = (await req.json().catch(() => ({}))) as {
     title?: string;
     body?: string;
     user_ids?: string[];
     data?: Record<string, unknown>;
+    to?: 'coach';
   };
-  const title = (body.title ?? '').trim();
-  const message = (body.body ?? '').trim();
-  if (!title || !message) return json({ error: 'title et body requis' }, 400);
 
-  // Service-role client to read all push_tokens for broadcast and write history
+  // Service-role client to read push_tokens and write history
   const admin = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   );
 
-  // Persist a history row so users can see this in their inbox even if APNs fails or is offline
-  await admin.from('notifications').insert({
-    title,
-    body: message,
-    data: body.data ?? null,
-  });
+  let title: string;
+  let message: string;
+  let data: Record<string, unknown> = body.data ?? {};
+  let targetIds: string[] | null = body.user_ids?.length ? body.user_ids : null;
+
+  if (body.to === 'coach') {
+    // Une cliente prévient la coach : nouveau message ou « Je suis intéressée ».
+    // Texte et lien fixés ici (la cliente ne choisit rien), seulement vers les admins,
+    // et sans ligne dans `notifications` (la boîte que lisent toutes les clientes).
+    const name = (profile?.display_name ?? '').trim() || 'Une cliente';
+    title = 'Nouveau message';
+    message = `${name} t’a écrit dans BBY.`;
+    data = { url: `/(admin)/client-chat/${user.id}` };
+    const { data: admins } = await admin.from('profiles').select('id').eq('is_admin', true);
+    targetIds = (admins ?? []).map((a) => a.id as string);
+    if (targetIds.length === 0) return json({ sent: 0, errors: 0, total: 0 });
+  } else {
+    if (!profile?.is_admin) return json({ error: 'Forbidden' }, 403);
+    title = (body.title ?? '').trim();
+    message = (body.body ?? '').trim();
+    if (!title || !message) return json({ error: 'title et body requis' }, 400);
+    // Persist a history row so users can see this in their inbox even if APNs fails or is offline
+    await admin.from('notifications').insert({ title, body: message, data: body.data ?? null });
+  }
 
   let q = admin
     .from('push_tokens')
     .select('expo_token, platform, user_id')
     .eq('platform', 'ios');
-  if (body.user_ids?.length) q = q.in('user_id', body.user_ids);
+  if (targetIds) q = q.in('user_id', targetIds);
 
   const { data: rows, error: rowsErr } = await q;
   if (rowsErr) {
@@ -80,10 +95,13 @@ Deno.serve(async (req) => {
     return json({ error: 'Erreur lecture tokens' }, 500);
   }
 
-  const tokens = (rows ?? [])
-    .map((r) => (r.expo_token as string) ?? '')
-    .map((t) => t.replace(/\s+/g, ''))
-    .filter((t) => t && /^[0-9a-fA-F]+$/.test(t));
+  const tokens = [
+    ...new Set(
+      (rows ?? [])
+        .map((r) => ((r.expo_token as string) ?? '').replace(/\s+/g, ''))
+        .filter((t) => t && /^[0-9a-fA-F]+$/.test(t)),
+    ),
+  ];
 
   if (tokens.length === 0) {
     return json({ sent: 0, errors: 0, total: 0, message: 'Aucun token APNs.' });
@@ -97,47 +115,69 @@ Deno.serve(async (req) => {
     return json({ error: 'JWT signing failed: ' + (e?.message ?? '') }, 500);
   }
 
-  const sandbox = (Deno.env.get('APNS_USE_SANDBOX') ?? 'true') === 'true';
-  const host = sandbox ? 'api.sandbox.push.apple.com' : 'api.push.apple.com';
   const bundleId = Deno.env.get('APNS_BUNDLE_ID')!;
-
+  // expo-notifications ne remonte à l'app que la clé `body` du message : les données
+  // (dont `url`, l'écran à ouvrir) y vont, et restent aussi à la racine.
   const payload = JSON.stringify({
     aps: {
       alert: { title, body: message },
       sound: 'default',
     },
-    ...((body.data as object) ?? {}),
+    ...data,
+    body: data,
   });
+
+  // Un même compte peut avoir un jeton de test (build Xcode) et un jeton de
+  // production (TestFlight / App Store) : on tente la production, puis le bac à
+  // sable si Apple ne reconnaît pas le jeton. Un jeton refusé des deux côtés est effacé.
+  const sandboxFirst = (Deno.env.get('APNS_USE_SANDBOX') ?? 'false') === 'true';
+  const hosts = sandboxFirst
+    ? ['api.sandbox.push.apple.com', 'api.push.apple.com']
+    : ['api.push.apple.com', 'api.sandbox.push.apple.com'];
 
   let sent = 0;
   let errors = 0;
   const failures: { token: string; status: number; reason?: string }[] = [];
+  const dead: string[] = [];
 
   for (const token of tokens) {
-    try {
-      const res = await fetch(`https://${host}/3/device/${token}`, {
-        method: 'POST',
-        headers: {
-          authorization: `bearer ${jwt}`,
-          'apns-topic': bundleId,
-          'apns-push-type': 'alert',
-          'apns-priority': '10',
-          'content-type': 'application/json',
-        },
-        body: payload,
-      });
-      if (res.ok) {
-        sent += 1;
-      } else {
-        errors += 1;
-        const reason = await res.text().catch(() => '');
-        failures.push({ token: token.slice(0, 8) + '…', status: res.status, reason });
+    let delivered = false;
+    let last: { status: number; reason?: string } = { status: 0 };
+    for (const host of hosts) {
+      try {
+        const res = await fetch(`https://${host}/3/device/${token}`, {
+          method: 'POST',
+          headers: {
+            authorization: `bearer ${jwt}`,
+            'apns-topic': bundleId,
+            'apns-push-type': 'alert',
+            'apns-priority': '10',
+            'content-type': 'application/json',
+          },
+          body: payload,
+        });
+        if (res.ok) {
+          delivered = true;
+          break;
+        }
+        last = { status: res.status, reason: await res.text().catch(() => '') };
+        // seul un jeton inconnu de ce serveur mérite l'essai sur l'autre
+        if (!/BadDeviceToken|Unregistered/.test(last.reason ?? '')) break;
+      } catch (e: any) {
+        last = { status: 0, reason: e?.message };
+        break;
       }
-    } catch (e: any) {
+    }
+    if (delivered) {
+      sent += 1;
+    } else {
       errors += 1;
-      failures.push({ token: token.slice(0, 8) + '…', status: 0, reason: e?.message });
+      failures.push({ token: token.slice(0, 8) + '…', ...last });
+      if (/BadDeviceToken|Unregistered/.test(last.reason ?? '')) dead.push(token);
     }
   }
+
+  if (dead.length) await admin.from('push_tokens').delete().in('expo_token', dead);
 
   return json({ sent, errors, total: tokens.length, failures });
 });

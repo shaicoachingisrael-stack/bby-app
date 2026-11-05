@@ -40,6 +40,7 @@ export function useCoachingOffer() {
       if (message.trim()) {
         await supabase.from('coaching_messages').insert({ client_id: user.id, sender: 'client', content: message.trim() });
       }
+      notifyCoach();
     },
     [user],
   );
@@ -126,10 +127,17 @@ export function useCoachMessages(clientId: string | undefined, role: 'client' | 
         .from('coaching_messages')
         .insert({ client_id: clientId, sender: role, content: content.trim() });
       if (error) console.warn('send message', error);
+      else if (role === 'client') notifyCoach();
       await refresh();
     },
     [clientId, role, messages.length, refresh],
   );
 
   return { messages, loading, refresh, send };
+}
+
+// Prévient la coach (push vers les comptes admin) qu'une cliente lui a écrit. Sans
+// attente ni erreur visible : le message est déjà enregistré, l'alerte est un plus.
+function notifyCoach() {
+  supabase.functions.invoke('send-push', { body: { to: 'coach' } }).catch(() => {});
 }

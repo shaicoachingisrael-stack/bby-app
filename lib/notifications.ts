@@ -2,6 +2,7 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
+import i18n from './i18n';
 import { supabase } from './supabase';
 
 // Foreground behavior: show banner + play sound
@@ -15,28 +16,11 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// Les 3 rappels du jour ; textes dans lib/locales (section `reminders`).
 const DAILY_REMINDERS = [
-  {
-    id: 'morning-session',
-    hour: 9,
-    minute: 0,
-    title: 'Ta séance du jour t\'attend',
-    body: 'Quelques minutes pour bouger, respirer, te recentrer.',
-  },
-  {
-    id: 'lunch-meal',
-    hour: 12,
-    minute: 30,
-    title: 'Pense à logger ton déjeuner',
-    body: 'Track tes macros en quelques secondes.',
-  },
-  {
-    id: 'evening-mindset',
-    hour: 20,
-    minute: 0,
-    title: 'Comment s\'est passée ta journée ?',
-    body: 'Note tes ressentis, ton intention de demain.',
-  },
+  { id: 'morning-session', hour: 9, minute: 0, key: 'morning', needsTracking: false },
+  { id: 'lunch-meal', hour: 12, minute: 30, key: 'lunch', needsTracking: true },
+  { id: 'evening-mindset', hour: 20, minute: 0, key: 'evening', needsTracking: false },
 ];
 
 export async function ensurePermissionsGranted(): Promise<boolean> {
@@ -58,16 +42,19 @@ export async function setupAndroidChannel() {
   });
 }
 
-export async function scheduleDailyReminders() {
+// `tracking` = suivi nutrition activé : sans lui (le défaut voulu par Shy), pas de
+// rappel pour noter le déjeuner. À rappeler quand la langue ou le suivi change.
+export async function scheduleDailyReminders(tracking: boolean) {
   // Wipe previous schedules to avoid duplicates after a re-install
   await Notifications.cancelAllScheduledNotificationsAsync();
 
   for (const r of DAILY_REMINDERS) {
+    if (r.needsTracking && !tracking) continue;
     await Notifications.scheduleNotificationAsync({
       identifier: r.id,
       content: {
-        title: r.title,
-        body: r.body,
+        title: i18n.t(`reminders.${r.key}Title`),
+        body: i18n.t(`reminders.${r.key}Body`),
         sound: true,
       },
       trigger: {

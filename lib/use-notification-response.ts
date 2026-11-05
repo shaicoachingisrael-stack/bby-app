@@ -16,10 +16,11 @@ export function useNotificationResponse() {
     if (handledIdRef.current === id) return;
 
     const data = lastResponse.notification.request.content.data ?? {};
-    const url =
-      typeof (data as any).url === 'string'
-        ? ((data as any).url as string)
-        : null;
+    // send-push pose `url` à la racine du message APNs, qu'expo ne recopie pas
+    // dans `data` (il ne lit que la clé `body`) : on le relit dans le message brut.
+    const payload = (lastResponse.notification.request.trigger as any)?.payload ?? {};
+    const raw = (data as any).url ?? payload.url ?? payload.body?.url;
+    const url = typeof raw === 'string' ? raw : null;
 
     if (url && url.startsWith('/')) {
       handledIdRef.current = id;

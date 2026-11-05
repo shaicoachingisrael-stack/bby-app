@@ -1,7 +1,7 @@
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
-import { Apple, Dumbbell, Home, Leaf, Sparkles } from 'lucide-react-native';
+import { Apple, Dumbbell, Home, Leaf, MessageCircleMore } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,6 +9,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AccentFill } from '@/components/ui/accent-fill';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+
+const TAB_MUTED = '#A99DAA';
 
 const ICONS = {
   today: Home,
@@ -75,16 +77,15 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
                 style={styles.tabButton}
                 hitSlop={8}
               >
-                <Icon
-                  size={22}
-                  color={isFocused ? palette.tint : palette.textSecondary}
-                  strokeWidth={isFocused ? 2.2 : 1.8}
-                />
+                {/* l'onglet actif : icône claire posée sur une petite pastille de verre */}
+                <View style={[styles.iconPill, isFocused && styles.iconPillActive]}>
+                  <Icon size={22} color={isFocused ? palette.text : TAB_MUTED} strokeWidth={isFocused ? 2.1 : 1.9} />
+                </View>
                 <Text
                   style={[
                     styles.tabLabel,
                     {
-                      color: isFocused ? palette.text : palette.textSecondary,
+                      color: isFocused ? palette.text : TAB_MUTED,
                       fontFamily: isFocused ? Fonts.sansSemibold : Fonts.sansMedium,
                     },
                   ]}
@@ -99,18 +100,17 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
 
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Coach IA"
+        accessibilityLabel={t('tabs.coachIa')}
         onPress={() => router.push('/chat')}
         style={({ pressed }) => [
           styles.fab,
           { transform: [{ scale: pressed ? 0.94 : 1 }] },
         ]}
       >
-        <AccentFill />
-        <Sparkles size={20} color={palette.onAccent} strokeWidth={2} />
-        <Text style={[styles.fabLabel, { color: palette.onAccent, fontFamily: Fonts.sansSemibold }]}>
-          {t('tabs.coachIa')}
-        </Text>
+        <View style={styles.fabInner}>
+          <AccentFill />
+          <MessageCircleMore size={24} color="#FFFFFF" strokeWidth={2} />
+        </View>
       </Pressable>
     </View>
   );
@@ -129,10 +129,11 @@ const styles = StyleSheet.create({
   },
   tabPill: {
     flex: 1,
-    height: 76,
-    borderRadius: Radius.xl,
+    maxWidth: 520,
+    height: 68,
+    borderRadius: 34,
     overflow: 'hidden',
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: 1,
   },
   tabBg: {
     ...StyleSheet.absoluteFillObject,
@@ -151,15 +152,25 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   tabLabel: { fontSize: 10, letterSpacing: 0.2 },
+  iconPill: { paddingHorizontal: 14, paddingVertical: 4, borderRadius: 14 },
+  iconPillActive: { backgroundColor: 'rgba(255,255,255,0.12)' },
+  // Coach IA : rond braise à part du menu, cerclé d'un halo de verre
   fab: {
-    width: 70,
-    height: 76,
-    borderRadius: Radius.xl,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    padding: 5,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    shadowColor: '#FF3D7F',
+    shadowOpacity: 0.7,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+  },
+  fabInner: {
+    flex: 1,
+    borderRadius: 29,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
-    paddingHorizontal: 6,
     overflow: 'hidden',
   },
-  fabLabel: { fontSize: 9, letterSpacing: 0.2 },
 });

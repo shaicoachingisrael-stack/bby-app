@@ -146,7 +146,7 @@
     "termsLink": "תנאים",
     "and": "ול",
     "privacyLink": "מדיניות פרטיות",
-    "letsExplore": "בואי נצא לדרך",
+    "letsExplore": "יאללה",
     "missingFields": "חסרים שדות",
     "missingFieldsBody": "מלאי אימייל וסיסמה.",
     "passwordTooShort": "הסיסמה קצרה מדי",
@@ -300,9 +300,9 @@
     "description": "תיאור",
     "material": "ציוד",
     "materialDefault": "מזרן, גומי, משקולות (לא חובה)",
-    "start": "התחלת אימון",
-    "doneTitle": "כל הכבוד",
-    "doneBody": "האימון נשמר."
+    "start": "סיימתי את האימון",
+    "doneTitle": "נרשם",
+    "doneBody": "האימון שלך נשמר."
   },
   "program": {
     "title": "תוכנית",
@@ -389,7 +389,8 @@
     "view": "צפייה",
     "relativeNow": "ממש עכשיו",
     "relativeMinutes": "לפני {{count}} דק'",
-    "relativeHours": "לפני {{count}} ש'"
+    "relativeHours": "לפני {{count}} ש'",
+    "deleteOneTitle": "מחיקת ההתראה"
   },
   "chat": {
     "title": "מאמן AI",
@@ -551,10 +552,10 @@
     "discoverSub": "מעקב מותאם אישית, רק בשבילך",
     "plansTitle": "בחרי את המסלול שלך",
     "months": "{{count}} חודשים",
-    "interestMessage": "היי שיי! מעניין אותי הליווי האישי — מסלול {{months}} חודשים ({{price}}).",
+    "interestMessage": "היי שי! אני מתעניינת בליווי האישי — מסלול של {{months}} חודשים.",
     "interestedTitle": "רשום!",
     "interestedSub": "שיי תחזור אלייך לסיום. את יכולה גם לכתוב לה עכשיו.",
-    "disclaimer": "התשלום מתואם עם שיי לאחר שיחה. הליווי מופעל עם האישור."
+    "disclaimer": "שי תחזור אלייך כדי לדבר ולבנות איתך את הליווי."
   },
   "ingredients": {
     "qtyPlaceholder": "כמות",
@@ -645,5 +646,63 @@
       "boissons": "משקאות",
       "autre": "אחר"
     }
+  },
+  "tiles": {
+    "iAdd": "אני מוסיפה",
+    "water": "מים",
+    "meal": "ארוחה",
+    "menu": "תפריט",
+    "note": "פתק",
+    "breathe": "לנשום",
+    "myWeek": "השבוע שלי",
+    "iChoose": "אני בוחרת",
+    "programs": "תוכניות",
+    "myCoach": "המאמנת שלי",
+    "myWater": "המים שלי",
+    "glasses": "{{done}} מתוך {{total}} כוסות",
+    "myMeals": "הארוחות שלי",
+    "morning": "בוקר",
+    "noon": "צהריים",
+    "snack": "נשנוש",
+    "evening": "ערב",
+    "myKitchen": "המטבח שלי",
+    "weekMenu": "השבוע שלי",
+    "shopping": "קניות",
+    "recipes": "מתכונים",
+    "mine": "שלי",
+    "careForYou": "לדאוג לעצמך",
+    "myAffirmation": "האמירה שלי",
+    "iFeelLike": "בא לי",
+    "meditate": "מדיטציה",
+    "journal": "יומן",
+    "intention": "כוונה",
+    "rituals": "טקסים",
+    "journeys": "מסלולים",
+    "favorites": "המועדפים שלי",
+    "myNotes": "הפתקים שלי",
+    "today": "היום",
+    "setTargets": "השלימי את הפרופיל כדי לחשב את ההמלצות היומיות"
+  },
+  "welcome": {
+    "title": "הגוף שלך, הקצב שלך",
+    "subtitle": "אימונים, תזונה ומיינדסט עם שי, במקום אחד."
+  },
+  "reminders": {
+    "morningTitle": "האימון של היום מחכה לך",
+    "morningBody": "כמה דקות לזוז, לנשום ולהתמקד.",
+    "lunchTitle": "אל תשכחי לרשום את ארוחת הצהריים",
+    "lunchBody": "זה לוקח רק כמה שניות.",
+    "eveningTitle": "איך עבר היום שלך?",
+    "eveningBody": "כתבי את התחושות שלך ואת הכוונה למחר."
+  },
+  "aiConsent": {
+    "title": "מאמנת ה-AI שלך",
+    "body": "מאמנת ה-AI היא בינה מלאכותית, לא שי בעצמה. כדי לענות לך היא משתמשת בשירות AI חיצוני (OpenAI).",
+    "point1": "השם הפרטי שלך, ההמלצות היומיות וההודעות שלך נשלחים אליו רק כדי לענות לך.",
+    "point2": "התשובות הן להכוונה בלבד ואינן מחליפות את שי או ייעוץ של איש מקצוע בתחום הבריאות.",
+    "point3": "אפשר להפסיק להשתמש בו בכל רגע.",
+    "privacy": "לקריאת מדיניות הפרטיות",
+    "accept": "הבנתי, אני מסכימה",
+    "decline": "לא עכשיו"
   }
 }

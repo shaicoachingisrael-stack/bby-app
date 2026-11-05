@@ -125,7 +125,7 @@ function Row({
           {item.title?.trim() || `Vidéo ${index + 1}`}
         </Text>
         <Text style={[styles.rowMeta, { color: palette.textSecondary, fontFamily: Fonts.sans }]} numberOfLines={1}>
-          {new URL(item.url).pathname.split('/').pop()}
+          {fileName(item.url)}
         </Text>
       </View>
       <Pressable
@@ -185,3 +185,12 @@ const styles = StyleSheet.create({
   },
   addText: { fontSize: 14 },
 });
+
+// Nom du fichier d'une adresse ; une adresse mal formée ne doit pas faire tomber l'écran.
+function fileName(url: string) {
+  try {
+    return new URL(url).pathname.split('/').pop() ?? url;
+  } catch {
+    return url;
+  }
+}

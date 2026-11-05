@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AiConsent, useAiConsent } from '@/components/ai-consent';
 import { useChat } from '@/lib/use-chat';
 
 export default function ChatScreen() {
@@ -26,6 +27,7 @@ export default function ChatScreen() {
   const palette = Colors[useColorScheme() ?? 'light'];
   const { messages, loading, sending, send } = useChat();
   const [input, setInput] = useState('');
+  const { consent, accept } = useAiConsent();
   const scrollRef = useRef<ScrollView>(null);
 
   const SUGGESTIONS = [
@@ -46,6 +48,10 @@ export default function ChatScreen() {
   }
 
   const showEmpty = !loading && messages.length === 0;
+
+  // Rien n'est envoyé au service d'IA avant l'accord de la cliente.
+  if (consent === null) return <View style={[styles.flex, { backgroundColor: palette.background }]} />;
+  if (!consent) return <AiConsent onAccept={accept} onDecline={() => router.back()} />;
 
   return (
     <KeyboardAvoidingView

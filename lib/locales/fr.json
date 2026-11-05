@@ -25,14 +25,14 @@
     "L": "L"
   },
   "tabs": {
-    "today": "Aujourd'hui",
+    "today": "Aujourd’hui",
     "training": "Training",
     "nutrition": "Nutrition",
     "mindset": "Mindset",
     "coachIa": "Coach IA"
   },
   "today": {
-    "hello": "Hello, {{name}}",
+    "hello": "Bonjour {{name}}",
     "greeting": "Belle journée !",
     "selectDate": "Sélectionne une date",
     "sectionMindset": "Mindset",
@@ -116,8 +116,8 @@
   },
   "mindset": {
     "title": "Mindset",
-    "subtitle": "Quelques minutes pour soi",
-    "today": "Aujourd'hui",
+    "subtitle": "Quelques minutes pour toi",
+    "today": "Aujourd’hui",
     "explore": "À explorer",
     "intentionTitle": "Intention du jour",
     "intentionEmpty": "Note ton intention",
@@ -136,42 +136,42 @@
     "subtitle": "Ton coaching muscu, nutrition et mindset, dans une seule app.",
     "googleContinue": "Continuer avec Google",
     "or": "ou",
-    "email": "Email",
+    "email": "E-mail",
     "password": "Mot de passe",
     "signIn": "Se connecter",
     "signUp": "Créer mon compte",
     "switchToSignUp": "Pas encore de compte ? Inscris-toi",
-    "switchToSignIn": "Déjà inscrit·e ? Connecte-toi",
+    "switchToSignIn": "Déjà inscrite ? Connecte-toi",
     "termsAccept": "En continuant, tu acceptes nos",
     "termsLink": "conditions",
     "and": "et notre",
     "privacyLink": "politique de confidentialité",
-    "letsExplore": "Let's explore",
+    "letsExplore": "C’est parti",
     "missingFields": "Champs manquants",
-    "missingFieldsBody": "Renseigne ton email et ton mot de passe.",
+    "missingFieldsBody": "Renseigne ton e-mail et ton mot de passe.",
     "passwordTooShort": "Mot de passe trop court",
     "passwordTooShortBody": "Au moins 6 caractères.",
     "checkInbox": "Vérifie ta boîte mail",
-    "checkInboxBody": "Un email de confirmation t'a été envoyé. Clique le lien pour activer ton compte.",
+    "checkInboxBody": "Un e-mail de confirmation t’a été envoyé. Clique sur le lien pour activer ton compte.",
     "signInError": "Connexion impossible",
     "signUpError": "Inscription impossible",
     "appleError": "Erreur Apple.",
     "googleError": "Erreur Google.",
-    "appleNotAvailable": "Sign in with Apple n'est disponible que sur iOS."
+    "appleNotAvailable": "Sign in with Apple n’est disponible que sur iOS."
   },
   "onboarding": {
     "name": {
-      "title": "Comment doit-on t'appeler ?",
-      "subtitle": "C'est le prénom (ou pseudo) qui apparaîtra dans l'app.",
+      "title": "Comment doit-on t’appeler ?",
+      "subtitle": "C’est le prénom (ou pseudo) qui apparaîtra dans l’app.",
       "placeholder": "Ton prénom"
     },
     "goal": {
-      "title": "Quel est ton objectif ?",
+      "title": "Qu’est-ce qui te ferait du bien ?",
       "subtitle": "Tu pourras le changer plus tard à tout moment.",
       "perte_de_poids": "Perte de poids",
       "perte_de_poids_desc": "Affiner la silhouette en gardant ton énergie.",
       "tonification": "Tonification",
-      "tonification_desc": "Sculpter et raffermir, sans grossir.",
+      "tonification_desc": "Sculpter et raffermir, en douceur.",
       "prise_de_masse": "Prise de masse",
       "prise_de_masse_desc": "Construire du muscle progressivement.",
       "remise_en_forme": "Remise en forme",
@@ -180,18 +180,18 @@
       "bien_etre_desc": "Bouger, manger, respirer mieux."
     },
     "level": {
-      "title": "Quel est ton niveau ?",
+      "title": "Où en es-tu aujourd’hui ?",
       "subtitle": "On adapte les recommandations à ton expérience actuelle.",
       "debutant": "Débutante",
       "debutant_desc": "Je reprends une activité ou je débute.",
       "intermediaire": "Intermédiaire",
-      "intermediaire_desc": "Je m'entraîne 2 à 3 fois par semaine.",
+      "intermediaire_desc": "Je m’entraîne 2 à 3 fois par semaine.",
       "avance": "Avancée",
-      "avance_desc": "Je m'entraîne 4+ fois par semaine, je connais mon corps."
+      "avance_desc": "Je m’entraîne 4+ fois par semaine, je connais mon corps."
     },
     "bio": {
       "title": "Quelques infos pour calculer tes apports",
-      "subtitle": "Utilisé uniquement pour estimer tes besoins. Modifiable à tout moment.",
+      "subtitle": "Utilisées uniquement pour estimer tes besoins. Modifiables à tout moment.",
       "sex": "Sexe biologique",
       "female": "Femme",
       "male": "Homme",
@@ -207,16 +207,16 @@
       "subtitle": "On adapte tes apports en fonction de ton activité quotidienne.",
       "section": "Activité quotidienne",
       "sedentary": "Sédentaire",
-      "sedentary_desc": "Peu ou pas d'exercice",
-      "light": "Léger",
+      "sedentary_desc": "Peu ou pas d’exercice",
+      "light": "Légère",
       "light_desc": "1 à 3 séances par semaine",
-      "moderate": "Modéré",
+      "moderate": "Modérée",
       "moderate_desc": "3 à 5 séances par semaine",
-      "active": "Actif",
+      "active": "Active",
       "active_desc": "6 à 7 séances par semaine",
-      "very_active": "Très actif",
+      "very_active": "Très active",
       "very_active_desc": "Sport intensif quotidien",
-      "intensitySection": "Intensité de ton objectif",
+      "intensitySection": "Intensité",
       "gentle": "Douce",
       "moderateIntensity": "Modérée",
       "intense": "Soutenue",
@@ -251,16 +251,16 @@
     "deleteConfirm1Title": "Supprimer ton compte ?",
     "deleteConfirm1Body": "Cette action est définitive. Tes séances, repas, journal et données de profil seront supprimés.",
     "deleteConfirm2Title": "Confirmer la suppression",
-    "deleteConfirm2Body": "Es-tu absolument sûr·e ? Cette action ne peut pas être annulée.",
+    "deleteConfirm2Body": "Es-tu vraiment sûre ? Cette action ne peut pas être annulée.",
     "deleteFinal": "Oui, supprimer définitivement",
     "legalSection": "Légal",
     "privacyPolicy": "Politique de confidentialité",
-    "terms": "Conditions générales d'utilisation",
+    "terms": "Conditions générales d’utilisation",
     "profile": {
       "title": "Profil",
-      "goal": "Objectif",
-      "level": "Niveau",
-      "kcalTarget": "Calories cible / jour",
+      "goal": "Mon envie",
+      "level": "Mon expérience",
+      "kcalTarget": "Repère énergie / jour",
       "proteinTarget": "Protéines cible / jour",
       "hydrationTarget": "Hydratation cible / jour"
     },
@@ -276,9 +276,9 @@
     "title": "Modifier le profil",
     "name": "Nom",
     "namePlaceholder": "Ton prénom ou pseudo",
-    "goal": "Objectif",
-    "level": "Niveau",
-    "kcalTarget": "Calories cible / jour",
+    "goal": "Mon envie",
+    "level": "Mon expérience",
+    "kcalTarget": "Repère énergie / jour",
     "kcalHint": "Ex : 1980",
     "proteinTarget": "Protéines cible / jour",
     "proteinHint": "Ex : 120 g",
@@ -295,14 +295,14 @@
   },
   "session": {
     "duration": "Durée",
-    "level": "Niveau",
+    "level": "Expérience",
     "anyLevel": "Tous",
     "description": "Description",
     "material": "Matériel",
     "materialDefault": "Tapis, élastique, haltères (optionnel)",
-    "start": "Démarrer la séance",
-    "doneTitle": "Bravo",
-    "doneBody": "Séance enregistrée."
+    "start": "J’ai fait ma séance",
+    "doneTitle": "C’est noté",
+    "doneBody": "Ta séance est enregistrée."
   },
   "program": {
     "title": "Programme",
@@ -324,12 +324,12 @@
     "description": "Description",
     "ingredients": "Ingrédients",
     "videosTitle": "Vidéos & étapes",
-    "logMeal": "Logger ce repas",
+    "logMeal": "Noter ce repas",
     "steps": "Étapes"
   },
   "mindsetDetail": {
     "notFound": "Contenu introuvable.",
-    "completeMeditation": "J'ai terminé",
+    "completeMeditation": "J’ai terminé",
     "writeJournal": "Noter dans mon journal"
   },
   "mealLog": {
@@ -345,8 +345,8 @@
     "missingKcalBody": "Indique au moins les kcal."
   },
   "hydrationLog": {
-    "title": "Ajouter de l'eau",
-    "subtitle": "Choisis une quantité pour la logger en un tap."
+    "title": "Ajouter de l’eau",
+    "subtitle": "Choisis une quantité pour la noter d’un geste."
   },
   "mindsetLog": {
     "title": "Mindset",
@@ -355,25 +355,25 @@
     "moodGreat": "Top",
     "moodGood": "Bien",
     "moodNeutral": "Neutre",
-    "moodTired": "Fatigue",
-    "moodLow": "Bas",
+    "moodTired": "Fatiguée",
+    "moodLow": "À plat",
     "content": "Contenu",
     "kindIntention": "Intention",
     "kindJournal": "Journal",
     "kindMeditation": "Méditation",
     "placeholderIntention": "Ex : « Je fais ce qui est bon pour moi. »",
-    "placeholderJournal": "Comment tu te sens, ce qui s'est passé aujourd'hui…",
+    "placeholderJournal": "Comment tu te sens, ce qui s’est passé aujourd’hui…",
     "placeholderMeditation": "Quelques mots sur ta séance de méditation.",
     "emptyTitle": "Vide",
     "emptyBody": "Écris quelque chose avant de sauvegarder.",
-    "promptsLabel": "Ou pars d'une invitation",
-    "viewHistory": "Voir l'historique",
+    "promptsLabel": "Ou pars d’une invitation",
+    "viewHistory": "Voir l’historique",
     "journalPrompts": [
-      "Qu'est-ce qui m'a fait du bien aujourd'hui ?",
+      "Qu’est-ce qui m’a fait du bien aujourd’hui ?",
       "De quoi ai-je besoin, là, maintenant ?",
-      "Qu'est-ce que je peux déposer ce soir ?",
+      "Qu’est-ce que je peux déposer ce soir ?",
       "Un moment où je me suis sentie fière de moi.",
-      "Si j'étais douce avec moi, que me dirais-je ?"
+      "Si j’étais douce avec moi, que me dirais-je ?"
     ]
   },
   "notifications": {
@@ -387,9 +387,10 @@
     "clear": "Effacer",
     "deleteOne": "Supprimer cette notification ?",
     "view": "Voir",
-    "relativeNow": "à l'instant",
+    "relativeNow": "à l’instant",
     "relativeMinutes": "il y a {{count}} min",
-    "relativeHours": "il y a {{count}}h"
+    "relativeHours": "il y a {{count}} h",
+    "deleteOneTitle": "Supprimer la notification"
   },
   "chat": {
     "title": "Coach IA",
@@ -399,34 +400,34 @@
     "placeholder": "Pose ta question…",
     "writing": "Coach écrit…",
     "emptyTitle": "Coach IA",
-    "emptyBody": "Pose toutes tes questions sur l'entraînement, la nutrition ou le mindset.",
+    "emptyBody": "Pose toutes tes questions sur l’entraînement, la nutrition ou le mindset.",
     "suggestion1": "Donne-moi une idée de petit-dej protéiné",
-    "suggestion2": "J'ai pas envie de m'entraîner aujourd'hui, qu'est-ce que je fais ?",
+    "suggestion2": "J’ai pas envie de m’entraîner aujourd’hui, qu’est-ce que je fais ?",
     "suggestion3": "Comment je gère une fringale en fin de journée ?",
-    "errorMessage": "Désolée, je n'ai pas pu répondre. Vérifie ta connexion et réessaie dans un instant."
+    "errorMessage": "Désolée, je n’ai pas pu répondre. Vérifie ta connexion et réessaie dans un instant."
   },
   "macrosHelp": {
     "title": "Comprendre mon calcul",
-    "intro": "Tes apports ne sortent pas d'un chapeau : ils sont calculés à partir de formules nutritionnelles standards et adaptés à toi.",
+    "intro": "Tes apports ne sortent pas d’un chapeau : ils sont calculés à partir de formules nutritionnelles standards et adaptés à toi.",
     "step1Title": "1 — Métabolisme de base (BMR)",
-    "step1Body": "La quantité d'énergie que ton corps brûle au repos sur 24 h, calculée selon la formule de Mifflin-St Jeor à partir de ton sexe, ton âge, ta taille et ton poids.",
+    "step1Body": "La quantité d’énergie que ton corps brûle au repos sur 24 h, calculée selon la formule de Mifflin-St Jeor à partir de ton sexe, ton âge, ta taille et ton poids.",
     "step1Stat": "Ton BMR",
     "step2Title": "2 — Dépense énergétique totale (TDEE)",
-    "step2Body": "Ton BMR multiplié par un facteur d'activité (sédentaire, léger, modéré, actif, très actif). C'est l'énergie que tu dépenses vraiment chaque jour.",
+    "step2Body": "Ton BMR multiplié par un facteur d’activité (sédentaire, léger, modéré, actif, très actif). C’est l’énergie que tu dépenses vraiment chaque jour.",
     "step2Stat": "Ton TDEE",
-    "step3Title": "3 — Calories cibles",
-    "step3Body": "On ajuste ton TDEE selon ton objectif et son intensité (douce, modérée, soutenue). On garde toujours un plancher santé pour que tu ne descendes jamais trop bas.",
+    "step3Title": "3 — Ton repère énergie",
+    "step3Body": "On ajuste ta dépense selon ton envie et l’intensité choisie (douce, modérée, soutenue). On garde toujours un plancher santé pour que tu ne descendes jamais trop bas.",
     "step3Stat": "Ta cible",
     "step4Title": "4 — Répartition des macros",
-    "step4Body": "Les protéines sont calculées d'abord en grammes par kilo (protéine prioritaire), puis les lipides en pourcentage des calories (avec un plancher hormonal), et les glucides remplissent le reste.",
+    "step4Body": "Les protéines sont calculées d’abord en grammes par kilo (protéine prioritaire), puis les lipides en pourcentage des calories (avec un plancher hormonal), et les glucides remplissent le reste.",
     "step5Title": "5 — Hydratation",
-    "step5Body": "35 ml d'eau par kilo de poids corporel, et +500 ml les jours d'entraînement.",
-    "disclaimer": "Ces recommandations sont indicatives et calculées à partir de formules standards. Elles ne remplacent pas l'avis d'un·e professionnel·le de santé. Si tu suis un traitement médical, es enceinte, allaitante, ou as un historique de troubles alimentaires, consulte avant d'ajuster ton alimentation.",
+    "step5Body": "35 ml d’eau par kilo de poids corporel, et +500 ml les jours d’entraînement.",
+    "disclaimer": "Ces repères sont indicatifs et calculés à partir de formules standards. Ils ne remplacent pas l’avis d’une ou d’un professionnel de santé. Si tu suis un traitement médical, si tu es enceinte ou si tu allaites, ou si tu as des antécédents de troubles alimentaires, demande conseil avant d’ajuster ton alimentation.",
     "kcalPerDay": "{{count}} kcal / jour"
   },
   "language": {
     "title": "Langue",
-    "subtitle": "Choisis la langue de l'application",
+    "subtitle": "Choisis la langue de l’application",
     "fr": "Français",
     "en": "English",
     "he": "עברית",
@@ -445,7 +446,7 @@
   "rituals": {
     "title": "Mes rituels",
     "todayTitle": "Mes rituels du jour",
-    "counter": "{{done}} / {{total}} aujourd'hui",
+    "counter": "{{done}} / {{total}} aujourd’hui",
     "manage": "Gérer mes rituels",
     "manageTitle": "Gérer mes rituels",
     "empty": "Compose ta première liste de rituels",
@@ -463,7 +464,7 @@
     "journalTitle": "Journal",
     "intentionsTitle": "Mes intentions",
     "search": "Rechercher dans mes entrées",
-    "empty": "Rien d'écrit pour l'instant. Commence quand tu veux."
+    "empty": "Rien d’écrit pour l’instant. Commence quand tu veux."
   },
   "breathing": {
     "title": "Respirations",
@@ -473,7 +474,7 @@
     "duration": "Durée",
     "min": "{{count}} min",
     "start": "Commencer",
-    "finished": "C'est fait.",
+    "finished": "C’est fait.",
     "finishedSub": "Prends un instant avant de repartir.",
     "close": "Terminer",
     "phase": {
@@ -485,7 +486,7 @@
     "patterns": {
       "coherence": {
         "name": "Cohérence cardiaque",
-        "desc": "Cinq secondes pour inspirer, cinq pour expirer. Le souffle le plus simple pour retrouver son calme."
+        "desc": "Cinq secondes pour inspirer, cinq pour expirer. Le souffle le plus simple pour retrouver ton calme."
       },
       "478": {
         "name": "4-7-8",
@@ -493,11 +494,11 @@
       },
       "box": {
         "name": "Respiration carrée",
-        "desc": "Quatre temps égaux — inspire, retiens, expire, pause. Pour s'ancrer."
+        "desc": "Quatre temps égaux — inspire, retiens, expire, pause. Pour t’ancrer."
       },
       "calm": {
         "name": "Souffle apaisant",
-        "desc": "Une expiration plus longue que l'inspiration. Le corps comprend qu'il peut relâcher."
+        "desc": "Une expiration plus longue que l’inspiration. Le corps comprend qu’il peut relâcher."
       }
     }
   },
@@ -531,14 +532,14 @@
   },
   "coaching": {
     "eyebrow": "Suivi personnalisé",
-    "myCoachTitle": "Mon coach",
+    "myCoachTitle": "Ma coach",
     "todayCardSub": "Ton plan + ta messagerie",
-    "messageCoach": "Écrire à mon coach",
+    "messageCoach": "Écrire à ma coach",
     "messageSub": "Réponse dès que possible",
     "myPlan": "Mon plan",
-    "notActive": "Le coaching perso n'est pas activé sur ton compte.",
-    "planEmpty": "Ton coach prépare ton plan. Reviens bientôt.",
-    "chatEmpty": "Écris ton premier message à ton coach.",
+    "notActive": "Le coaching perso n’est pas activé sur ton compte.",
+    "planEmpty": "Ta coach prépare ton plan. Reviens bientôt.",
+    "chatEmpty": "Écris ton premier message à ta coach.",
     "chatPlaceholder": "Ton message…",
     "type_session": "Séance",
     "type_recipe": "Recette",
@@ -551,10 +552,10 @@
     "discoverSub": "Un suivi sur-mesure, rien que pour toi",
     "plansTitle": "Choisis ta formule",
     "months": "{{count}} mois",
-    "interestMessage": "Bonjour Shy ! Je suis intéressée par le coaching perso — formule {{months}} mois ({{price}}).",
-    "interestedTitle": "C'est noté !",
+    "interestMessage": "Bonjour Shy ! Je suis intéressée par le coaching perso — formule {{months}} mois.",
+    "interestedTitle": "C’est noté !",
     "interestedSub": "Shy va te recontacter pour finaliser. Tu peux aussi lui écrire dès maintenant.",
-    "disclaimer": "Le paiement se fait avec Shy après échange. Ton coaching s'active dès validation."
+    "disclaimer": "Shy te recontacte pour en parler et construire ton suivi avec toi."
   },
   "ingredients": {
     "qtyPlaceholder": "Qté",
@@ -645,5 +646,63 @@
       "boissons": "Boissons",
       "autre": "Autres"
     }
+  },
+  "tiles": {
+    "iAdd": "J’ajoute",
+    "water": "Eau",
+    "meal": "Repas",
+    "menu": "Menu",
+    "note": "Note",
+    "breathe": "Respirer",
+    "myWeek": "Ma semaine",
+    "iChoose": "Je choisis",
+    "programs": "Programmes",
+    "myCoach": "Ma coach",
+    "myWater": "Mon eau",
+    "glasses": "{{done}} verres sur {{total}}",
+    "myMeals": "Mes repas",
+    "morning": "Matin",
+    "noon": "Midi",
+    "snack": "Collation",
+    "evening": "Soir",
+    "myKitchen": "Ma cuisine",
+    "weekMenu": "Ma semaine",
+    "shopping": "Courses",
+    "recipes": "Recettes",
+    "mine": "Les miennes",
+    "careForYou": "Prendre soin de toi",
+    "myAffirmation": "Mon affirmation",
+    "iFeelLike": "J’ai envie de",
+    "meditate": "Méditer",
+    "journal": "Journal",
+    "intention": "Intention",
+    "rituals": "Rituels",
+    "journeys": "Parcours",
+    "favorites": "Mes favoris",
+    "myNotes": "Mes notes",
+    "today": "Aujourd’hui",
+    "setTargets": "Complète ton profil pour calculer tes repères du jour"
+  },
+  "welcome": {
+    "title": "Ton corps, ton rythme",
+    "subtitle": "Entraînement, nutrition et mindset avec Shy, au même endroit."
+  },
+  "reminders": {
+    "morningTitle": "Ta séance du jour t’attend",
+    "morningBody": "Quelques minutes pour bouger, respirer, te recentrer.",
+    "lunchTitle": "Pense à noter ton déjeuner",
+    "lunchBody": "Quelques secondes suffisent.",
+    "eveningTitle": "Comment s’est passée ta journée ?",
+    "eveningBody": "Note tes ressentis et ton intention pour demain."
+  },
+  "aiConsent": {
+    "title": "Ton Coach IA",
+    "body": "Le Coach IA est une intelligence artificielle, pas Shy en personne. Pour te répondre, il utilise un service d’IA externe (OpenAI).",
+    "point1": "Ton prénom, tes repères et tes messages lui sont envoyés, seulement pour te répondre.",
+    "point2": "Ses réponses sont indicatives : elles ne remplacent ni Shy ni l’avis d’un professionnel de santé.",
+    "point3": "Tu peux arrêter de l’utiliser quand tu veux.",
+    "privacy": "Lire la politique de confidentialité",
+    "accept": "J’ai compris, j’accepte",
+    "decline": "Pas maintenant"
   }
 }

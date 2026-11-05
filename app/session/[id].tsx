@@ -1,6 +1,6 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { BarChart3, ChevronLeft, Clock, Dumbbell, Heart } from 'lucide-react-native';
+import { BarChart3, ChevronLeft, Clock, Dumbbell } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -38,7 +38,6 @@ export default function SessionDetailScreen() {
   const [completing, setCompleting] = useState(false);
 
   useFocusEffect(useCallback(() => { refreshAttachments(); }, [refreshAttachments]));
-  const [favorite, setFavorite] = useState(false);
 
   const videoSource = session?.video_url ?? FALLBACK_VIDEO;
   const player = useVideoPlayer(videoSource, (p) => {
@@ -59,7 +58,7 @@ export default function SessionDetailScreen() {
         completed_at: now,
         perceived_difficulty: 3,
       });
-      if (error) console.warn('completion insert error', error);
+      if (error) throw error;
       Alert.alert(t('session.doneTitle'), t('session.doneBody'), [
         { text: t('common.ok'), onPress: () => router.back() },
       ]);
@@ -105,20 +104,6 @@ export default function SessionDetailScreen() {
             <ChevronLeft size={20} color={Palette.encre} />
           </Pressable>
 
-          <Pressable
-            onPress={() => setFavorite((f) => !f)}
-            hitSlop={10}
-            style={({ pressed }) => [
-              styles.iconBtn,
-              { backgroundColor: Palette.albatre, opacity: pressed ? 0.8 : 1 },
-            ]}
-          >
-            <Heart
-              size={20}
-              color={Palette.encre}
-              fill={favorite ? Palette.encre : 'transparent'}
-            />
-          </Pressable>
         </View>
 
         <View style={styles.heroTitle}>

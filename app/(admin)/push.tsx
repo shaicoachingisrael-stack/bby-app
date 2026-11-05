@@ -24,7 +24,7 @@ const LINK_CHOICES: { value: string; label: string }[] = [
   { value: '/today', label: "Aujourd'hui" },
   { value: '/training', label: 'Training' },
   { value: '/nutrition', label: 'Nutrition' },
-  { value: '/mindset', label: 'Mindset' },
+  { value: '/(tabs)/mindset', label: 'Mindset' },
   { value: '/chat', label: 'Coach IA' },
 ];
 

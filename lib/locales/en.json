@@ -146,7 +146,7 @@
     "termsLink": "terms",
     "and": "and our",
     "privacyLink": "privacy policy",
-    "letsExplore": "Let's explore",
+    "letsExplore": "Let’s go",
     "missingFields": "Missing fields",
     "missingFieldsBody": "Enter your email and password.",
     "passwordTooShort": "Password too short",
@@ -300,9 +300,9 @@
     "description": "Description",
     "material": "Equipment",
     "materialDefault": "Mat, band, dumbbells (optional)",
-    "start": "Start session",
-    "doneTitle": "Well done",
-    "doneBody": "Session saved."
+    "start": "I did my session",
+    "doneTitle": "Noted",
+    "doneBody": "Your session is saved."
   },
   "program": {
     "title": "Program",
@@ -389,7 +389,8 @@
     "view": "View",
     "relativeNow": "just now",
     "relativeMinutes": "{{count}} min ago",
-    "relativeHours": "{{count}}h ago"
+    "relativeHours": "{{count}}h ago",
+    "deleteOneTitle": "Delete notification"
   },
   "chat": {
     "title": "AI Coach",
@@ -551,10 +552,10 @@
     "discoverSub": "Tailored support, just for you",
     "plansTitle": "Choose your plan",
     "months": "{{count}} months",
-    "interestMessage": "Hi Shy! I'm interested in personal coaching — {{months}}-month plan ({{price}}).",
+    "interestMessage": "Hi Shy! I'm interested in personal coaching — {{months}}-month plan.",
     "interestedTitle": "Noted!",
     "interestedSub": "Shy will get back to you to finalise. You can also message her right now.",
-    "disclaimer": "Payment is arranged with Shy after a chat. Your coaching activates once confirmed."
+    "disclaimer": "Shy will get back to you to talk it through and build your plan with you."
   },
   "ingredients": {
     "qtyPlaceholder": "Qty",
@@ -645,5 +646,63 @@
       "boissons": "Drinks",
       "autre": "Other"
     }
+  },
+  "tiles": {
+    "iAdd": "Add",
+    "water": "Water",
+    "meal": "Meal",
+    "menu": "Menu",
+    "note": "Note",
+    "breathe": "Breathe",
+    "myWeek": "My week",
+    "iChoose": "Pick",
+    "programs": "Programs",
+    "myCoach": "My coach",
+    "myWater": "My water",
+    "glasses": "{{done}} of {{total}} glasses",
+    "myMeals": "My meals",
+    "morning": "Morning",
+    "noon": "Lunch",
+    "snack": "Snack",
+    "evening": "Evening",
+    "myKitchen": "My kitchen",
+    "weekMenu": "My week",
+    "shopping": "Groceries",
+    "recipes": "Recipes",
+    "mine": "Mine",
+    "careForYou": "Take care of yourself",
+    "myAffirmation": "My affirmation",
+    "iFeelLike": "I feel like",
+    "meditate": "Meditate",
+    "journal": "Journal",
+    "intention": "Intention",
+    "rituals": "Rituals",
+    "journeys": "Journeys",
+    "favorites": "My favorites",
+    "myNotes": "My notes",
+    "today": "Today",
+    "setTargets": "Complete your profile to work out your daily guide"
+  },
+  "welcome": {
+    "title": "Your body, your pace",
+    "subtitle": "Training, nutrition and mindset with Shy, all in one place."
+  },
+  "reminders": {
+    "morningTitle": "Your session is waiting for you",
+    "morningBody": "A few minutes to move, breathe and refocus.",
+    "lunchTitle": "Remember to note your lunch",
+    "lunchBody": "It only takes a few seconds.",
+    "eveningTitle": "How was your day?",
+    "eveningBody": "Write down how you feel and your intention for tomorrow."
+  },
+  "aiConsent": {
+    "title": "Your AI Coach",
+    "body": "The AI Coach is an artificial intelligence, not Shy in person. To answer you, it uses an external AI service (OpenAI).",
+    "point1": "Your first name, your daily guide and your messages are sent to it, only to answer you.",
+    "point2": "Its answers are for guidance only: they don’t replace Shy or a health professional’s advice.",
+    "point3": "You can stop using it whenever you want.",
+    "privacy": "Read the privacy policy",
+    "accept": "Got it, I agree",
+    "decline": "Not now"
   }
 }

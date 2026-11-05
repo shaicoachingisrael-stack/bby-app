@@ -146,7 +146,7 @@
     "termsLink": "condiciones",
     "and": "y nuestra",
     "privacyLink": "política de privacidad",
-    "letsExplore": "Empecemos",
+    "letsExplore": "¡Vamos!",
     "missingFields": "Faltan datos",
     "missingFieldsBody": "Introduce tu email y contraseña.",
     "passwordTooShort": "Contraseña demasiado corta",
@@ -300,9 +300,9 @@
     "description": "Descripción",
     "material": "Material",
     "materialDefault": "Esterilla, banda, mancuernas (opcional)",
-    "start": "Empezar la sesión",
-    "doneTitle": "Bien hecho",
-    "doneBody": "Sesión guardada."
+    "start": "He hecho mi sesión",
+    "doneTitle": "Anotado",
+    "doneBody": "Tu sesión está guardada."
   },
   "program": {
     "title": "Programa",
@@ -389,7 +389,8 @@
     "view": "Ver",
     "relativeNow": "ahora mismo",
     "relativeMinutes": "hace {{count}} min",
-    "relativeHours": "hace {{count}} h"
+    "relativeHours": "hace {{count}} h",
+    "deleteOneTitle": "Eliminar la notificación"
   },
   "chat": {
     "title": "Coach IA",
@@ -551,10 +552,10 @@
     "discoverSub": "Un seguimiento a medida, solo para ti",
     "plansTitle": "Elige tu plan",
     "months": "{{count}} meses",
-    "interestMessage": "¡Hola Shy! Me interesa el coaching personal — plan de {{months}} meses ({{price}}).",
+    "interestMessage": "¡Hola Shy! Me interesa el coaching personal — plan de {{months}} meses.",
     "interestedTitle": "¡Anotado!",
     "interestedSub": "Shy se pondrá en contacto para finalizar. También puedes escribirle ahora.",
-    "disclaimer": "El pago se acuerda con Shy tras hablar. Tu coaching se activa al confirmar."
+    "disclaimer": "Shy te contactará para hablarlo y construir tu seguimiento contigo."
   },
   "ingredients": {
     "qtyPlaceholder": "Cant.",
@@ -645,5 +646,63 @@
       "boissons": "Bebidas",
       "autre": "Otros"
     }
+  },
+  "tiles": {
+    "iAdd": "Añado",
+    "water": "Agua",
+    "meal": "Comida",
+    "menu": "Menú",
+    "note": "Nota",
+    "breathe": "Respirar",
+    "myWeek": "Mi semana",
+    "iChoose": "Elijo",
+    "programs": "Programas",
+    "myCoach": "Mi coach",
+    "myWater": "Mi agua",
+    "glasses": "{{done}} de {{total}} vasos",
+    "myMeals": "Mis comidas",
+    "morning": "Mañana",
+    "noon": "Mediodía",
+    "snack": "Merienda",
+    "evening": "Noche",
+    "myKitchen": "Mi cocina",
+    "weekMenu": "Mi semana",
+    "shopping": "Compras",
+    "recipes": "Recetas",
+    "mine": "Las mías",
+    "careForYou": "Cuídate",
+    "myAffirmation": "Mi afirmación",
+    "iFeelLike": "Me apetece",
+    "meditate": "Meditar",
+    "journal": "Diario",
+    "intention": "Intención",
+    "rituals": "Rituales",
+    "journeys": "Recorridos",
+    "favorites": "Mis favoritos",
+    "myNotes": "Mis notas",
+    "today": "Hoy",
+    "setTargets": "Completa tu perfil para calcular tus referencias del día"
+  },
+  "welcome": {
+    "title": "Tu cuerpo, tu ritmo",
+    "subtitle": "Entreno, nutrición y mindset con Shy, en un solo lugar."
+  },
+  "reminders": {
+    "morningTitle": "Tu sesión de hoy te espera",
+    "morningBody": "Unos minutos para moverte, respirar y centrarte.",
+    "lunchTitle": "Acuérdate de anotar tu comida",
+    "lunchBody": "Solo te llevará unos segundos.",
+    "eveningTitle": "¿Qué tal tu día?",
+    "eveningBody": "Anota cómo te sientes y tu intención para mañana."
+  },
+  "aiConsent": {
+    "title": "Tu Coach IA",
+    "body": "El Coach IA es una inteligencia artificial, no Shy en persona. Para responderte usa un servicio de IA externo (OpenAI).",
+    "point1": "Tu nombre, tus referencias y tus mensajes se le envían solo para responderte.",
+    "point2": "Sus respuestas son orientativas: no sustituyen a Shy ni la opinión de un profesional de la salud.",
+    "point3": "Puedes dejar de usarlo cuando quieras.",
+    "privacy": "Leer la política de privacidad",
+    "accept": "Entendido, acepto",
+    "decline": "Ahora no"
   }
 }

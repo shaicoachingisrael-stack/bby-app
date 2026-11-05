@@ -1,10 +1,12 @@
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useRouter } from 'expo-router';
-import { ArrowRight } from 'lucide-react-native';
+import { ArrowRight, Dumbbell, Leaf, Utensils } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { LanguageButton } from '@/components/ui/language-button';
+import { IconBadge } from '@/components/ui/tiles';
 import { Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 
 const HERO_VIDEO = require('@/assets/videos/intro.mp4');
@@ -32,18 +34,27 @@ export default function WelcomeScreen() {
 
       <View style={[styles.content, { paddingTop: insets.top + Spacing.xxxl, paddingBottom: insets.bottom + Spacing.lg }]}>
         <View>
-          <Text style={styles.title}>Mindful Movement,</Text>
-          <Text style={[styles.title, styles.titleItalic]}>Made Simple</Text>
+          <View style={styles.topRow}>
+            <Text style={styles.brand}>BODY BY YOU</Text>
+            <LanguageButton light />
+          </View>
+          <Text style={styles.title}>{t('welcome.title')}</Text>
+          <Text style={styles.subtitle}>{t('welcome.subtitle')}</Text>
         </View>
 
-        <View style={styles.statsCol}>
-          <View style={styles.statCard}>
-            <Text style={styles.statValue}>1 Month</Text>
-            <Text style={styles.statLabel}>Courses</Text>
+        {/* Ce que contient l'app : trois carrés, pas de chiffres */}
+        <View style={styles.pillars}>
+          <View style={styles.pillar}>
+            <IconBadge icon={Dumbbell} color="rose" size={44} />
+            <Text style={styles.pillarText}>{t('tabs.training')}</Text>
           </View>
-          <View style={[styles.statCard, { marginTop: Spacing.md }]}>
-            <Text style={styles.statValue}>10K</Text>
-            <Text style={styles.statLabel}>Students</Text>
+          <View style={styles.pillar}>
+            <IconBadge icon={Utensils} color="orange" size={44} />
+            <Text style={styles.pillarText}>{t('tabs.nutrition')}</Text>
+          </View>
+          <View style={styles.pillar}>
+            <IconBadge icon={Leaf} color="mint" size={44} />
+            <Text style={styles.pillarText}>{t('tabs.mindset')}</Text>
           </View>
         </View>
 
@@ -87,32 +98,28 @@ const styles = StyleSheet.create({
     color: Palette.albatre,
     letterSpacing: -0.8,
   },
-  titleItalic: { fontStyle: 'italic', fontWeight: '400' },
-  statsCol: {
-    alignSelf: 'flex-start',
-  },
-  statCard: {
-    backgroundColor: 'rgba(250,250,248,0.18)',
-    borderColor: 'rgba(250,250,248,0.32)',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: Radius.lg,
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.lg,
-    width: 160,
-  },
-  statValue: {
-    color: Palette.albatre,
-    fontSize: 22,
-    fontFamily: Fonts.displayBold,
-    letterSpacing: -0.4,
-  },
-  statLabel: {
+  topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.xl },
+  brand: { color: Palette.albatre, fontFamily: Fonts.sansBold, fontSize: 12, letterSpacing: 3 },
+  subtitle: {
+    marginTop: Spacing.md,
     color: Palette.albatre,
     fontFamily: Fonts.sans,
-    fontSize: 13,
-    opacity: 0.85,
-    marginTop: 2,
+    fontSize: 16,
+    lineHeight: 22,
+    opacity: 0.9,
   },
+  pillars: { flexDirection: 'row', gap: Spacing.md },
+  pillar: {
+    flex: 1,
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: Spacing.lg,
+    borderRadius: 22,
+    backgroundColor: 'rgba(20,12,26,0.55)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+  },
+  pillarText: { color: Palette.albatre, fontFamily: Fonts.sansSemibold, fontSize: 13 },
   dots: {
     flexDirection: 'row',
     justifyContent: 'center',

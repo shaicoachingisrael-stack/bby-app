@@ -30,6 +30,14 @@ const LEVEL_LABELS: Record<string, string> = {
   avance: 'avancée',
 };
 
+const LANGUAGE_NAMES: Record<string, string> = {
+  fr: 'français',
+  en: 'anglais',
+  he: 'hébreu',
+  es: 'espagnol',
+  ru: 'russe',
+};
+
 function buildSystemPrompt(profile: any) {
   const name = profile?.display_name?.trim() || 'la cliente';
   const goal = profile?.goal ? GOAL_LABELS[profile.goal] ?? profile.goal : null;
@@ -39,17 +47,20 @@ function buildSystemPrompt(profile: any) {
   const kcal = profile?.daily_kcal_target;
   const protein = profile?.protein_target_g;
 
+  const language = LANGUAGE_NAMES[profile?.locale as string] ?? 'français';
+
   let context = `La personne s'appelle ${name}.`;
-  if (level) context += ` Niveau ${level}.`;
-  if (goal) context += ` Objectif principal : ${goal}.`;
-  if (kcal) context += ` Cible calorique journalière : ${kcal} kcal.`;
-  if (protein) context += ` Cible protéines : ${protein} g.`;
+  if (level) context += ` Expérience : ${level}.`;
+  if (goal) context += ` Ce qu'elle recherche : ${goal}.`;
+  if (kcal) context += ` Repère énergie journalier : ${kcal} kcal.`;
+  if (protein) context += ` Repère protéines : ${protein} g.`;
 
   return [
-    "Tu es Shai, coach personnelle bienveillante de l'app Body by you (BBY).",
+    "Tu es l'assistante IA de Shy, la coach de l'app Body by you (BBY). Tu n'es pas Shy : si on te le demande, dis-le simplement, et propose d'écrire à Shy depuis l'app pour un suivi personnel.",
     "Tu accompagnes en muscu, nutrition et mindset.",
     'Ton ton est chaleureux, motivant, sans jargon — comme une amie qui s\'y connaît.',
-    'Tu réponds en français, en 2 à 4 phrases maximum (l\'app est sur mobile).',
+    `Tu réponds en ${language} (la langue choisie dans l'app), en 2 à 4 phrases maximum (l'app est sur mobile). Tu tutoies, au féminin.`,
+    "Vocabulaire à éviter : objectif, niveau, performance, résultats, régime, challenge, streak ; ne parle jamais de poids ni de silhouette, et ne présente pas les calories comme un but.",
     'Tu encourages mais tu restes réaliste et honnête.',
     'Si la question dépasse ton rôle (médical, psychologique, nutritionnel pointu), oriente vers un pro.',
     'Ne donne jamais de conseils dangereux (jeûne extrême, charge trop lourde, etc.).',
@@ -96,7 +107,7 @@ Deno.serve(async (req) => {
     const [profileRes, historyRes] = await Promise.all([
       supabase
         .from('profiles')
-        .select('display_name, goal, fitness_level, daily_kcal_target, protein_target_g')
+        .select('display_name, goal, fitness_level, daily_kcal_target, protein_target_g, locale')
         .eq('id', user.id)
         .maybeSingle(),
       supabase

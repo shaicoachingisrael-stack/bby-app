@@ -1,26 +1,30 @@
-import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Bell, ChevronRight, Leaf, Plus, Star, UtensilsCrossed, Wind } from 'lucide-react-native';
-import { useCallback, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
+import { Bell, BookOpen, Check, Clock, Droplet, PenLine, Play, Star, Utensils, Wind } from 'lucide-react-native';
+import { useCallback } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AccentFill } from '@/components/ui/accent-fill';
 import { AdminButton } from '@/components/ui/admin-button';
-import { DateStrip } from '@/components/ui/date-strip';
 import { LanguageButton } from '@/components/ui/language-button';
-import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
+import { IconBadge, IconTile, SectionLabel, TileCard, TileColors, TileText, type TileColor } from '@/components/ui/tiles';
+import { Colors, Fonts } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
-import { useRituals } from '@/lib/use-rituals';
+import { ritualIcon } from '@/lib/ritual-icons';
 import { useMyCoaching } from '@/lib/use-coaching';
-import { useMindsetContent, useRecipes, useTodaySession } from '@/lib/use-content';
+import { useRecipes, useTodaySession } from '@/lib/use-content';
 import { useProfile } from '@/lib/use-profile';
+import { useRituals } from '@/lib/use-rituals';
 
-// Aujourd'hui (maquette Ember v2) : une seule grande action en haut, puis
-// « Ma journée » (les rituels en puces + le « + » qui ajoute un repas, de l'eau
-// ou une note), puis « Pour toi ». Aucun compteur de jours, aucune récompense.
+// Couleur des rituels pas encore cochés, dans l'ordre.
+const RITUAL_COLORS: TileColor[] = ['rose', 'blue', 'violet', 'orange', 'mint'];
+
+// Aujourd'hui (maquette « en tuiles ») : la séance du jour en grand, puis des
+// carrés à grosse icône — j'ajoute, mes rituels, pour toi. Un ou deux mots par
+// carré, aucun compteur de jours, aucune récompense.
 export default function TodayScreen() {
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
@@ -30,279 +34,183 @@ export default function TodayScreen() {
   const { profile } = useProfile();
   const { session: todaySession, refresh: refreshToday } = useTodaySession();
   const { recipes, refresh: refreshRecipes } = useRecipes();
-  const { items: mindsetItems, refresh: refreshMindset } = useMindsetContent();
   const { rituals, checkedToday, toggleCheck, refresh: refreshRituals } = useRituals();
   const { isClient: hasCoach, refresh: refreshCoaching } = useMyCoaching();
-  const [selectedDate, setSelectedDate] = useState(new Date());
 
   useFocusEffect(
     useCallback(() => {
       refreshToday();
       refreshRecipes();
-      refreshMindset();
       refreshRituals();
       refreshCoaching();
-    }, [refreshToday, refreshRecipes, refreshMindset, refreshRituals, refreshCoaching]),
+    }, [refreshToday, refreshRecipes, refreshRituals, refreshCoaching]),
   );
 
   const firstName = (profile?.display_name || user?.email?.split('@')[0] || '').split(' ')[0];
   const initial = (firstName || '?')[0].toUpperCase();
-  const dateLabel = capitalize(
-    new Date().toLocaleDateString(i18n.language, { weekday: 'long', day: 'numeric', month: 'long' }),
-  );
+  const dateLabel = new Date().toLocaleDateString(i18n.language, { weekday: 'long', day: 'numeric', month: 'long' });
+  // un repas ne s'enregistre que si le suivi nutrition est activé ; sinon le carré ouvre le menu
   const tracking = profile?.nutrition_tracking === true;
-
-  // Le « + » de « Ma journée » : ajouter en deux gestes, depuis l'accueil.
-  function handleAdd() {
-    Alert.alert(t('today.addTitle'), undefined, [
-      // un repas ne s'enregistre que si le suivi nutrition est activé
-      ...(tracking ? [{ text: t('today.addMeal'), onPress: () => router.push('/meal-log' as any) }] : []),
-      { text: t('today.addWater'), onPress: () => router.push('/hydration-log' as any) },
-      { text: t('today.addNote'), onPress: () => router.push('/mindset-log' as any) },
-      { text: t('common.cancel'), style: 'cancel' as const },
-    ]);
-  }
-
   const featuredRecipe = recipes[0];
-  const featuredMindset = mindsetItems[0];
-  const macros = featuredRecipe
-    ? [
-        featuredRecipe.protein_g ? `P ${featuredRecipe.protein_g} g` : null,
-        featuredRecipe.fat_g ? `L ${featuredRecipe.fat_g} g` : null,
-        featuredRecipe.carbs_g ? `G ${featuredRecipe.carbs_g} g` : null,
-      ].filter(Boolean)
-    : [];
+  const doneCount = rituals.filter((r) => checkedToday.has(r.id)).length;
 
   return (
     <View style={[styles.container, { backgroundColor: palette.background }]}>
       <ScrollView
-        contentContainerStyle={{ paddingTop: insets.top + Spacing.lg, paddingBottom: 140 }}
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + 16 }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* En-tête : prénom + date à gauche, avatar à droite */}
+        {/* En-tête : date + prénom, puis cloche et avatar */}
         <View style={styles.header}>
           <View style={{ flex: 1 }}>
-            <Text numberOfLines={1} style={[styles.hello, { color: palette.text, fontFamily: Fonts.displayBold }]}>
+            <Text style={styles.eyebrow}>{dateLabel.toUpperCase()}</Text>
+            <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={[styles.hello, { fontFamily: Fonts.displayBold }]}>
               {t('today.hello', { name: firstName ? capitalize(firstName) : '' }).replace(/,\s*$/, '')}
-            </Text>
-            <Text style={[styles.date, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-              {dateLabel}
             </Text>
           </View>
           <AdminButton />
           <LanguageButton />
-          <Pressable
+          <TileCard
             onPress={() => router.push('/notifications' as any)}
-            hitSlop={8}
-            style={[styles.round, { backgroundColor: palette.surface }]}
             accessibilityLabel="Notifications"
+            radius={15}
+            style={styles.square}
           >
-            <Bell size={18} color={palette.text} />
-          </Pressable>
+            <Bell size={20} color={TileText.primary} strokeWidth={1.9} />
+          </TileCard>
           <Pressable
             onPress={() => router.push('/account' as any)}
             hitSlop={8}
-            style={styles.avatar}
+            style={styles.avatarRing}
             accessibilityLabel={t('account.title')}
           >
             <AccentFill />
-            {profile?.avatar_url ? (
-              <Image source={{ uri: profile.avatar_url }} style={StyleSheet.absoluteFillObject} contentFit="cover" />
-            ) : (
-              <Text style={[styles.avatarInitial, { color: palette.onAccent, fontFamily: Fonts.sansBold }]}>
-                {initial}
-              </Text>
-            )}
+            <View style={styles.avatarInner}>
+              {profile?.avatar_url ? (
+                <Image source={{ uri: profile.avatar_url }} style={StyleSheet.absoluteFillObject} contentFit="cover" />
+              ) : (
+                <Text style={[styles.avatarInitial, { fontFamily: Fonts.displayBold }]}>{initial}</Text>
+              )}
+            </View>
           </Pressable>
-        </View>
-
-        <View style={{ marginTop: Spacing.lg }}>
-          <DateStrip value={selectedDate} onChange={setSelectedDate} />
         </View>
 
         {/* La seule zone lumineuse de l'écran : la séance du jour */}
         <Pressable
           onPress={() => router.push((todaySession ? `/session/${todaySession.id}` : '/training') as any)}
-          style={({ pressed }) => [styles.hero, { opacity: pressed ? 0.92 : 1 }]}
+          style={({ pressed }) => [styles.hero, pressed && { transform: [{ scale: 0.98 }] }]}
         >
           <AccentFill />
-          <View>
-            <Text style={[styles.heroEyebrow, { color: palette.onAccent, fontFamily: Fonts.sansBold }]}>
-              {t('today.sessionOfDay').toUpperCase()}
-            </Text>
-            <Text numberOfLines={3} style={[styles.heroTitle, { color: palette.onAccent, fontFamily: Fonts.displayBold }]}>
+          <View pointerEvents="none" style={styles.heroDisc} />
+          <View pointerEvents="none" style={styles.heroRing} />
+          <View style={{ flex: 1 }}>
+            <View style={styles.heroTag}>
+              <Text style={[styles.heroTagText, { color: palette.onAccent }]}>
+                {t('today.sessionOfDay').toUpperCase()}
+              </Text>
+            </View>
+            <Text numberOfLines={2} style={[styles.heroTitle, { color: palette.onAccent, fontFamily: Fonts.displayBold }]}>
               {todaySession ? todaySession.title : t('today.nothingPlanned')}
             </Text>
-            {!todaySession ? (
-              <Text style={[styles.heroSub, { color: palette.onAccent, fontFamily: Fonts.sans }]}>
+            {todaySession?.duration_min ? (
+              <View style={styles.heroMeta}>
+                <Clock size={15} color={palette.onAccent} strokeWidth={2.2} />
+                <Text style={[styles.heroMetaText, { color: palette.onAccent }]}>{todaySession.duration_min} min</Text>
+              </View>
+            ) : !todaySession ? (
+              <Text style={[styles.heroMetaText, { color: palette.onAccent, marginTop: 8 }]}>
                 {t('today.nothingPlannedSub')}
               </Text>
             ) : null}
           </View>
-          <View style={styles.heroFoot}>
-            <View style={[styles.heroCta, { backgroundColor: palette.onAccent }]}>
-              <Text style={[styles.heroCtaText, { color: palette.text, fontFamily: Fonts.sansBold }]}>
-                {todaySession ? t('today.ctaStart') : t('today.explore')}
-              </Text>
-            </View>
-            {todaySession?.duration_min ? (
-              <Text style={[styles.heroMeta, { color: palette.onAccent, fontFamily: Fonts.sansBold }]}>
-                {todaySession.duration_min} min
-              </Text>
-            ) : null}
+          <View style={[styles.play, { backgroundColor: palette.onAccent }]}>
+            <Play size={24} color={TileText.primary} fill={TileText.primary} style={{ marginLeft: 3 }} />
           </View>
         </Pressable>
 
-        {/* Ma journée : rituels en puces, « + » pour ajouter */}
-        <View style={[styles.card, { backgroundColor: palette.surface, borderColor: palette.border }]}>
-          <View style={styles.cardHead}>
-            <Text style={[styles.cardTitle, { color: palette.text, fontFamily: Fonts.display }]}>
-              {t('today.myDay')}
-            </Text>
-            <Pressable
-              onPress={handleAdd}
-              hitSlop={10}
-              accessibilityLabel={t('today.addTitle')}
-              style={[styles.plus, { backgroundColor: palette.text }]}
-            >
-              <Plus size={18} color={palette.background} strokeWidth={2.4} />
-            </Pressable>
-          </View>
-          <View style={styles.chips}>
-            {rituals.map((r) => {
-              const checked = checkedToday.has(r.id);
-              return (
-                <Pressable
-                  key={r.id}
-                  onPress={() => toggleCheck(r.id)}
-                  accessibilityRole="checkbox"
-                  accessibilityState={{ checked }}
-                  style={[
-                    styles.chip,
-                    checked
-                      ? { borderColor: palette.done, backgroundColor: palette.accentSoft }
-                      : { borderColor: palette.border },
-                  ]}
-                >
-                  <Text
-                    style={{
-                      fontSize: 13,
-                      fontFamily: checked ? Fonts.sansSemibold : Fonts.sans,
-                      color: checked ? palette.done : palette.textSecondary,
-                    }}
-                  >
-                    {r.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-            {rituals.length === 0 ? (
-              <Pressable
-                onPress={() => router.push('/mindset/rituals' as any)}
-                style={[styles.chip, { borderColor: palette.border }]}
-              >
-                <Text style={{ fontSize: 13, fontFamily: Fonts.sansMedium, color: palette.text }}>
-                  {t('today.noRituals')}
-                </Text>
-              </Pressable>
-            ) : null}
-          </View>
+        {/* J'ajoute : un geste */}
+        <SectionLabel>{t('tiles.iAdd')}</SectionLabel>
+        <View style={styles.row4}>
+          <IconTile icon={Droplet} color="blue" label={t('tiles.water')} onPress={() => router.push('/hydration-log' as any)} />
+          <IconTile
+            icon={Utensils}
+            color="orange"
+            label={tracking ? t('tiles.meal') : t('tiles.menu')}
+            onPress={() => router.push((tracking ? '/meal-log' : '/menu') as any)}
+          />
+          <IconTile icon={PenLine} color="violet" label={t('tiles.note')} onPress={() => router.push('/mindset-log' as any)} />
+          <IconTile icon={Wind} color="mint" label={t('tiles.breathe')} onPress={() => router.push('/mindset/breathing' as any)} />
         </View>
 
-        {/* Coaching personnel : une ligne discrète, pas une seconde zone lumineuse */}
-        <Pressable
-          onPress={() => router.push((hasCoach ? '/my-coach' : '/coaching-offer') as any)}
-          style={({ pressed }) => [
-            styles.rowCard,
-            { backgroundColor: palette.surface, borderColor: palette.border, opacity: pressed ? 0.85 : 1 },
-          ]}
-        >
-          <View style={[styles.thumb, { backgroundColor: palette.surfaceAlt }]}>
-            <Star size={18} color={palette.text} strokeWidth={1.8} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-              {hasCoach ? t('coaching.myCoachTitle') : t('coachingOffer.discoverTitle')}
-            </Text>
-            <Text numberOfLines={1} style={[styles.rowSub, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-              {hasCoach ? t('coaching.todayCardSub') : t('coachingOffer.discoverSub')}
-            </Text>
-          </View>
-          <ChevronRight size={18} color={palette.textSecondary} />
-        </Pressable>
+        {/* Mes rituels : des ronds à toucher */}
+        <SectionLabel right={rituals.length ? `${doneCount} / ${rituals.length}` : undefined}>
+          {t('rituals.title')}
+        </SectionLabel>
+        <TileCard radius={24} style={styles.ritualCard}>
+          {rituals.length === 0 ? (
+            <Pressable onPress={() => router.push('/mindset/rituals' as any)} style={styles.ritualEmpty}>
+              <IconBadge icon={Star} color="rose" size={44} round />
+              <Text style={styles.ritualEmptyText}>{t('today.noRituals')}</Text>
+            </Pressable>
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.ritualRow}>
+              {rituals.map((r, i) => {
+                const checked = checkedToday.has(r.id);
+                const color = TileColors[RITUAL_COLORS[i % RITUAL_COLORS.length]];
+                const Icon = ritualIcon(r.icon);
+                return (
+                  <Pressable
+                    key={r.id}
+                    onPress={() => toggleCheck(r.id)}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked }}
+                    accessibilityLabel={r.label}
+                    style={styles.ritual}
+                  >
+                    {checked ? (
+                      <IconBadge icon={Check} color="mint" size={52} round strokeWidth={2.6} iconSize={22} />
+                    ) : (
+                      <View style={[styles.ritualOpen, { borderColor: color.soft + '8C', backgroundColor: color.soft + '1A' }]}>
+                        <Icon size={22} color={color.soft} strokeWidth={1.9} />
+                      </View>
+                    )}
+                    <Text numberOfLines={2} style={styles.ritualLabel}>
+                      {r.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          )}
+        </TileCard>
 
         {/* Pour toi */}
-        <View style={styles.sectionHead}>
-          <Text style={[styles.cardTitle, { color: palette.text, fontFamily: Fonts.display }]}>
-            {t('today.forYou')}
-          </Text>
-        </View>
-        <View style={styles.list}>
+        <SectionLabel>{t('today.forYou')}</SectionLabel>
+        <View style={styles.row2}>
           {featuredRecipe ? (
-            <Pressable
+            <TileCard
+              radius={24}
+              style={styles.wide}
               onPress={() => router.push(`/recipe/${featuredRecipe.id}` as any)}
-              style={({ pressed }) => [styles.row, { opacity: pressed ? 0.7 : 1 }]}
+              accessibilityLabel={featuredRecipe.title}
             >
-              <View style={[styles.thumb, { backgroundColor: palette.surfaceAlt }]}>
-                {featuredRecipe.cover_url ? (
-                  <Image source={{ uri: featuredRecipe.cover_url }} style={StyleSheet.absoluteFillObject} contentFit="cover" />
-                ) : (
-                  <UtensilsCrossed size={18} color={palette.text} strokeWidth={1.8} />
-                )}
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text numberOfLines={1} style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                  {featuredRecipe.title}
-                </Text>
-                <Text numberOfLines={1} style={[styles.rowSub, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                  {[t('today.recipeTag'), ...macros].join(' · ')}
-                </Text>
-              </View>
-            </Pressable>
+              <IconBadge icon={BookOpen} color="orange" size={44} />
+              <Text numberOfLines={2} style={styles.wideText}>
+                {featuredRecipe.title}
+              </Text>
+            </TileCard>
           ) : null}
-          <Pressable
-            onPress={() => router.push('/mindset/breathing' as any)}
-            style={({ pressed }) => [styles.row, { opacity: pressed ? 0.7 : 1 }]}
+          <TileCard
+            radius={24}
+            style={styles.wide}
+            onPress={() => router.push((hasCoach ? '/my-coach' : '/coaching-offer') as any)}
+            accessibilityLabel={hasCoach ? t('coaching.myCoachTitle') : t('coachingOffer.discoverTitle')}
           >
-            <View style={[styles.thumb, { backgroundColor: palette.surfaceAlt }]}>
-              <Wind size={18} color={palette.text} strokeWidth={1.8} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text numberOfLines={1} style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                {t('breathing.title')}
-              </Text>
-              <Text numberOfLines={1} style={[styles.rowSub, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                {t('breathing.subtitle')}
-              </Text>
-            </View>
-          </Pressable>
-          {featuredMindset ? (
-            <Pressable
-              onPress={() => router.push(`/mindset/${featuredMindset.id}` as any)}
-              style={({ pressed }) => [styles.row, { opacity: pressed ? 0.7 : 1 }]}
-            >
-              <View style={[styles.thumb, { backgroundColor: palette.surfaceAlt }]}>
-                {featuredMindset.cover_url ? (
-                  <Image source={{ uri: featuredMindset.cover_url }} style={StyleSheet.absoluteFillObject} contentFit="cover" />
-                ) : (
-                  <Leaf size={18} color={palette.text} strokeWidth={1.8} />
-                )}
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text numberOfLines={1} style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                  {featuredMindset.title}
-                </Text>
-                <Text numberOfLines={1} style={[styles.rowSub, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                  {[
-                    t(`mindset.kind.${featuredMindset.kind}`),
-                    featuredMindset.duration_min ? `${featuredMindset.duration_min} min` : null,
-                  ]
-                    .filter(Boolean)
-                    .join(' · ')}
-                </Text>
-              </View>
-            </Pressable>
-          ) : null}
+            <IconBadge icon={Star} color="violet" size={44} />
+            <Text numberOfLines={2} style={styles.wideText}>
+              {hasCoach ? t('coaching.myCoachTitle') : t('coachingOffer.discoverTitle')}
+            </Text>
+          </TileCard>
         </View>
       </ScrollView>
     </View>
@@ -315,69 +223,90 @@ function capitalize(s: string) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingHorizontal: Spacing.xl },
-  hello: { fontSize: 26, letterSpacing: -0.6 },
-  date: { fontSize: 13, marginTop: 2 },
-  round: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 14,
+  content: { paddingHorizontal: 20, paddingBottom: 140, maxWidth: 640, width: '100%', alignSelf: 'center' },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  eyebrow: { fontSize: 11, letterSpacing: 1.6, color: TileText.muted, fontFamily: Fonts.sansSemibold },
+  hello: { fontSize: 30, letterSpacing: -0.5, color: TileText.primary, marginTop: 4 },
+  square: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  avatarRing: { width: 44, height: 44, borderRadius: 15, padding: 2, overflow: 'hidden' },
+  avatarInner: {
+    flex: 1,
+    borderRadius: 13,
+    backgroundColor: '#1A1020',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  avatarInitial: { fontSize: 16 },
+  avatarInitial: { fontSize: 17, color: TileText.primary },
   hero: {
-    marginHorizontal: Spacing.xl,
-    marginTop: Spacing.lg,
+    marginTop: 22,
+    minHeight: 156,
     borderRadius: 28,
-    padding: Spacing.xl,
-    minHeight: 190,
-    justifyContent: 'space-between',
-    gap: Spacing.xl,
-    overflow: 'hidden',
-  },
-  heroEyebrow: { fontSize: 11, letterSpacing: 1.6, opacity: 0.75 },
-  heroTitle: { fontSize: 30, lineHeight: 32, letterSpacing: -0.8, marginTop: 6 },
-  heroSub: { fontSize: 14, marginTop: 6, opacity: 0.8 },
-  heroFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  heroCta: { borderRadius: Radius.pill, paddingHorizontal: 20, paddingVertical: 11 },
-  heroCtaText: { fontSize: 14 },
-  heroMeta: { fontSize: 14 },
-  card: {
-    marginHorizontal: Spacing.xl,
-    marginTop: Spacing.md,
-    borderRadius: 22,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: Spacing.lg,
-  },
-  cardHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  cardTitle: { fontSize: 18, letterSpacing: -0.3 },
-  plus: { width: 32, height: 32, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginTop: Spacing.md },
-  chip: { borderWidth: 1, borderRadius: Radius.pill, paddingHorizontal: 14, paddingVertical: 8 },
-  rowCard: {
+    padding: 20,
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    marginHorizontal: Spacing.xl,
-    marginTop: Spacing.md,
-    borderRadius: 22,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: Spacing.md,
+    alignItems: 'flex-end',
+    gap: 16,
+    overflow: 'hidden',
+    shadowColor: '#FF3D7F',
+    shadowOpacity: 0.6,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 12 },
   },
-  sectionHead: { paddingHorizontal: Spacing.xl, marginTop: Spacing.xl },
-  list: { paddingHorizontal: Spacing.xl, marginTop: Spacing.md, gap: Spacing.md },
-  row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
-  thumb: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
+  heroDisc: {
+    position: 'absolute',
+    right: -40,
+    top: -60,
+    width: 190,
+    height: 190,
+    borderRadius: 95,
+    backgroundColor: 'rgba(255,255,255,0.16)',
+  },
+  heroRing: {
+    position: 'absolute',
+    right: 40,
+    top: -90,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.35)',
+  },
+  heroTag: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
+    backgroundColor: 'rgba(26,11,20,0.14)',
+  },
+  heroTagText: { fontSize: 11, letterSpacing: 1.2, fontFamily: Fonts.sansBold },
+  heroTitle: { fontSize: 26, lineHeight: 28, letterSpacing: -0.4, marginTop: 10 },
+  heroMeta: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 10 },
+  heroMetaText: { fontSize: 13, fontFamily: Fonts.sansSemibold },
+  play: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
-    overflow: 'hidden',
+    borderWidth: 6,
+    borderColor: 'rgba(255,255,255,0.22)',
   },
-  rowTitle: { fontSize: 15 },
-  rowSub: { fontSize: 12, marginTop: 2 },
+  row4: { flexDirection: 'row', gap: 10 },
+  row2: { flexDirection: 'row', gap: 10 },
+  ritualCard: { paddingVertical: 14 },
+  ritualRow: { paddingHorizontal: 8, gap: 2, flexGrow: 1, justifyContent: 'space-between' },
+  ritual: { alignItems: 'center', gap: 7, width: 62 },
+  ritualOpen: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ritualLabel: { fontSize: 11, lineHeight: 14, textAlign: 'center', color: TileText.secondary, fontFamily: Fonts.sansMedium },
+  ritualEmpty: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 14 },
+  ritualEmptyText: { fontSize: 14, color: TileText.primary, fontFamily: Fonts.sansSemibold },
+  wide: { flex: 1, minHeight: 96, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  wideText: { flex: 1, fontSize: 14, lineHeight: 18, color: TileText.primary, fontFamily: Fonts.sansSemibold },
 });

@@ -62,7 +62,8 @@
         "expo-image-picker",
         {
           "photosPermission": "BBY a besoin d'accéder à tes photos pour ta photo de profil.",
-          "cameraPermission": "BBY a besoin d'accéder à ta caméra pour prendre ta photo de profil."
+          "cameraPermission": "BBY a besoin d'accéder à ta caméra pour prendre ta photo de profil.",
+          "microphonePermission": false
         }
       ],
       [
