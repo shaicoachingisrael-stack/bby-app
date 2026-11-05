@@ -238,6 +238,7 @@ const styles = StyleSheet.create({
   heroTitle: {
     position: 'absolute',
     left: Spacing.xl,
+    right: Spacing.xl,
     bottom: Spacing.xxl,
   },
   heroTitleMain: {

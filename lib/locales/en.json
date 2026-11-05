@@ -157,7 +157,13 @@
     "signUpError": "Could not sign up",
     "appleError": "Apple error.",
     "googleError": "Google error.",
-    "appleNotAvailable": "Sign in with Apple is only available on iOS."
+    "appleNotAvailable": "Sign in with Apple is only available on iOS.",
+    "errors": {
+      "invalidCredentials": "Incorrect email or password.",
+      "alreadyRegistered": "An account already exists with this email. Sign in instead.",
+      "emailNotConfirmed": "Please confirm your email with the link you received first.",
+      "network": "No internet connection. Try again in a moment."
+    }
   },
   "onboarding": {
     "name": {

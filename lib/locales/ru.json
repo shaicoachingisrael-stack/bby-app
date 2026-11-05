@@ -157,7 +157,13 @@
     "signUpError": "Не удалось зарегистрироваться",
     "appleError": "Ошибка Apple.",
     "googleError": "Ошибка Google.",
-    "appleNotAvailable": "Sign in with Apple доступен только на iOS."
+    "appleNotAvailable": "Sign in with Apple доступен только на iOS.",
+    "errors": {
+      "invalidCredentials": "Неверный e-mail или пароль.",
+      "alreadyRegistered": "Аккаунт с этим e-mail уже существует. Войди.",
+      "emailNotConfirmed": "Сначала подтверди e-mail по полученной ссылке.",
+      "network": "Нет подключения к интернету. Попробуй чуть позже."
+    }
   },
   "onboarding": {
     "name": {

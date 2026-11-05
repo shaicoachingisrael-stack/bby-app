@@ -157,7 +157,13 @@
     "signUpError": "ההרשמה נכשלה",
     "appleError": "שגיאת Apple.",
     "googleError": "שגיאת Google.",
-    "appleNotAvailable": "Sign in with Apple זמין רק ב-iOS."
+    "appleNotAvailable": "Sign in with Apple זמין רק ב-iOS.",
+    "errors": {
+      "invalidCredentials": "אימייל או סיסמה שגויים.",
+      "alreadyRegistered": "כבר קיים חשבון עם האימייל הזה. התחברי.",
+      "emailNotConfirmed": "אשרי קודם את האימייל דרך הקישור שקיבלת.",
+      "network": "אין חיבור לאינטרנט. נסי שוב בעוד רגע."
+    }
   },
   "onboarding": {
     "name": {

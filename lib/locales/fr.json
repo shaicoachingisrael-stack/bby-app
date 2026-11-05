@@ -157,7 +157,13 @@
     "signUpError": "Inscription impossible",
     "appleError": "Erreur Apple.",
     "googleError": "Erreur Google.",
-    "appleNotAvailable": "Sign in with Apple n’est disponible que sur iOS."
+    "appleNotAvailable": "Sign in with Apple n’est disponible que sur iOS.",
+    "errors": {
+      "invalidCredentials": "E-mail ou mot de passe incorrect.",
+      "alreadyRegistered": "Un compte existe déjà avec cet e-mail. Connecte-toi.",
+      "emailNotConfirmed": "Confirme d’abord ton e-mail grâce au lien reçu.",
+      "network": "Pas de connexion internet. Réessaie dans un instant."
+    }
   },
   "onboarding": {
     "name": {

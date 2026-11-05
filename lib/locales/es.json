@@ -157,7 +157,13 @@
     "signUpError": "No se pudo registrar",
     "appleError": "Error de Apple.",
     "googleError": "Error de Google.",
-    "appleNotAvailable": "Iniciar sesión con Apple solo está disponible en iOS."
+    "appleNotAvailable": "Iniciar sesión con Apple solo está disponible en iOS.",
+    "errors": {
+      "invalidCredentials": "Correo o contraseña incorrectos.",
+      "alreadyRegistered": "Ya existe una cuenta con este correo. Inicia sesión.",
+      "emailNotConfirmed": "Confirma primero tu correo con el enlace recibido.",
+      "network": "Sin conexión a internet. Inténtalo de nuevo en un momento."
+    }
   },
   "onboarding": {
     "name": {

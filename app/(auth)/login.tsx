@@ -89,7 +89,7 @@ export default function LoginScreen() {
     } catch (e: any) {
       Alert.alert(
         mode === 'signIn' ? t('auth.signInError') : t('auth.signUpError'),
-        e?.message ?? t('common.error'),
+        authErrorText(e?.message, t),
       );
     } finally {
       setLoading(null);
@@ -133,7 +133,7 @@ export default function LoginScreen() {
           {Platform.OS === 'ios' && (
             <AppleAuthentication.AppleAuthenticationButton
               buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-              buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+              buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
               cornerRadius={Radius.md}
               style={styles.appleButton}
               onPress={handleApple}
@@ -348,3 +348,13 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
   },
 });
+
+// Les messages de Supabase arrivent en anglais : les cas courants sont traduits.
+function authErrorText(message: string | undefined, t: (k: string) => string) {
+  const m = (message ?? '').toLowerCase();
+  if (m.includes('invalid login credentials')) return t('auth.errors.invalidCredentials');
+  if (m.includes('already registered') || m.includes('already been registered')) return t('auth.errors.alreadyRegistered');
+  if (m.includes('email not confirmed')) return t('auth.errors.emailNotConfirmed');
+  if (m.includes('network') || m.includes('fetch')) return t('auth.errors.network');
+  return message || t('common.error');
+}

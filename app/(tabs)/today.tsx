@@ -294,8 +294,8 @@ const styles = StyleSheet.create({
   row4: { flexDirection: 'row', gap: 10 },
   row2: { flexDirection: 'row', gap: 10 },
   ritualCard: { paddingVertical: 14 },
-  ritualRow: { paddingHorizontal: 8, gap: 2, flexGrow: 1, justifyContent: 'space-between' },
-  ritual: { alignItems: 'center', gap: 7, width: 62 },
+  ritualRow: { paddingHorizontal: 4, gap: 0, flexGrow: 1, justifyContent: 'space-between' },
+  ritual: { alignItems: 'center', gap: 7, width: 70 },
   ritualOpen: {
     width: 52,
     height: 52,

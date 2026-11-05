@@ -33,8 +33,8 @@ export function AiConsent({ onAccept, onDecline }: { onAccept: () => void; onDec
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.flex, { paddingTop: insets.top + 24, paddingBottom: insets.bottom + 16 }]}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <View style={[styles.flex, { paddingBottom: insets.bottom + 16 }]}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <IconBadge icon={Sparkles} color="violet" size={56} />
         <Text style={[styles.title, { fontFamily: Fonts.displayBold }]}>{t('aiConsent.title')}</Text>
         <Text style={styles.body}>{t('aiConsent.body')}</Text>
@@ -65,7 +65,8 @@ export function AiConsent({ onAccept, onDecline }: { onAccept: () => void; onDec
 
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: '#0B0710', paddingHorizontal: 24 },
-  content: { paddingTop: 24, gap: 16, maxWidth: 560, width: '100%', alignSelf: 'center' },
+  scroll: { flex: 1 },
+  content: { paddingTop: 24, paddingBottom: 16, gap: 16, maxWidth: 560, width: '100%', alignSelf: 'center' },
   title: { fontSize: 28, lineHeight: 32, color: TileText.primary, marginTop: 8 },
   body: { fontSize: 15, lineHeight: 22, color: TileText.secondary, fontFamily: Fonts.sans },
   list: { gap: 10 },

@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Bookmark, Check, History, Leaf, Moon, PenLine, Sparkles, Sun, Target, Wind } from 'lucide-react-native';
+import { Bookmark, BookOpen, Check, History, Leaf, Moon, PenLine, Sparkles, Sun, Target, Wind } from 'lucide-react-native';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -194,6 +194,8 @@ export default function MindsetScreen() {
                       : t('mindset.kind.affirmation')
                 }
                 onPress={() => router.push(`/mindset/${m.id}` as any)}
+                icon={m.kind === 'meditation' ? Moon : m.kind === 'article' ? BookOpen : Sparkles}
+                color={m.kind === 'meditation' ? 'violet' : m.kind === 'article' ? 'orange' : 'rose'}
               />
             ))
           )}
