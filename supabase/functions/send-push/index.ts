@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
   let q = admin
     .from('push_tokens')
     .select('expo_token, platform, user_id')
-    .eq('platform', 'ios');
+    .in('platform', ['ios', 'android']);
   if (targetIds) q = q.in('user_id', targetIds);
 
   const { data: rows, error: rowsErr } = await q;
@@ -95,16 +95,74 @@ Deno.serve(async (req) => {
     return json({ error: 'Erreur lecture tokens' }, 500);
   }
 
-  const tokens = [
-    ...new Set(
-      (rows ?? [])
-        .map((r) => ((r.expo_token as string) ?? '').replace(/\s+/g, ''))
-        .filter((t) => t && /^[0-9a-fA-F]+$/.test(t)),
-    ),
-  ];
+  const clean = (platform: string) =>
+    [
+      ...new Set(
+        (rows ?? [])
+          .filter((r) => r.platform === platform)
+          .map((r) => ((r.expo_token as string) ?? '').replace(/\s+/g, ''))
+          .filter(Boolean),
+      ),
+    ];
+  const tokens = clean('ios').filter((t) => /^[0-9a-fA-F]+$/.test(t));
+  const androidTokens = clean('android');
+
+  if (tokens.length === 0 && androidTokens.length === 0) {
+    return json({ sent: 0, errors: 0, total: 0, message: 'Aucun jeton.' });
+  }
+
+  let sent = 0;
+  let errors = 0;
+  const failures: { token: string; status: number; reason?: string }[] = [];
+  const dead: string[] = [];
+
+  // Android : Firebase Cloud Messaging (API HTTP v1). Les données vont dans `data`,
+  // que expo-notifications remonte à l'app (`url` = écran à ouvrir).
+  if (androidTokens.length) {
+    let access: string | null = null;
+    try {
+      access = await getFcmAccessToken();
+    } catch (e: any) {
+      console.error('FCM auth error', e);
+    }
+    const projectId = fcmProjectId();
+    for (const token of androidTokens) {
+      if (!access || !projectId) {
+        errors += 1;
+        failures.push({ token: token.slice(0, 8) + '…', status: 0, reason: 'FCM non configuré' });
+        continue;
+      }
+      try {
+        const res = await fetch(`https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`, {
+          method: 'POST',
+          headers: { authorization: `Bearer ${access}`, 'content-type': 'application/json' },
+          body: JSON.stringify({
+            message: {
+              token,
+              notification: { title, body: message },
+              data: Object.fromEntries(Object.entries(data).map(([k, v]) => [k, String(v)])),
+              android: { priority: 'HIGH', notification: { channel_id: 'default', sound: 'default' } },
+            },
+          }),
+        });
+        if (res.ok) {
+          sent += 1;
+        } else {
+          const reason = await res.text().catch(() => '');
+          errors += 1;
+          failures.push({ token: token.slice(0, 8) + '…', status: res.status, reason });
+          if (res.status === 404 || /UNREGISTERED|INVALID_ARGUMENT/.test(reason)) dead.push(token);
+        }
+      } catch (e: any) {
+        errors += 1;
+        failures.push({ token: token.slice(0, 8) + '…', status: 0, reason: e?.message });
+      }
+    }
+  }
 
   if (tokens.length === 0) {
-    return json({ sent: 0, errors: 0, total: 0, message: 'Aucun token APNs.' });
+    if (dead.length) await admin.from('push_tokens').delete().in('expo_token', dead);
+    return json({ sent, errors, total: androidTokens.length, failures });
   }
 
   let jwt: string;
@@ -134,11 +192,6 @@ Deno.serve(async (req) => {
   const hosts = sandboxFirst
     ? ['api.sandbox.push.apple.com', 'api.push.apple.com']
     : ['api.push.apple.com', 'api.sandbox.push.apple.com'];
-
-  let sent = 0;
-  let errors = 0;
-  const failures: { token: string; status: number; reason?: string }[] = [];
-  const dead: string[] = [];
 
   for (const token of tokens) {
     let delivered = false;
@@ -179,8 +232,69 @@ Deno.serve(async (req) => {
 
   if (dead.length) await admin.from('push_tokens').delete().in('expo_token', dead);
 
-  return json({ sent, errors, total: tokens.length, failures });
+  return json({ sent, errors, total: tokens.length + androidTokens.length, failures });
 });
+
+// --- Android (FCM) : jeton OAuth signé avec la clé du compte de service ---
+let cachedFcm: { value: string; exp: number } | null = null;
+
+function fcmServiceAccount(): { client_email: string; private_key: string; project_id: string } | null {
+  const raw = Deno.env.get('FCM_SERVICE_ACCOUNT');
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function fcmProjectId() {
+  return fcmServiceAccount()?.project_id ?? null;
+}
+
+async function getFcmAccessToken(): Promise<string> {
+  const now = Math.floor(Date.now() / 1000);
+  if (cachedFcm && cachedFcm.exp > now + 60) return cachedFcm.value;
+  const sa = fcmServiceAccount();
+  if (!sa) throw new Error('Missing FCM_SERVICE_ACCOUNT secret');
+
+  const pemBody = sa.private_key
+    .replace('-----BEGIN PRIVATE KEY-----', '')
+    .replace('-----END PRIVATE KEY-----', '')
+    .replace(/\s+/g, '');
+  const key = await crypto.subtle.importKey(
+    'pkcs8',
+    base64ToBytes(pemBody),
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+  const enc = new TextEncoder();
+  const header = b64url(enc.encode(JSON.stringify({ alg: 'RS256', typ: 'JWT' })));
+  const claims = b64url(
+    enc.encode(
+      JSON.stringify({
+        iss: sa.client_email,
+        scope: 'https://www.googleapis.com/auth/firebase.messaging',
+        aud: 'https://oauth2.googleapis.com/token',
+        iat: now,
+        exp: now + 3600,
+      }),
+    ),
+  );
+  const sig = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, enc.encode(`${header}.${claims}`));
+  const assertion = `${header}.${claims}.${b64url(new Uint8Array(sig))}`;
+
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    body: `grant_type=${encodeURIComponent('urn:ietf:params:oauth:grant-type:jwt-bearer')}&assertion=${assertion}`,
+  });
+  const body = await res.json();
+  if (!res.ok || !body.access_token) throw new Error('FCM token: ' + JSON.stringify(body));
+  cachedFcm = { value: body.access_token, exp: now + (body.expires_in ?? 3600) };
+  return cachedFcm.value;
+}
 
 async function getApnsJwt(): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
@@ -225,9 +339,9 @@ async function getApnsJwt(): Promise<string> {
   return value;
 }
 
-function base64ToBytes(b64: string): Uint8Array {
+function base64ToBytes(b64: string): Uint8Array<ArrayBuffer> {
   const bin = atob(b64);
-  const out = new Uint8Array(bin.length);
+  const out = new Uint8Array(new ArrayBuffer(bin.length));
   for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
   return out;
 }
