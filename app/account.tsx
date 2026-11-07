@@ -20,7 +20,6 @@ import { SectionTitle } from '@/components/ui/section-title';
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { deleteAccount, signOut } from '@/lib/auth';
-import { setAppearance, useAppearance } from '@/lib/appearance';
 import { useAuth } from '@/lib/auth-provider';
 import { useProfile } from '@/lib/use-profile';
 
@@ -32,7 +31,6 @@ export default function AccountScreen() {
   const { user } = useAuth();
   const { profile, loading, refresh, update } = useProfile();
   const tracking = profile?.nutrition_tracking === true;
-  const appearance = useAppearance();
 
   const GOAL_LABELS: Record<string, string> = {
     perte_de_poids: t('onboarding.goal.perte_de_poids'),
@@ -145,7 +143,7 @@ export default function AccountScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.headerBlock}>
-          <View style={[styles.avatar, { backgroundColor: palette.text }]}>
+          <View style={[styles.avatar, { backgroundColor: '#E8F27C' }]}>
             {profile?.avatar_url ? (
               <Image
                 source={{ uri: profile.avatar_url }}
@@ -153,7 +151,7 @@ export default function AccountScreen() {
                 contentFit="cover"
               />
             ) : (
-              <Text style={[styles.avatarInitial, { color: palette.background, fontFamily: Fonts.displayBold }]}>
+              <Text style={[styles.avatarInitial, { color: '#0A0A0A', fontFamily: Fonts.displayBold }]}>
                 {initial}
               </Text>
             )}
@@ -239,27 +237,6 @@ export default function AccountScreen() {
               title={t('nutrition.tracking.on')}
               hint={t('nutrition.tracking.onHint')}
               onPress={() => setTracking(true)}
-              palette={palette}
-            />
-          </View>
-        </View>
-
-        <View style={{ marginTop: Spacing.xxl }}>
-          <SectionTitle title={t('account.appearance.title')} />
-          <View style={[styles.card, { backgroundColor: palette.surface }]}>
-            <TrackingOption
-              selected={appearance === 'ember'}
-              title={t('account.appearance.ember')}
-              hint={t('account.appearance.emberHint')}
-              onPress={() => setAppearance('ember')}
-              palette={palette}
-            />
-            <Divider color={palette.border} />
-            <TrackingOption
-              selected={appearance === 'encre'}
-              title={t('account.appearance.encre')}
-              hint={t('account.appearance.encreHint')}
-              onPress={() => setAppearance('encre')}
               palette={palette}
             />
           </View>

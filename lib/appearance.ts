@@ -31,7 +31,8 @@ function subscribe(listener: () => void) {
 export async function loadAppearance(): Promise<Appearance> {
   try {
     const saved = await AsyncStorage.getItem(KEY);
-    if (saved === 'ember' || saved === 'encre') current = saved;
+    // Depuis la charte de Shaï (novembre 2026), une seule apparence : l'ancien choix gardé sur l'appareil est ignoré.
+    if (saved === 'encre') AsyncStorage.removeItem(KEY).catch(() => {});
   } catch {
     // stockage indisponible : on garde l'apparence par défaut
   }

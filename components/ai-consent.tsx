@@ -64,19 +64,19 @@ export function AiConsent({ onAccept, onDecline }: { onAccept: () => void; onDec
 }
 
 const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: '#0B0710', paddingHorizontal: 24 },
+  flex: { flex: 1, backgroundColor: '#0A0A0A', paddingHorizontal: 24 },
   scroll: { flex: 1 },
   content: { paddingTop: 24, paddingBottom: 16, gap: 16, maxWidth: 560, width: '100%', alignSelf: 'center' },
   title: { fontSize: 28, lineHeight: 32, color: TileText.primary, marginTop: 8 },
   body: { fontSize: 15, lineHeight: 22, color: TileText.secondary, fontFamily: Fonts.sans },
   list: { gap: 10 },
   point: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
-  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#C9B3FF', marginTop: 8 },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#E8F27C', marginTop: 8 },
   pointText: { flex: 1, fontSize: 14, lineHeight: 20, color: TileText.primary, fontFamily: Fonts.sans },
-  link: { fontSize: 14, color: '#C9B3FF', fontFamily: Fonts.sansSemibold, textDecorationLine: 'underline' },
+  link: { fontSize: 14, color: '#FAFAF8', fontFamily: Fonts.sansSemibold, textDecorationLine: 'underline' },
   actions: { gap: 6, maxWidth: 560, width: '100%', alignSelf: 'center' },
   accept: { height: 56, borderRadius: 28, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
-  acceptText: { fontSize: 16, color: '#22070F', fontFamily: Fonts.sansBold },
+  acceptText: { fontSize: 16, color: '#0A0A0A', fontFamily: Fonts.sansBold },
   decline: { height: 48, alignItems: 'center', justifyContent: 'center' },
   declineText: { fontSize: 15, color: TileText.muted, fontFamily: Fonts.sansSemibold },
 });

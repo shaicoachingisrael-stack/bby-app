@@ -1,0 +1,239 @@
+{
+  "title": "Nutrición",
+  "tabs": { "today": "Hoy", "recipes": "Recetas", "menu": "Menú", "shopping": "Compra" },
+  "common": {
+    "back": "Volver",
+    "cancel": "Cancelar",
+    "done": "Listo",
+    "ok": "De acuerdo",
+    "error": "Ha surgido un problema",
+    "g": "g",
+    "kcal": "{{kcal}} kcal",
+    "kcalAbout": "Unas {{kcal}} kcal",
+    "liters": "{{l}} L",
+    "minutes": "{{n}} min",
+    "plg": "P {{p}} · G {{l}} · H {{g}}",
+    "legend": "P proteínas · G grasas · H hidratos, en gramos.",
+    "people_one": "{{count}} persona",
+    "people_other": "{{count}} personas",
+    "less": "Una persona menos",
+    "more": "Una persona más"
+  },
+  "macro": { "protein": "Proteínas", "fat": "Grasas", "carb": "Hidratos" },
+  "meal": { "petit_dejeuner": "Desayuno", "dejeuner": "Comida", "diner": "Cena", "collation": "Snack" },
+  "today": {
+    "plainTitle": "Tus referencias del día",
+    "kcalPlain": "Unas {{kcal}} kcal · tu punto de referencia",
+    "noTargets": "Completa tu perfil para ver tus referencias del día.",
+    "meals": "Tus comidas",
+    "myMenu": "Mi menú",
+    "chooseMeal": "Elegir una comida",
+    "prepareWeek": "Preparar mi semana",
+    "waterAbout": "Unos {{l}} L",
+    "waterRhythm": "tu ritmo del día",
+    "trackedTitle": "Hoy",
+    "trackedSub": "{{date}} · Seguimiento activado",
+    "landmark": "referencia {{v}} {{u}}",
+    "kcalTracked": "{{kcal}} kcal · referencia {{target}}",
+    "waterTracked": "tu ritmo: unos {{l}} L",
+    "add20": "+ 20 cl",
+    "add50": "+ 50 cl"
+  },
+  "journal": {
+    "title": "Tu diario",
+    "note": "Anotar mi comida",
+    "noteShort": "Anotar",
+    "removeTitle": "¿Quitar de tu diario?",
+    "remove": "Quitar"
+  },
+  "plate": {
+    "cardTitle": "Tu plato",
+    "rhythmLine": "Ritmo · {{rhythm}}",
+    "title": "Tu plato",
+    "sub": "Una estructura sencilla para componer una comida. No es una regla.",
+    "yours": "Tu ritmo",
+    "veg": "Verduras",
+    "protein": "Proteínas",
+    "starch": "Féculas",
+    "fatTitle": "¿Y las grasas?",
+    "fatBody": "Se colocan alrededor del plato: un chorrito de aceite, un puñado de frutos secos, medio aguacate.",
+    "editorial": "Las partes cambian un poco según tu ritmo. La idea sigue siendo la misma.",
+    "seeRecipes": "Ver recetas",
+    "changeRhythm": "Cambiar mi ritmo"
+  },
+  "fraction": { "half": "la mitad", "third": "un tercio", "quarter": "un cuarto", "sixth": "un sexto" },
+  "rhythm": {
+    "perte_de_gras": {
+      "title": "Pérdida de grasa",
+      "sub": "Un poco menos de energía, nunca por debajo de tus necesidades.",
+      "plate": "La mitad de verduras, un tercio de proteínas, un sexto de féculas."
+    },
+    "maintien": {
+      "title": "Mantenimiento",
+      "sub": "Mantienes tu equilibrio actual.",
+      "plate": "La mitad de verduras, un cuarto de proteínas, un cuarto de féculas."
+    },
+    "prise_de_masse": {
+      "title": "Ganancia muscular",
+      "sub": "Un poco más de energía para construir.",
+      "plate": "Un tercio de verduras, un tercio de proteínas, un tercio de féculas."
+    }
+  },
+  "settings": {
+    "title": "Visualización de nutrición",
+    "sub": "Elige cómo quieres ver tus referencias.",
+    "default": "Por defecto",
+    "plain": {
+      "title": "Sin seguimiento",
+      "sub": "Los macros se muestran como una referencia. No cuentas nada, no marcas nada."
+    },
+    "tracked": {
+      "title": "Con seguimiento",
+      "sub": "Sigues tus macros y tus calorías a lo largo del día. Sin rojo, sin juicios."
+    },
+    "calories": { "title": "Mostrar las calorías", "sub": "Los macros siguen en primer plano." },
+    "rhythmTitle": "Tu ritmo del momento",
+    "rhythmSub": "Ajusta tus referencias y tu plato.",
+    "rhythmSaved": "Anotado: tus referencias y tu plato siguen este ritmo.",
+    "seePlate": "Ver mi plato",
+    "editorial": "Puedes cambiar de opinión en cualquier momento."
+  },
+  "recipes": {
+    "tiltTitle": "Tu biblioteca",
+    "tiltText": "Las recetas BBY, y las tuyas.",
+    "create": "Crear mi receta",
+    "mine": "Mi receta",
+    "empty": "Todavía no hay recetas aquí.",
+    "emptyMine": "Aún no tienes recetas propias. Crea la primera cuando quieras.",
+    "filter": {
+      "all": "Todas",
+      "petit_dejeuner": "Desayuno",
+      "dejeuner": "Comida",
+      "diner": "Cena",
+      "collation": "Snacks",
+      "mine": "Las mías"
+    }
+  },
+  "recipe": {
+    "notFound": "Esta receta ya no está disponible.",
+    "photo": "Foto de la receta",
+    "perPortion": "Por ración",
+    "ingredients": "Ingredientes",
+    "steps": "Preparación",
+    "addToMenu": "Añadir a mi menú",
+    "addNote": "Los ingredientes pasan a tu lista de la compra.",
+    "favorite": "Añadir a mis favoritas",
+    "unfavorite": "Quitar de mis favoritas",
+    "edit": "Editar mi receta",
+    "videos": "En vídeo"
+  },
+  "edit": {
+    "title": "Tu receta",
+    "name": "Nombre",
+    "namePlaceholder": "Pollo al limón y arroz integral",
+    "nameMissing": "Ponle un nombre a tu receta.",
+    "category": "Comida",
+    "ingredients": "Ingredientes",
+    "ingredientPlaceholder": "Ingrediente",
+    "qtyPlaceholder": "300 g",
+    "removeIngredient": "Quitar este ingrediente",
+    "addIngredient": "Añadir un ingrediente",
+    "steps": "Preparación",
+    "stepsPlaceholder": "Los pasos, uno por línea.",
+    "addPhoto": "Añadir una foto",
+    "macrosTitle": "Macros calculados automáticamente",
+    "estimate": "Una estimación por ración. Puedes corregirla.",
+    "partial": "Algunos ingredientes no se reconocen: la estimación es parcial.",
+    "adjust": "Ajustar a mano",
+    "backToEstimate": "Volver a la estimación",
+    "save": "Guardar mi receta",
+    "saveError": "No se ha podido guardar",
+    "delete": "Eliminar mi receta",
+    "deleteTitle": "¿Eliminar esta receta?",
+    "deleteBody": "También desaparece de tu menú y de tu lista de la compra."
+  },
+  "log": {
+    "title": "¿Qué has comido?",
+    "for": {
+      "petit_dejeuner": "Para tu desayuno.",
+      "dejeuner": "Para tu comida.",
+      "diner": "Para tu cena.",
+      "collation": "Para tu snack."
+    },
+    "searchPlaceholder": "Buscar un alimento",
+    "dictation": "Dictar",
+    "barcode": "Código de barras",
+    "photo": "Foto de la comida",
+    "tabs": { "recent": "Recientes", "favorites": "Favoritas", "mine": "Mis recetas" },
+    "onePortion": "1 ración",
+    "addA11y": "Añadir una ración: {{name}}",
+    "noResult": "Nada por ahora. Prueba con otra palabra.",
+    "emptyRecent": "Lo que anotes aparecerá aquí.",
+    "emptyFavorites": "Guarda una receta como favorita desde su ficha: aparecerá aquí.",
+    "emptyMine": "Tus recetas aparecerán aquí.",
+    "editorial": "¿Una foto? El Coach te ayuda a confirmar lo que hay en el plato."
+  },
+  "soon": {
+    "title": "Muy pronto",
+    "body": "Esta función llegará muy pronto.",
+    "barcode": "El código de barras llegará muy pronto. Mientras tanto, busca el alimento por su nombre.",
+    "photo": "La foto de la comida llegará muy pronto. Mientras tanto, busca los alimentos por su nombre."
+  },
+  "menu": {
+    "tiltTitle": "Tu semana",
+    "tiltText": "Generada para ti. Cambia lo que quieras.",
+    "regenerate": "Regenerar",
+    "compose": "Componer",
+    "regenTitle": "¿Regenerar tu semana?",
+    "regenBody": "Las comidas de la semana se sustituirán por una nueva propuesta.",
+    "composeTitle": "Componer tu semana",
+    "composeBody": "Vaciamos la semana y eliges tú cada comida, franja por franja.",
+    "composeEmpty": "Toca una franja para elegir su comida.",
+    "noRecipesTitle": "Todavía no hay recetas",
+    "noRecipesBody": "Hacen falta recetas clasificadas por comida para componer una semana.",
+    "swapTitle": "Cambiar esta comida",
+    "swapOther": "Otra idea",
+    "swapPick": "Elegirla yo",
+    "noAltTitle": "No hay otra idea para esta comida",
+    "noAltBody": "Elige una en la biblioteca.",
+    "removeSlot": "Quitar esta comida del menú",
+    "seeShopping": "Ver mi lista de la compra"
+  },
+  "menuAdd": {
+    "title": "Añadir a mi menú",
+    "day": "Día",
+    "meal": "Comida",
+    "add": "Añadir",
+    "replaces": "Sustituye: {{name}}",
+    "pastDay": "Este día ya ha pasado esta semana: la comida se queda en tu menú para las próximas semanas."
+  },
+  "shopping": {
+    "tiltTitle": "Esta semana",
+    "tiltText": "Tu lista se llena con tu menú.",
+    "counterA11y": "{{done}} de {{total}} artículos marcados",
+    "manual": "Añadido a mano",
+    "fromRecipes_one": "{{count}} receta",
+    "fromRecipes_other": "{{count}} recetas",
+    "addPlaceholder": "Añadir un artículo",
+    "add": "Añadir el artículo",
+    "clear": "Vaciar la lista",
+    "clearTitle": "¿Vaciar tu lista?",
+    "clearBody": "Se quitarán todos los artículos.",
+    "empty": "Tu lista está vacía. Se llena cuando añades comidas a tu menú."
+  },
+  "aisle": {
+    "fruits_legumes": "Frutas y verduras",
+    "viandes_poissons": "Carnicería y pescadería",
+    "cremerie": "Refrigerados",
+    "epicerie": "Despensa",
+    "surgeles": "Congelados",
+    "boissons": "Bebidas",
+    "autre": "Otros"
+  },
+  "unit": { "g": "g", "kg": "kg", "ml": "ml", "cl": "cl", "l": "L", "cas": "cda.", "cac": "cdta." },
+  "water": {
+    "title": "Tu agua",
+    "sub": "Lo que has bebido hoy.",
+    "editorial": "Un vaso a tu lado ya es un gesto."
+  }
+}

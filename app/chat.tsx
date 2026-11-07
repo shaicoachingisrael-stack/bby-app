@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ChevronLeft, Send, Sparkles } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,7 +26,10 @@ export default function ChatScreen() {
   const insets = useSafeAreaInsets();
   const palette = Colors[useColorScheme() ?? 'light'];
   const { messages, loading, sending, send } = useChat();
-  const [input, setInput] = useState('');
+  // Texte pré-rempli (ex. « En parler au Coach » depuis une page du journal) :
+  // il n'est envoyé que si la cliente appuie sur Envoyer.
+  const { prefill } = useLocalSearchParams<{ prefill?: string }>();
+  const [input, setInput] = useState(typeof prefill === 'string' ? prefill : '');
   const { consent, accept } = useAiConsent();
   const scrollRef = useRef<ScrollView>(null);
 

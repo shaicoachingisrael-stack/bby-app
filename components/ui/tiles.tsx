@@ -7,21 +7,25 @@ import { Fonts } from '@/constants/theme';
 
 // Maquette « en tuiles » (05/11/2026) : moins d'écrit, des carrés à grosse icône.
 // Chaque famille de couleur = un dégradé clair → profond + une ombre de sa teinte.
+// Refonte de Shaï (nov. 2026) : plus de couleurs vives, les anciennes familles
+// deviennent toutes des pastilles graphite (icône claire) ; le jaune reste réservé
+// à la carte inclinée et aux actions principales.
+const GRAPHITE = { from: '#3A3A38', to: '#262624', soft: '#000000' };
 export const TileColors = {
-  rose: { from: '#FF8DB5', to: '#E8336F', soft: '#FF8DB5' },
-  orange: { from: '#FFB27A', to: '#F0621C', soft: '#FFB27A' },
-  mint: { from: '#7DF3C6', to: '#14AE74', soft: '#7DF3C6' },
-  violet: { from: '#C9B3FF', to: '#7451EE', soft: '#C9B3FF' },
-  blue: { from: '#97D5FF', to: '#2A86E0', soft: '#97D5FF' },
-  ember: { from: '#FF5C93', to: '#FFA24A', soft: '#FF8DB5' },
+  rose: GRAPHITE,
+  orange: GRAPHITE,
+  mint: GRAPHITE,
+  violet: GRAPHITE,
+  blue: GRAPHITE,
+  ember: GRAPHITE,
 } as const;
 
 export type TileColor = keyof typeof TileColors;
 
 export const TileText = {
-  primary: '#FFF4EE',
-  secondary: '#D9CFD8',
-  muted: '#A99DAA',
+  primary: '#FAFAF8',
+  secondary: '#D6D6D2',
+  muted: '#A8A8A4',
 } as const;
 
 // Carré (ou rond) en dégradé portant une icône blanche.

@@ -1,167 +1,72 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { ChevronLeft, Frown, Laugh, Meh, Plus, Search, Smile } from 'lucide-react-native';
-import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ArrowRight } from 'lucide-react-native';
+import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useAuth } from '@/lib/auth-provider';
-import { supabase } from '@/lib/supabase';
+import { BFont, Bby, Card, RoundButton } from '@/components/bby/kit';
+import { BackRow, MScreen, mstyles, PrivateNote, Small } from '@/components/bby/mindset/ui';
+import { entryPreview, shortDate } from '@/lib/mindset/core';
+import { dayInfoKey, useJournal } from '@/lib/mindset/use-journal';
+import { useParcours } from '@/lib/mindset/use-parcours';
 
-type Entry = {
-  id: string;
-  kind: string;
-  body: string;
-  mood: string | null;
-  created_at: string;
-};
-
-const MOOD_ICON: Record<string, typeof Smile> = {
-  great: Laugh,
-  good: Smile,
-  neutral: Meh,
-  tired: Frown,
-  low: Frown,
-};
-
-export default function EntriesScreen() {
+// Relire les pages d'un parcours (« Relire mon journal de la semaine »).
+// Sans ?program=…, montre toutes les pages du journal.
+export default function JournalEntriesScreen() {
+  const { program: programId } = useLocalSearchParams<{ program?: string }>();
   const router = useRouter();
-  const { t, i18n } = useTranslation();
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
-  const { user } = useAuth();
-  const params = useLocalSearchParams<{ kind?: string }>();
-  const kind = params.kind === 'intention' ? 'intention' : 'journal';
+  const { t } = useTranslation();
+  const { program } = useParcours(programId);
+  const { entries, dayInfo, loading, refresh } = useJournal(programId);
 
-  const [entries, setEntries] = useState<Entry[]>([]);
-  const [query, setQuery] = useState('');
-  const [loading, setLoading] = useState(true);
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh]),
+  );
 
-  const load = useCallback(async () => {
-    if (!user) { setEntries([]); setLoading(false); return; }
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('mindset_entries')
-      .select('id, kind, body, mood, created_at')
-      .eq('user_id', user.id)
-      .eq('kind', kind)
-      .order('created_at', { ascending: false });
-    if (error) console.warn('entries fetch', error);
-    setEntries((data as Entry[] | null) ?? []);
-    setLoading(false);
-  }, [user, kind]);
-
-  useFocusEffect(useCallback(() => { load(); }, [load]));
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return entries;
-    return entries.filter((e) => e.body.toLowerCase().includes(q));
-  }, [entries, query]);
-
-  const title = kind === 'intention' ? t('entries.intentionsTitle') : t('entries.journalTitle');
-
-  function formatDate(iso: string) {
-    return new Date(iso).toLocaleDateString(i18n.language, {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'short',
-    });
-  }
+  // Pages d'un parcours : dans l'ordre des jours.
+  const list = programId ? [...entries].sort((a, b) => (a.program_day ?? 0) - (b.program_day ?? 0)) : entries;
 
   return (
-    <View style={[styles.flex, { backgroundColor: palette.background }]}>
-      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <ChevronLeft size={24} color={palette.text} />
-          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-            {t('common.back')}
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={() => router.push(`/mindset-log?kind=${kind}` as any)}
-          hitSlop={12}
-          style={[styles.add, { backgroundColor: palette.text }]}
-        >
-          <Plus size={18} color={palette.background} />
-        </Pressable>
-      </View>
+    <MScreen>
+      <BackRow />
+      <Text style={mstyles.bigTitle}>{program?.title ?? t('v2mindset.journal.firstTitle')}</Text>
+      <Small>{t('v2mindset.entries.sub')}</Small>
 
-      <ScrollView
-        contentContainerStyle={{ paddingHorizontal: Spacing.xl, paddingBottom: insets.bottom + Spacing.xxl }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>{title}</Text>
+      {!loading && !list.length ? (
+        <Card tone="alt" style={{ marginTop: 10 }}>
+          <Small style={{ fontSize: 14 }}>{t('v2mindset.entries.empty')}</Small>
+        </Card>
+      ) : null}
 
-        <View style={[styles.search, { backgroundColor: palette.surface }]}>
-          <Search size={16} color={palette.textSecondary} />
-          <TextInput
-            value={query}
-            onChangeText={setQuery}
-            placeholder={t('entries.search')}
-            placeholderTextColor={palette.textSecondary}
-            style={[styles.searchInput, { color: palette.text, fontFamily: Fonts.sans }]}
-          />
-        </View>
-
-        {loading ? (
-          <ActivityIndicator color={palette.text} style={{ marginTop: Spacing.xl }} />
-        ) : filtered.length === 0 ? (
-          <Text style={[styles.empty, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-            {t('entries.empty')}
-          </Text>
-        ) : (
-          <View style={{ gap: Spacing.md, marginTop: Spacing.lg }}>
-            {filtered.map((e) => {
-              const MoodIcon = e.mood ? MOOD_ICON[e.mood] : null;
-              return (
-                <View key={e.id} style={[styles.card, { backgroundColor: palette.surface }]}>
-                  <View style={styles.cardHead}>
-                    <Text style={[styles.date, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-                      {formatDate(e.created_at)}
-                    </Text>
-                    {MoodIcon && <MoodIcon size={16} color={palette.textSecondary} strokeWidth={1.8} />}
-                  </View>
-                  <Text
-                    style={[styles.body, { color: palette.text, fontFamily: Fonts.sans }]}
-                    numberOfLines={kind === 'intention' ? 2 : 5}
-                  >
-                    {e.body}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-        )}
-      </ScrollView>
-    </View>
+      {list.map((e) => {
+        const info = e.kind === 'parcours' ? dayInfo[dayInfoKey(e)] : undefined;
+        const { title, excerpt } = entryPreview(e, info?.title);
+        const meta = [
+          shortDate(e.created_at),
+          e.kind === 'parcours' && e.program_day && program
+            ? t('v2mindset.parcours.dayChip', { n: e.program_day, total: program.day_count })
+            : t('v2mindset.journal.bilan'),
+        ].join(' · ');
+        return (
+          <Card key={e.id} tone="dark" onPress={() => router.push(`/mindset/page?id=${e.id}` as any)}>
+            <View style={[mstyles.rowBetween, { alignItems: 'flex-start' }]}>
+              <View style={{ flex: 1 }}>
+                <Small>{meta}</Small>
+                {title ? <Text style={s.title} numberOfLines={3}>{title}</Text> : null}
+                {excerpt ? <Small style={{ marginTop: 6, fontSize: 14 }}>{excerpt}</Small> : null}
+              </View>
+              <RoundButton icon={ArrowRight} variant="outline" size={44} />
+            </View>
+          </Card>
+        );
+      })}
+      <PrivateNote text={t('v2mindset.common.pagesPrivate')} />
+    </MScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  topBar: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg, paddingBottom: Spacing.sm,
-  },
-  back: { flexDirection: 'row', alignItems: 'center' },
-  backText: { fontSize: 15, marginLeft: 2 },
-  add: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  title: { fontSize: 30, letterSpacing: -0.5, marginTop: Spacing.lg, marginBottom: Spacing.lg },
-  search: {
-    flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
-    borderRadius: Radius.pill, paddingHorizontal: Spacing.lg, height: 46,
-  },
-  searchInput: { flex: 1, fontSize: 14, padding: 0 },
-  empty: { fontSize: 14, textAlign: 'center', marginTop: Spacing.xxxl, lineHeight: 20 },
-  card: { borderRadius: Radius.md, padding: Spacing.lg },
-  cardHead: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    marginBottom: Spacing.sm,
-  },
-  date: { fontSize: 12, textTransform: 'capitalize' },
-  body: { fontSize: 15, lineHeight: 21 },
+const s = StyleSheet.create({
+  title: { fontFamily: BFont.display, fontSize: 20, lineHeight: 24, color: Bby.text, marginTop: 6 },
 });

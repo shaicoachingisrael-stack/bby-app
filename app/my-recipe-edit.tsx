@@ -1,336 +1,293 @@
 import * as Crypto from 'expo-crypto';
+import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ChevronLeft, Trash2 } from 'lucide-react-native';
+import { Camera, Check, Plus, X } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { IngredientsEditor } from '@/components/ui/ingredients-editor';
-import { Segmented } from '@/components/ui/segmented';
-import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { ActionBar, BFont, Bby, Editorial, MacroTiles, PillButton, PillTabs, SectionHeader } from '@/components/bby/kit';
+import { Field, FieldLabel, FooterScreen, NavHeader, ScreenTitle, Stepper } from '@/components/bby/nutrition/ui';
 import { useAuth } from '@/lib/auth-provider';
-import {
-  draftsToPayload,
-  IngredientDraft,
-  ingredientsToText,
-  MEAL_LABEL_KEYS,
-  MEAL_TYPES,
-  newDraft,
-} from '@/lib/ingredients';
+import { draftsToPayload, formatNumber, ingredientsToText, newDraft } from '@/lib/ingredients';
+import { estimateMacros, useFoods } from '@/lib/nutrition/foods';
+import { mealLabel, MEALS, unitLabel } from '@/lib/nutrition/format';
+import { parseQuantityText } from '@/lib/nutrition/quantity';
+import { kcalOf } from '@/lib/nutrition/targets';
 import { supabase } from '@/lib/supabase';
 import type { MealType, Recipe, RecipeIngredient } from '@/lib/types';
 import { saveRecipeIngredients } from '@/lib/use-meal-plan';
+import { inferExt, pickMedia, uploadMedia, type PickedFile } from '@/lib/upload';
 
-// Créer / modifier une recette personnelle (brief Nutrition §3) : un titre, des
-// ingrédients avec quantités, des étapes. Les macros restent facultatives.
+type Line = { key: string; name: string; qty: string };
+let seq = 0;
+const line = (name = '', qty = ''): Line => ({ key: `l${(seq += 1)}`, name, qty });
+
+// Écran 7 — Ta recette : créer ou modifier une recette personnelle. Seul le nom
+// est obligatoire ; les macros sont estimées depuis les ingrédients, corrigeables
+// à la main, et ne bloquent jamais l'enregistrement.
 export default function MyRecipeEditScreen() {
-  const router = useRouter();
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
+  const router = useRouter();
   const { user } = useAuth();
-  const params = useLocalSearchParams<{ id?: string }>();
-  const id = params.id;
+  const { id } = useLocalSearchParams<{ id?: string }>();
   const isNew = !id;
   const recipeId = useMemo(() => id ?? Crypto.randomUUID(), [id]);
+  const foods = useFoods();
 
   const [title, setTitle] = useState('');
-  const [mealType, setMealType] = useState<MealType | null>(null);
-  const [drafts, setDrafts] = useState<IngredientDraft[]>(() => [newDraft(), newDraft(), newDraft()]);
+  const [meal, setMeal] = useState<MealType>('dejeuner');
+  const [servings, setServings] = useState(2);
+  const [lines, setLines] = useState<Line[]>(() => [line(), line(), line()]);
   const [steps, setSteps] = useState('');
-  const [protein, setProtein] = useState('');
-  const [fat, setFat] = useState('');
-  const [carbs, setCarbs] = useState('');
-  const [kcal, setKcal] = useState('');
+  const [cover, setCover] = useState<string | null>(null);
+  const [picked, setPicked] = useState<PickedFile | null>(null);
+  const [manual, setManual] = useState(false);
+  const [mP, setMP] = useState('');
+  const [mL, setML] = useState('');
+  const [mG, setMG] = useState('');
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (isNew) return;
     (async () => {
-      const [recipeRes, ingRes] = await Promise.all([
+      const [rec, ings] = await Promise.all([
         supabase.from('recipes').select('*').eq('id', id!).maybeSingle(),
         supabase.from('recipe_ingredients').select('*').eq('recipe_id', id!).order('position'),
       ]);
-      const r = recipeRes.data as Recipe | null;
+      const r = rec.data as (Recipe & { servings?: number | null }) | null;
       if (r) {
         setTitle(r.title);
-        setMealType(r.meal_type ?? null);
+        if (r.meal_type) setMeal(r.meal_type);
+        setServings(r.servings ?? 1);
         setSteps(r.steps ?? '');
-        setProtein(r.protein_g?.toString() ?? '');
-        setFat(r.fat_g?.toString() ?? '');
-        setCarbs(r.carbs_g?.toString() ?? '');
-        setKcal(r.kcal?.toString() ?? '');
+        setCover(r.cover_url);
+        // Macros déjà enregistrées : on les garde telles quelles (saisie à la main).
+        if (r.protein_g !== null || r.fat_g !== null || r.carbs_g !== null) {
+          setManual(true);
+          setMP(r.protein_g?.toString() ?? '');
+          setML(r.fat_g?.toString() ?? '');
+          setMG(r.carbs_g?.toString() ?? '');
+        }
       }
-      const ings = (ingRes.data as RecipeIngredient[] | null) ?? [];
-      if (ings.length > 0) {
-        setDrafts(
-          ings.map((i) =>
-            newDraft({
-              name: i.name,
-              quantity: i.quantity === null ? '' : `${Number(i.quantity)}`.replace('.', ','),
-              unit: i.unit,
-            }),
+      const list = (ings.data as RecipeIngredient[] | null) ?? [];
+      if (list.length) {
+        setLines(
+          list.map((i) =>
+            line(i.name, i.quantity === null ? '' : `${formatNumber(Number(i.quantity))}${i.unit ? ` ${unitLabel(t, i.unit)}` : ''}`),
           ),
         );
       }
       setLoading(false);
     })();
-  }, [id, isNew]);
+  }, [id, isNew]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function handleSave() {
-    if (!user) return;
+  const parsed = lines.map((l) => ({ name: l.name, ...parseQuantityText(l.qty) }));
+  const est = estimateMacros(foods, parsed, servings);
+  const num = (s: string) => {
+    const n = Number(s.replace(',', '.').replace(/[^\d.]/g, ''));
+    return Number.isFinite(n) && s.trim() !== '' ? Math.round(n) : null;
+  };
+  const macros = manual
+    ? { p: num(mP), l: num(mL), g: num(mG) }
+    : est.known > 0
+      ? { p: est.protein, l: est.fat, g: est.carb }
+      : { p: null, l: null, g: null };
+
+  const startManual = () => {
+    setMP(macros.p?.toString() ?? '');
+    setML(macros.l?.toString() ?? '');
+    setMG(macros.g?.toString() ?? '');
+    setManual(true);
+  };
+
+  const setLine = (key: string, patch: Partial<Line>) => setLines((prev) => prev.map((l) => (l.key === key ? { ...l, ...patch } : l)));
+
+  const choosePhoto = async () => {
+    try {
+      const f = await pickMedia('image');
+      if (f) {
+        setPicked(f);
+        setCover(f.uri);
+      }
+    } catch (e: any) {
+      Alert.alert(t('v2nutrition.common.error'), e?.message ?? '');
+    }
+  };
+
+  const save = async () => {
+    if (!user || saving) return;
     if (!title.trim()) {
-      Alert.alert(t('myRecipes.titleMissing'));
+      Alert.alert(t('v2nutrition.edit.nameMissing'));
       return;
     }
     setSaving(true);
     try {
-      const num = (s: string) => {
-        const n = Number.parseInt(s.replace(/\D/g, ''), 10);
-        return Number.isFinite(n) && n >= 0 ? n : null;
-      };
+      const drafts = parsed
+        .filter((p) => p.name.trim())
+        .map((p) => newDraft({ name: p.name, quantity: p.quantity === null ? '' : `${p.quantity}`, unit: p.unit }));
+      let coverUrl = cover && !picked ? cover : null;
+      if (picked) {
+        coverUrl = await uploadMedia('recipe-media', `user/${user.id}/${recipeId}.${inferExt(picked.mimeType, 'jpg')}`, picked);
+      }
       const payload = {
         title: title.trim(),
-        meal_type: mealType,
+        meal_type: meal,
+        servings,
         steps: steps.trim() || null,
         ingredients: ingredientsToText(drafts, t) || null,
-        protein_g: num(protein),
-        fat_g: num(fat),
-        carbs_g: num(carbs),
-        kcal: num(kcal),
+        protein_g: macros.p,
+        fat_g: macros.l,
+        carbs_g: macros.g,
+        kcal: macros.p !== null || macros.l !== null || macros.g !== null ? Math.round(kcalOf(macros.p ?? 0, macros.l ?? 0, macros.g ?? 0)) : null,
+        cover_url: coverUrl,
       };
-      if (isNew) {
-        const { error } = await supabase.from('recipes').insert({ id: recipeId, owner_id: user.id, ...payload });
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from('recipes').update(payload).eq('id', recipeId);
-        if (error) throw error;
-      }
+      const res = isNew
+        ? await supabase.from('recipes').insert({ id: recipeId, owner_id: user.id, ...payload })
+        : await supabase.from('recipes').update(payload).eq('id', recipeId);
+      if (res.error) throw res.error;
       await saveRecipeIngredients(recipeId, draftsToPayload(drafts));
       router.back();
     } catch (e: any) {
-      Alert.alert(t('common.saveImpossible'), e?.message ?? t('common.error'));
+      Alert.alert(t('v2nutrition.edit.saveError'), e?.message ?? '');
     } finally {
       setSaving(false);
     }
-  }
+  };
 
-  function handleDelete() {
-    Alert.alert(t('myRecipes.deleteConfirmTitle'), t('myRecipes.deleteConfirmBody'), [
-      { text: t('common.cancel'), style: 'cancel' },
+  const remove = () =>
+    Alert.alert(t('v2nutrition.edit.deleteTitle'), t('v2nutrition.edit.deleteBody'), [
+      { text: t('v2nutrition.common.cancel'), style: 'cancel' },
       {
-        text: t('common.delete'),
+        text: t('v2nutrition.edit.delete'),
         style: 'destructive',
         onPress: async () => {
           const { error } = await supabase.from('recipes').delete().eq('id', recipeId);
-          if (error) {
-            Alert.alert(t('common.error'), error.message);
-            return;
-          }
-          // Retour à la bibliothèque : la fiche de la recette supprimée n'existe plus.
-          router.dismissTo('/my-recipes' as any);
+          if (error) return Alert.alert(t('v2nutrition.common.error'), error.message);
+          router.dismissTo({ pathname: '/(tabs)/nutrition', params: { section: 'recettes', at: `${Date.now()}` } } as any);
         },
       },
     ]);
-  }
 
   if (loading) {
     return (
-      <View style={[styles.flex, { backgroundColor: palette.background, alignItems: 'center', justifyContent: 'center' }]}>
-        <ActivityIndicator color={palette.text} />
+      <View style={{ flex: 1, backgroundColor: Bby.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color={Bby.text} />
       </View>
     );
   }
 
-  const field = {
-    backgroundColor: palette.surface,
-    borderColor: palette.border,
-    color: palette.text,
-    fontFamily: Fonts.sans,
-  };
-  const mealOptions = MEAL_TYPES.map((m) => ({ value: m, label: t(MEAL_LABEL_KEYS[m]) }));
+  const labels: [string, string, string] = [t('v2nutrition.macro.protein'), t('v2nutrition.macro.fat'), t('v2nutrition.macro.carb')];
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={[styles.flex, { backgroundColor: palette.background }]}
+    <FooterScreen
+      footer={<ActionBar icon={Check} label={t('v2nutrition.edit.save')} onPress={save} disabled={saving} trailing={saving ? <ActivityIndicator color={Bby.ink} /> : undefined} />}
     >
-      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <ChevronLeft size={24} color={palette.text} />
-          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-            {t('common.back')}
-          </Text>
-        </Pressable>
-        <Pressable onPress={handleSave} disabled={saving} hitSlop={12}>
-          {saving ? (
-            <ActivityIndicator color={palette.text} />
-          ) : (
-            <Text style={[styles.action, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-              {t('common.save')}
-            </Text>
-          )}
-        </Pressable>
+      <NavHeader />
+      <ScreenTitle>{t('v2nutrition.edit.title')}</ScreenTitle>
+
+      <FieldLabel>{t('v2nutrition.edit.name')}</FieldLabel>
+      <Field value={title} onChangeText={setTitle} placeholder={t('v2nutrition.edit.namePlaceholder')} />
+
+      <FieldLabel>{t('v2nutrition.edit.category')}</FieldLabel>
+      <PillTabs items={MEALS.map((m) => ({ key: m, label: mealLabel(t, m) }))} value={meal} onChange={setMeal} />
+
+      <Stepper
+        label={t('v2nutrition.common.people', { count: servings })}
+        onMinus={() => setServings((n) => Math.max(1, n - 1))}
+        onPlus={() => setServings((n) => Math.min(20, n + 1))}
+        minusDisabled={servings <= 1}
+      />
+
+      <FieldLabel>{t('v2nutrition.edit.ingredients')}</FieldLabel>
+      {lines.map((l) => (
+        <View key={l.key} style={s.lineRow}>
+          <Field style={{ flex: 1 }} value={l.name} onChangeText={(v) => setLine(l.key, { name: v })} placeholder={t('v2nutrition.edit.ingredientPlaceholder')} />
+          <Field style={{ width: 112 }} value={l.qty} onChangeText={(v) => setLine(l.key, { qty: v })} placeholder={t('v2nutrition.edit.qtyPlaceholder')} />
+          {lines.length > 1 ? (
+            <Pressable onPress={() => setLines((prev) => prev.filter((x) => x.key !== l.key))} hitSlop={8} accessibilityRole="button" accessibilityLabel={t('v2nutrition.edit.removeIngredient')}>
+              <X size={18} color={Bby.muted} />
+            </Pressable>
+          ) : null}
+        </View>
+      ))}
+      <PillButton label={t('v2nutrition.edit.addIngredient')} icon={Plus} variant="outline" style={{ alignSelf: 'flex-start', height: 44 }} onPress={() => setLines((p) => [...p, line()])} />
+
+      <FieldLabel>{t('v2nutrition.edit.steps')}</FieldLabel>
+      <Field multiline value={steps} onChangeText={setSteps} placeholder={t('v2nutrition.edit.stepsPlaceholder')} />
+
+      <Pressable onPress={choosePhoto} style={[s.photo, !cover && s.photoEmpty]} accessibilityRole="button" accessibilityLabel={t('v2nutrition.edit.addPhoto')}>
+        {cover ? (
+          <Image source={{ uri: cover }} style={StyleSheet.absoluteFill} contentFit="cover" />
+        ) : (
+          <View style={s.row8}>
+            <Camera size={18} color={Bby.muted} />
+            <Text style={s.photoText}>{t('v2nutrition.edit.addPhoto')}</Text>
+          </View>
+        )}
+      </Pressable>
+
+      <SectionHeader title={t('v2nutrition.edit.macrosTitle')} />
+      {manual ? (
+        <View style={s.tiles}>
+          {[
+            [mP, setMP],
+            [mL, setML],
+            [mG, setMG],
+          ].map(([v, set], i) => (
+            <View key={i} style={s.tile}>
+              <Text style={s.tileLabel}>{labels[i]}</Text>
+              <View style={s.tileRow}>
+                <TextInput
+                  value={v as string}
+                  onChangeText={set as (s: string) => void}
+                  keyboardType="number-pad"
+                  placeholder="—"
+                  placeholderTextColor={Bby.mutedOnLight}
+                  style={s.tileInput}
+                  accessibilityLabel={labels[i]}
+                />
+                <Text style={s.tileUnit}>{t('v2nutrition.common.g')}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      ) : (
+        <MacroTiles labels={labels} values={[macros.p ?? '—', macros.l ?? '—', macros.g ?? '—']} />
+      )}
+      <Editorial style={s.editorial}>{t('v2nutrition.edit.estimate')}</Editorial>
+      {!manual && est.unknown > 0 && est.known > 0 ? <Text style={s.small}>{t('v2nutrition.edit.partial')}</Text> : null}
+      <View style={s.row8}>
+        {manual ? (
+          <PillButton label={t('v2nutrition.edit.backToEstimate')} variant="outline" style={{ height: 44 }} onPress={() => setManual(false)} />
+        ) : (
+          <PillButton label={t('v2nutrition.edit.adjust')} variant="outline" style={{ height: 44 }} onPress={startManual} />
+        )}
       </View>
 
-      <ScrollView
-        contentContainerStyle={{
-          paddingHorizontal: Spacing.xl,
-          paddingBottom: insets.bottom + Spacing.xxl,
-          gap: Spacing.lg,
-        }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          {isNew ? t('myRecipes.newTitle') : t('myRecipes.editTitle')}
-        </Text>
-
-        <Field label={t('myRecipes.fieldTitle')} palette={palette}>
-          <TextInput
-            value={title}
-            onChangeText={setTitle}
-            placeholder={t('myRecipes.titlePlaceholder')}
-            placeholderTextColor={palette.textSecondary}
-            style={[styles.input, field]}
-          />
-        </Field>
-
-        <Field label={t('myRecipes.fieldMeal')} palette={palette}>
-          <View style={{ gap: Spacing.sm }}>
-            <Segmented value={mealType} options={mealOptions.slice(0, 2)} onChange={setMealType} />
-            <Segmented value={mealType} options={mealOptions.slice(2)} onChange={setMealType} />
-          </View>
-        </Field>
-
-        <Field label={t('recipe.ingredients')} palette={palette}>
-          <IngredientsEditor value={drafts} onChange={setDrafts} />
-        </Field>
-
-        <Field label={t('recipe.steps')} palette={palette}>
-          <TextInput
-            value={steps}
-            onChangeText={setSteps}
-            placeholder={t('myRecipes.stepsPlaceholder')}
-            placeholderTextColor={palette.textSecondary}
-            multiline
-            style={[styles.textarea, field]}
-          />
-        </Field>
-
-        <Field label={t('myRecipes.fieldMacros')} palette={palette}>
-          <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
-            <MacroInput label={t('myRecipes.protein')} value={protein} onChange={setProtein} palette={palette} field={field} />
-            <MacroInput label={t('myRecipes.fats')} value={fat} onChange={setFat} palette={palette} field={field} />
-            <MacroInput label={t('myRecipes.carbs')} value={carbs} onChange={setCarbs} palette={palette} field={field} />
-            <MacroInput label={t('common.kcal')} value={kcal} onChange={setKcal} palette={palette} field={field} />
-          </View>
-        </Field>
-
-        {!isNew && (
-          <Pressable
-            onPress={handleDelete}
-            style={({ pressed }) => [styles.danger, { opacity: pressed ? 0.85 : 1 }]}
-          >
-            <Trash2 size={18} color={Palette.albatre} />
-            <Text style={[styles.dangerText, { fontFamily: Fonts.sansSemibold }]}>
-              {t('myRecipes.delete')}
-            </Text>
-          </Pressable>
-        )}
-      </ScrollView>
-    </KeyboardAvoidingView>
+      {!isNew ? (
+        <Pressable onPress={remove} hitSlop={8} style={{ alignSelf: 'center', paddingVertical: 18 }}>
+          <Text style={s.delete}>{t('v2nutrition.edit.delete')}</Text>
+        </Pressable>
+      ) : null}
+    </FooterScreen>
   );
 }
 
-function Field({ label, children, palette }: { label: string; children: React.ReactNode; palette: any }) {
-  return (
-    <View style={{ gap: Spacing.sm }}>
-      <Text style={{ color: palette.textSecondary, fontFamily: Fonts.sansMedium, fontSize: 11, letterSpacing: 1.4 }}>
-        {label.toUpperCase()}
-      </Text>
-      {children}
-    </View>
-  );
-}
-
-function MacroInput({
-  label,
-  value,
-  onChange,
-  palette,
-  field,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  palette: any;
-  field: any;
-}) {
-  return (
-    <View style={{ flex: 1, gap: 4 }}>
-      <TextInput
-        value={value}
-        onChangeText={onChange}
-        placeholder="—"
-        placeholderTextColor={palette.textSecondary}
-        keyboardType="number-pad"
-        style={[styles.input, styles.macroInput, field]}
-      />
-      <Text numberOfLines={1} style={{ color: palette.textSecondary, fontFamily: Fonts.sans, fontSize: 11, textAlign: 'center' }}>
-        {label}
-      </Text>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.sm,
-  },
-  back: { flexDirection: 'row', alignItems: 'center' },
-  backText: { fontSize: 15, marginLeft: 2 },
-  action: { fontSize: 15 },
-  title: { fontSize: 28, letterSpacing: -0.5, marginTop: Spacing.lg },
-  input: { height: 52, borderRadius: Radius.md, borderWidth: 1, paddingHorizontal: Spacing.lg, fontSize: 16 },
-  macroInput: { paddingHorizontal: 4, textAlign: 'center' },
-  textarea: {
-    minHeight: 140,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    padding: Spacing.lg,
-    fontSize: 15,
-    lineHeight: 22,
-    textAlignVertical: 'top',
-  },
-  danger: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.sm,
-    height: 52,
-    borderRadius: Radius.md,
-    backgroundColor: '#A8362A',
-    marginTop: Spacing.lg,
-  },
-  dangerText: { color: Palette.albatre, fontSize: 15 },
+const s = StyleSheet.create({
+  row8: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  lineRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  photo: { height: 120, borderRadius: 26, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', marginTop: 6 },
+  photoEmpty: { borderWidth: 1.5, borderStyle: 'dashed', borderColor: Bby.line, height: 56 },
+  photoText: { fontFamily: BFont.sansMedium, fontSize: 14, color: Bby.muted },
+  editorial: { fontSize: 16, lineHeight: 22 },
+  small: { fontFamily: BFont.sans, fontSize: 13, color: Bby.muted },
+  delete: { fontFamily: BFont.sansMedium, fontSize: 14, color: Bby.muted, textDecorationLine: 'underline' },
+  tiles: { flexDirection: 'row', gap: 8 },
+  tile: { flex: 1, backgroundColor: Bby.yellow, borderRadius: 18, padding: 12, minHeight: 110, justifyContent: 'space-between' },
+  tileLabel: { fontFamily: BFont.sansMedium, fontSize: 13, color: Bby.ink },
+  tileRow: { flexDirection: 'row', alignItems: 'flex-end' },
+  tileInput: { fontFamily: BFont.display, fontSize: 34, color: Bby.ink, flex: 1, padding: 0, borderBottomWidth: 1.5, borderBottomColor: Bby.ink },
+  tileUnit: { fontFamily: BFont.display, fontSize: 16, color: Bby.ink, marginLeft: 2, marginBottom: 4 },
 });

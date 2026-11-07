@@ -1,133 +1,62 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Plus } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Alert, StyleSheet, Text } from 'react-native';
 
-import { Segmented } from '@/components/ui/segmented';
-import { AccentFill } from '@/components/ui/accent-fill';
-import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { ActionBar, BFont, Bby, PillTabs, WeekStrip, isoDay, weekOf } from '@/components/bby/kit';
+import { FieldLabel, FooterScreen, NavHeader, ScreenTitle } from '@/components/bby/nutrition/ui';
 import { useAuth } from '@/lib/auth-provider';
-import { DAY_KEYS, MEAL_LABEL_KEYS, MEAL_TYPES } from '@/lib/ingredients';
-import { supabase } from '@/lib/supabase';
+import { dayIndex, mealLabel, MEALS, weekLetters } from '@/lib/nutrition/format';
+import { setSlot } from '@/lib/nutrition/menu';
 import type { MealType } from '@/lib/types';
+import { useRecipe } from '@/lib/use-content';
+import { useMenu } from '@/lib/use-meal-plan';
 
-// Depuis une fiche recette : « Ajouter à mon menu ». On choisit le ou les jours
-// et le repas ; les ingrédients rejoignent la liste de courses tout seuls.
+// « Ajouter à mon menu » depuis une recette : choisir le jour et le repas, puis
+// la recette rejoint le menu (et ses ingrédients la liste de courses).
 export default function MenuAddScreen() {
+  const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
   const { user } = useAuth();
   const params = useLocalSearchParams<{ recipe?: string; meal?: string }>();
-  const recipeId = params.recipe;
-
-  const [meal, setMeal] = useState<MealType>(
-    MEAL_TYPES.includes(params.meal as MealType) ? (params.meal as MealType) : 'dejeuner',
-  );
-  const [days, setDays] = useState<number[]>([]);
+  const { recipe } = useRecipe(params.recipe);
+  const { items } = useMenu();
+  const today = new Date();
+  const days = weekOf(today, weekLetters(i18n.language));
+  const [day, setDay] = useState(isoDay(today));
+  const [meal, setMeal] = useState<MealType>((MEALS as string[]).includes(params.meal ?? '') ? (params.meal as MealType) : 'dejeuner');
   const [saving, setSaving] = useState(false);
 
-  const mealOptions = MEAL_TYPES.map((m) => ({ value: m, label: t(MEAL_LABEL_KEYS[m]) }));
-  const toggleDay = (d: number) =>
-    setDays((prev) => (prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d]));
+  const di = Math.max(0, days.findIndex((d) => d.key === day));
+  const taken = items.find((m) => m.day === di && m.meal_type === meal && m.recipe && m.recipe_id !== params.recipe);
 
-  async function handleAdd() {
-    if (!user || !recipeId || days.length === 0) return;
+  const add = async () => {
+    if (!user || !params.recipe || saving) return;
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from('menu_items')
-        .insert(days.map((day) => ({ user_id: user.id, day, meal_type: meal, recipe_id: recipeId })));
-      if (error) throw error;
-      router.back();
+      await setSlot(user.id, di, meal, params.recipe, items);
+      router.dismissTo({ pathname: '/(tabs)/nutrition', params: { section: 'menu', at: `${Date.now()}` } } as any);
     } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message ?? '');
+      Alert.alert(t('v2nutrition.common.error'), e?.message ?? '');
       setSaving(false);
     }
-  }
+  };
 
   return (
-    <View style={[styles.flex, { backgroundColor: palette.background, paddingTop: Spacing.xl, paddingBottom: insets.bottom + Spacing.lg }]}>
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          {t('menu.addToMenu')}
-        </Text>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <Text style={{ color: palette.textSecondary, fontFamily: Fonts.sansMedium, fontSize: 15 }}>
-            {t('common.close')}
-          </Text>
-        </Pressable>
-      </View>
-
-      <Text style={[styles.label, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-        {t('menu.whichDays').toUpperCase()}
-      </Text>
-      <View style={styles.days}>
-        {DAY_KEYS.map((key, d) => {
-          const selected = days.includes(d);
-          return (
-            <Pressable
-              key={key}
-              onPress={() => toggleDay(d)}
-              accessibilityState={{ selected }}
-              style={[
-                styles.day,
-                { backgroundColor: selected ? palette.text : palette.surface },
-              ]}
-            >
-              <Text
-                style={{
-                  color: selected ? palette.background : palette.text,
-                  fontFamily: selected ? Fonts.sansSemibold : Fonts.sansMedium,
-                  fontSize: 13,
-                }}
-              >
-                {t(`dateStrip.${key}`)}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
-
-      <Text style={[styles.label, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-        {t('menu.whichMeal').toUpperCase()}
-      </Text>
-      <View style={{ gap: Spacing.sm }}>
-        <Segmented value={meal} options={mealOptions.slice(0, 2)} onChange={setMeal} />
-        <Segmented value={meal} options={mealOptions.slice(2)} onChange={setMeal} />
-      </View>
-
-      <View style={{ flex: 1 }} />
-      <Pressable
-        onPress={handleAdd}
-        disabled={saving || days.length === 0}
-        style={({ pressed }) => [
-          styles.cta,
-          { backgroundColor: palette.accent, overflow: 'hidden', opacity: days.length === 0 ? 0.35 : pressed || saving ? 0.85 : 1 },
-        ]}
-      >
-        <AccentFill />
-        {saving ? (
-          <ActivityIndicator color={palette.onAccent} />
-        ) : (
-          <Text style={{ color: palette.onAccent, fontFamily: Fonts.sansSemibold, fontSize: 15 }}>
-            {t('menu.addToMenu')}
-          </Text>
-        )}
-      </Pressable>
-    </View>
+    <FooterScreen footer={<ActionBar icon={Plus} label={t('v2nutrition.menuAdd.add')} onPress={add} disabled={saving || !recipe} note={t('v2nutrition.recipe.addNote')} />}>
+      <NavHeader />
+      <ScreenTitle sub={recipe?.title}>{t('v2nutrition.menuAdd.title')}</ScreenTitle>
+      <FieldLabel>{t('v2nutrition.menuAdd.day')}</FieldLabel>
+      <WeekStrip days={days} selected={day} onSelect={setDay} boxed />
+      <FieldLabel>{t('v2nutrition.menuAdd.meal')}</FieldLabel>
+      <PillTabs items={MEALS.map((m) => ({ key: m, label: mealLabel(t, m) }))} value={meal} onChange={setMeal} />
+      {taken?.recipe ? <Text style={s.note}>{t('v2nutrition.menuAdd.replaces', { name: taken.recipe.title })}</Text> : null}
+      {di < dayIndex(today) ? <Text style={s.note}>{t('v2nutrition.menuAdd.pastDay')}</Text> : null}
+    </FooterScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, paddingHorizontal: Spacing.xl },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 24, letterSpacing: -0.4 },
-  label: { fontSize: 11, letterSpacing: 1.4, marginTop: Spacing.xl, marginBottom: Spacing.sm },
-  days: { flexDirection: 'row', gap: 6 },
-  day: { flex: 1, height: 44, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
-  cta: { height: 52, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
+const s = StyleSheet.create({
+  note: { fontFamily: BFont.sans, fontSize: 13, color: Bby.muted, marginTop: 6 },
 });

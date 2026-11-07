@@ -1,0 +1,239 @@
+{
+  "title": "Nutrition",
+  "tabs": { "today": "Today", "recipes": "Recipes", "menu": "Menu", "shopping": "Shopping" },
+  "common": {
+    "back": "Back",
+    "cancel": "Cancel",
+    "done": "Done",
+    "ok": "OK",
+    "error": "Something went wrong",
+    "g": "g",
+    "kcal": "{{kcal}} kcal",
+    "kcalAbout": "About {{kcal}} kcal",
+    "liters": "{{l}} L",
+    "minutes": "{{n}} min",
+    "plg": "P {{p}} · F {{l}} · C {{g}}",
+    "legend": "P protein · F fat · C carbs, in grams.",
+    "people_one": "{{count}} person",
+    "people_other": "{{count}} people",
+    "less": "One person less",
+    "more": "One person more"
+  },
+  "macro": { "protein": "Protein", "fat": "Fat", "carb": "Carbs" },
+  "meal": { "petit_dejeuner": "Breakfast", "dejeuner": "Lunch", "diner": "Dinner", "collation": "Snack" },
+  "today": {
+    "plainTitle": "Your guides for today",
+    "kcalPlain": "About {{kcal}} kcal · your reference point",
+    "noTargets": "Complete your profile to see today's guides.",
+    "meals": "Your meals",
+    "myMenu": "My menu",
+    "chooseMeal": "Choose a meal",
+    "prepareWeek": "Plan my week",
+    "waterAbout": "About {{l}} L",
+    "waterRhythm": "your daily rhythm",
+    "trackedTitle": "Today",
+    "trackedSub": "{{date}} · Tracking on",
+    "landmark": "guide {{v}} {{u}}",
+    "kcalTracked": "{{kcal}} kcal · guide {{target}}",
+    "waterTracked": "your rhythm: about {{l}} L",
+    "add20": "+ 20 cl",
+    "add50": "+ 50 cl"
+  },
+  "journal": {
+    "title": "Your journal",
+    "note": "Log my meal",
+    "noteShort": "Log",
+    "removeTitle": "Remove from your journal?",
+    "remove": "Remove"
+  },
+  "plate": {
+    "cardTitle": "Your plate",
+    "rhythmLine": "Rhythm · {{rhythm}}",
+    "title": "Your plate",
+    "sub": "A simple structure to build a meal. Not a rule.",
+    "yours": "Your rhythm",
+    "veg": "Vegetables",
+    "protein": "Protein",
+    "starch": "Starches",
+    "fatTitle": "What about fats?",
+    "fatBody": "They slip in around the plate: a drizzle of oil, a handful of nuts, half an avocado.",
+    "editorial": "The portions shift a little with your rhythm. The idea stays the same.",
+    "seeRecipes": "See recipes",
+    "changeRhythm": "Change my rhythm"
+  },
+  "fraction": { "half": "half", "third": "a third", "quarter": "a quarter", "sixth": "a sixth" },
+  "rhythm": {
+    "perte_de_gras": {
+      "title": "Fat loss",
+      "sub": "A little less energy, never below your needs.",
+      "plate": "Half vegetables, a third protein, a sixth starches."
+    },
+    "maintien": {
+      "title": "Maintenance",
+      "sub": "You keep your current balance.",
+      "plate": "Half vegetables, a quarter protein, a quarter starches."
+    },
+    "prise_de_masse": {
+      "title": "Muscle gain",
+      "sub": "A little more energy to build.",
+      "plate": "A third vegetables, a third protein, a third starches."
+    }
+  },
+  "settings": {
+    "title": "Nutrition display",
+    "sub": "Choose how you want to see your guides.",
+    "default": "Default",
+    "plain": {
+      "title": "No tracking",
+      "sub": "Macros show up as a guide. You don't count anything, you don't tick anything."
+    },
+    "tracked": {
+      "title": "With tracking",
+      "sub": "You follow your macros and calories through the day. No red, no judgment."
+    },
+    "calories": { "title": "Show calories", "sub": "Macros stay front and center." },
+    "rhythmTitle": "Your current rhythm",
+    "rhythmSub": "It sets your guides and your plate.",
+    "rhythmSaved": "Noted: your guides and your plate now follow this rhythm.",
+    "seePlate": "See my plate",
+    "editorial": "You can change your mind anytime."
+  },
+  "recipes": {
+    "tiltTitle": "Your library",
+    "tiltText": "BBY recipes, and yours.",
+    "create": "Create my recipe",
+    "mine": "My recipe",
+    "empty": "No recipes here yet.",
+    "emptyMine": "You don't have a recipe of your own yet. Create the first one whenever you like.",
+    "filter": {
+      "all": "All",
+      "petit_dejeuner": "Breakfast",
+      "dejeuner": "Lunch",
+      "diner": "Dinner",
+      "collation": "Snacks",
+      "mine": "Mine"
+    }
+  },
+  "recipe": {
+    "notFound": "This recipe is no longer available.",
+    "photo": "Recipe photo",
+    "perPortion": "Per portion",
+    "ingredients": "Ingredients",
+    "steps": "Method",
+    "addToMenu": "Add to my menu",
+    "addNote": "The ingredients go to your shopping list.",
+    "favorite": "Add to my favorites",
+    "unfavorite": "Remove from my favorites",
+    "edit": "Edit my recipe",
+    "videos": "On video"
+  },
+  "edit": {
+    "title": "Your recipe",
+    "name": "Name",
+    "namePlaceholder": "Lemon chicken & brown rice",
+    "nameMissing": "Give your recipe a name.",
+    "category": "Meal",
+    "ingredients": "Ingredients",
+    "ingredientPlaceholder": "Ingredient",
+    "qtyPlaceholder": "300 g",
+    "removeIngredient": "Remove this ingredient",
+    "addIngredient": "Add an ingredient",
+    "steps": "Method",
+    "stepsPlaceholder": "The steps, one per line.",
+    "addPhoto": "Add a photo",
+    "macrosTitle": "Macros calculated automatically",
+    "estimate": "An estimate per portion. You can correct it.",
+    "partial": "Some ingredients aren't recognized: the estimate is partial.",
+    "adjust": "Adjust by hand",
+    "backToEstimate": "Back to the estimate",
+    "save": "Save my recipe",
+    "saveError": "Couldn't save",
+    "delete": "Delete my recipe",
+    "deleteTitle": "Delete this recipe?",
+    "deleteBody": "It also disappears from your menu and your shopping list."
+  },
+  "log": {
+    "title": "What did you eat?",
+    "for": {
+      "petit_dejeuner": "For your breakfast.",
+      "dejeuner": "For your lunch.",
+      "diner": "For your dinner.",
+      "collation": "For your snack."
+    },
+    "searchPlaceholder": "Search for a food",
+    "dictation": "Dictate",
+    "barcode": "Barcode",
+    "photo": "Meal photo",
+    "tabs": { "recent": "Recent", "favorites": "Favorites", "mine": "My recipes" },
+    "onePortion": "1 portion",
+    "addA11y": "Add one portion: {{name}}",
+    "noResult": "Nothing found yet. Try another word.",
+    "emptyRecent": "What you log will show up here.",
+    "emptyFavorites": "Save a recipe as a favorite from its page: it will show up here.",
+    "emptyMine": "Your recipes will show up here.",
+    "editorial": "A photo? The Coach helps you confirm what's on the plate."
+  },
+  "soon": {
+    "title": "Coming soon",
+    "body": "This feature is coming soon.",
+    "barcode": "Barcode scanning is coming soon. Meanwhile, search for the food by name.",
+    "photo": "Meal photos are coming soon. Meanwhile, search for the foods by name."
+  },
+  "menu": {
+    "tiltTitle": "Your week",
+    "tiltText": "Made for you. Change whatever you like.",
+    "regenerate": "Regenerate",
+    "compose": "Compose",
+    "regenTitle": "Regenerate your week?",
+    "regenBody": "This week's meals will be replaced with a new suggestion.",
+    "composeTitle": "Compose your week",
+    "composeBody": "We clear the week and you pick each meal yourself, slot by slot.",
+    "composeEmpty": "Tap a slot to choose its meal.",
+    "noRecipesTitle": "No recipes yet",
+    "noRecipesBody": "Recipes sorted by meal are needed to build a week.",
+    "swapTitle": "Change this meal",
+    "swapOther": "Another idea",
+    "swapPick": "Pick it myself",
+    "noAltTitle": "No other idea for this meal",
+    "noAltBody": "Pick one from the library.",
+    "removeSlot": "Remove this meal from the menu",
+    "seeShopping": "See my shopping list"
+  },
+  "menuAdd": {
+    "title": "Add to my menu",
+    "day": "Day",
+    "meal": "Meal",
+    "add": "Add",
+    "replaces": "Replaces: {{name}}",
+    "pastDay": "This day has already passed this week: the meal stays in your menu for the weeks ahead."
+  },
+  "shopping": {
+    "tiltTitle": "This week",
+    "tiltText": "Your list fills up with your menu.",
+    "counterA11y": "{{done}} of {{total}} items checked",
+    "manual": "Added by hand",
+    "fromRecipes_one": "{{count}} recipe",
+    "fromRecipes_other": "{{count}} recipes",
+    "addPlaceholder": "Add an item",
+    "add": "Add the item",
+    "clear": "Clear the list",
+    "clearTitle": "Clear your list?",
+    "clearBody": "All items will be removed.",
+    "empty": "Your list is empty. It fills up when you add meals to your menu."
+  },
+  "aisle": {
+    "fruits_legumes": "Fruit & vegetables",
+    "viandes_poissons": "Meat & fish",
+    "cremerie": "Dairy & chilled",
+    "epicerie": "Pantry",
+    "surgeles": "Frozen",
+    "boissons": "Drinks",
+    "autre": "Other"
+  },
+  "unit": { "g": "g", "kg": "kg", "ml": "ml", "cl": "cl", "l": "L", "cas": "tbsp", "cac": "tsp" },
+  "water": {
+    "title": "Your water",
+    "sub": "What you've drunk today.",
+    "editorial": "A glass beside you is already a gesture."
+  }
+}

@@ -1,318 +1,310 @@
+// Aujourd'hui — refonte de Shaï (nov. 2026, « BBY — Aujourd'hui.pdf »).
+// Le mois en grand, la semaine, UNE carte jaune inclinée (ton geste de parcours,
+// sinon ton intention posée hier soir, sinon l'accueil), puis « Ta journée » :
+// séance, nutrition, rituels — cartes séparées, aucun score.
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { ArrowLeft, ArrowRight, Check, Play, Plus } from 'lucide-react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Image } from 'expo-image';
-import { Bell, BookOpen, Check, Clock, Droplet, PenLine, Play, Star, Utensils, Wind } from 'lucide-react-native';
-import { useCallback } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { AccentFill } from '@/components/ui/accent-fill';
+import {
+  BbyScreen,
+  BFont,
+  Bby,
+  Editorial,
+  PhotoCard,
+  PillButton,
+  RoundButton,
+  RowCard,
+  SectionHeader,
+  TiltCard,
+  TopBar,
+  WeekStrip,
+  isoDay,
+  weekOf,
+} from '@/components/bby/kit';
 import { AdminButton } from '@/components/ui/admin-button';
-import { LanguageButton } from '@/components/ui/language-button';
-import { IconBadge, IconTile, SectionLabel, TileCard, TileColors, TileText, type TileColor } from '@/components/ui/tiles';
-import { Colors, Fonts } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
-import { ritualIcon } from '@/lib/ritual-icons';
-import { useMyCoaching } from '@/lib/use-coaching';
-import { useRecipes, useTodaySession } from '@/lib/use-content';
+import { supabase } from '@/lib/supabase';
+import { useTodayMindset } from '@/lib/mindset/use-today-mindset';
+import type { MealType } from '@/lib/types';
+import { useTodaySession } from '@/lib/use-content';
+import { useDayData } from '@/lib/use-day-data';
+import { useMenu } from '@/lib/use-meal-plan';
 import { useProfile } from '@/lib/use-profile';
-import { useRituals } from '@/lib/use-rituals';
 
-// Couleur des rituels pas encore cochés, dans l'ordre.
-const RITUAL_COLORS: TileColor[] = ['rose', 'blue', 'violet', 'orange', 'mint'];
-
-// Aujourd'hui (maquette « en tuiles ») : la séance du jour en grand, puis des
-// carrés à grosse icône — j'ajoute, mes rituels, pour toi. Un ou deux mots par
-// carré, aucun compteur de jours, aucune récompense.
-export default function TodayScreen() {
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
-  const router = useRouter();
-  const { t, i18n } = useTranslation();
-  const { user } = useAuth();
-  const { profile } = useProfile();
-  const { session: todaySession, loading: sessionLoading, refresh: refreshToday } = useTodaySession();
-  const { recipes, refresh: refreshRecipes } = useRecipes();
-  const { rituals, checkedToday, loading: ritualsLoading, toggleCheck, refresh: refreshRituals } = useRituals();
-  const { isClient: hasCoach, refresh: refreshCoaching } = useMyCoaching();
-
-  useFocusEffect(
-    useCallback(() => {
-      refreshToday();
-      refreshRecipes();
-      refreshRituals();
-      refreshCoaching();
-    }, [refreshToday, refreshRecipes, refreshRituals, refreshCoaching]),
-  );
-
-  // Tant que le profil n'est pas là, pas de repli sur l'e-mail (sinon « Bonjour Appreview.bby » une seconde).
-  const firstName = profile
-    ? (profile.display_name || user?.email?.split('@')[0] || '').split(' ')[0]
-    : '';
-  const initial = (firstName || ' ')[0].toUpperCase();
-  const dateLabel = new Date().toLocaleDateString(i18n.language, { weekday: 'long', day: 'numeric', month: 'long' });
-  // un repas ne s'enregistre que si le suivi nutrition est activé ; sinon le carré ouvre le menu
-  const tracking = profile?.nutrition_tracking === true;
-  const featuredRecipe = recipes[0];
-  const doneCount = rituals.filter((r) => checkedToday.has(r.id)).length;
-
-  return (
-    <View style={[styles.container, { backgroundColor: palette.background }]}>
-      <ScrollView
-        contentContainerStyle={[styles.content, { paddingTop: insets.top + 16 }]}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* En-tête : date + prénom, puis cloche et avatar */}
-        <View style={styles.header}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.eyebrow}>{dateLabel.toUpperCase()}</Text>
-            <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={[styles.hello, { fontFamily: Fonts.displayBold }]}>
-              {t('today.hello', { name: firstName ? capitalize(firstName) : '' }).replace(/,\s*$/, '')}
-            </Text>
-          </View>
-          <AdminButton />
-          <LanguageButton />
-          <TileCard
-            onPress={() => router.push('/notifications' as any)}
-            accessibilityLabel="Notifications"
-            radius={15}
-            style={styles.square}
-          >
-            <Bell size={20} color={TileText.primary} strokeWidth={1.9} />
-          </TileCard>
-          <Pressable
-            onPress={() => router.push('/account' as any)}
-            hitSlop={8}
-            style={styles.avatarRing}
-            accessibilityLabel={t('account.title')}
-          >
-            <AccentFill />
-            <View style={styles.avatarInner}>
-              {profile?.avatar_url ? (
-                <Image source={{ uri: profile.avatar_url }} style={StyleSheet.absoluteFillObject} contentFit="cover" />
-              ) : (
-                <Text style={[styles.avatarInitial, { fontFamily: Fonts.displayBold }]}>{initial}</Text>
-              )}
-            </View>
-          </Pressable>
-        </View>
-
-        {/* La seule zone lumineuse de l'écran : la séance du jour */}
-        <Pressable
-          onPress={() => router.push((todaySession ? `/session/${todaySession.id}` : '/training') as any)}
-          style={({ pressed }) => [styles.hero, pressed && { transform: [{ scale: 0.98 }] }]}
-        >
-          <AccentFill />
-          <View pointerEvents="none" style={styles.heroDisc} />
-          <View pointerEvents="none" style={styles.heroRing} />
-          <View style={{ flex: 1 }}>
-            <View style={styles.heroTag}>
-              <Text style={[styles.heroTagText, { color: palette.onAccent }]}>
-                {t('today.sessionOfDay').toUpperCase()}
-              </Text>
-            </View>
-            <Text numberOfLines={2} style={[styles.heroTitle, { color: palette.onAccent, fontFamily: Fonts.displayBold }]}>
-              {todaySession ? todaySession.title : sessionLoading ? ' ' : t('today.nothingPlanned')}
-            </Text>
-            {todaySession?.duration_min ? (
-              <View style={styles.heroMeta}>
-                <Clock size={15} color={palette.onAccent} strokeWidth={2.2} />
-                <Text style={[styles.heroMetaText, { color: palette.onAccent }]}>{todaySession.duration_min} min</Text>
-              </View>
-            ) : !todaySession && !sessionLoading ? (
-              <Text style={[styles.heroMetaText, { color: palette.onAccent, marginTop: 8 }]}>
-                {t('today.nothingPlannedSub')}
-              </Text>
-            ) : null}
-          </View>
-          <View style={[styles.play, { backgroundColor: palette.onAccent }]}>
-            <Play size={24} color={TileText.primary} fill={TileText.primary} style={{ marginLeft: 3 }} />
-          </View>
-        </Pressable>
-
-        {/* J'ajoute : un geste */}
-        <SectionLabel>{t('tiles.iAdd')}</SectionLabel>
-        <View style={styles.row4}>
-          <IconTile icon={Droplet} color="blue" label={t('tiles.water')} onPress={() => router.push('/hydration-log' as any)} />
-          <IconTile
-            icon={Utensils}
-            color="orange"
-            label={tracking ? t('tiles.meal') : t('tiles.menu')}
-            onPress={() => router.push((tracking ? '/meal-log' : '/menu') as any)}
-          />
-          <IconTile icon={PenLine} color="violet" label={t('tiles.note')} onPress={() => router.push('/mindset-log' as any)} />
-          <IconTile icon={Wind} color="mint" label={t('tiles.breathe')} onPress={() => router.push('/mindset/breathing' as any)} />
-        </View>
-
-        {/* Mes rituels : des ronds à toucher */}
-        <SectionLabel right={rituals.length ? `${doneCount} / ${rituals.length}` : undefined}>
-          {t('rituals.title')}
-        </SectionLabel>
-        <TileCard radius={24} style={styles.ritualCard}>
-          {rituals.length === 0 && ritualsLoading ? (
-            // Pendant le chargement : un emplacement neutre, pas « choisis tes rituels ».
-            <View style={styles.ritualEmpty} />
-          ) : rituals.length === 0 ? (
-            <Pressable onPress={() => router.push('/mindset/rituals' as any)} style={styles.ritualEmpty}>
-              <IconBadge icon={Star} color="rose" size={44} round />
-              <Text style={styles.ritualEmptyText}>{t('today.noRituals')}</Text>
-            </Pressable>
-          ) : (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.ritualRow}>
-              {rituals.map((r, i) => {
-                const checked = checkedToday.has(r.id);
-                const color = TileColors[RITUAL_COLORS[i % RITUAL_COLORS.length]];
-                const Icon = ritualIcon(r.icon);
-                return (
-                  <Pressable
-                    key={r.id}
-                    onPress={() => toggleCheck(r.id)}
-                    accessibilityRole="checkbox"
-                    accessibilityState={{ checked }}
-                    accessibilityLabel={r.label}
-                    style={styles.ritual}
-                  >
-                    {checked ? (
-                      <IconBadge icon={Check} color="mint" size={52} round strokeWidth={2.6} iconSize={22} />
-                    ) : (
-                      <View style={[styles.ritualOpen, { borderColor: color.soft + '8C', backgroundColor: color.soft + '1A' }]}>
-                        <Icon size={22} color={color.soft} strokeWidth={1.9} />
-                      </View>
-                    )}
-                    <Text numberOfLines={2} style={styles.ritualLabel}>
-                      {r.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </ScrollView>
-          )}
-        </TileCard>
-
-        {/* Pour toi */}
-        <SectionLabel>{t('today.forYou')}</SectionLabel>
-        <View style={styles.row2}>
-          {featuredRecipe ? (
-            <TileCard
-              radius={24}
-              style={styles.wide}
-              onPress={() => router.push(`/recipe/${featuredRecipe.id}` as any)}
-              accessibilityLabel={featuredRecipe.title}
-            >
-              <IconBadge icon={BookOpen} color="orange" size={44} />
-              <Text numberOfLines={2} style={styles.wideText}>
-                {featuredRecipe.title}
-              </Text>
-            </TileCard>
-          ) : null}
-          <TileCard
-            radius={24}
-            style={styles.wide}
-            onPress={() => router.push((hasCoach ? '/my-coach' : '/coaching-offer') as any)}
-            accessibilityLabel={hasCoach ? t('coaching.myCoachTitle') : t('coachingOffer.discoverTitle')}
-          >
-            <IconBadge icon={Star} color="violet" size={44} />
-            <Text numberOfLines={2} style={styles.wideText}>
-              {hasCoach ? t('coaching.myCoachTitle') : t('coachingOffer.discoverTitle')}
-            </Text>
-          </TileCard>
-        </View>
-      </ScrollView>
-    </View>
-  );
-}
+const SLOTS: { key: MealType; hour: string; until: number }[] = [
+  { key: 'petit_dejeuner', hour: '8 h', until: 10 },
+  { key: 'dejeuner', hour: '12 h 30', until: 14.5 },
+  { key: 'collation', hour: '16 h 30', until: 17.5 },
+  { key: 'diner', hour: '19 h 30', until: 24 },
+];
 
 function capitalize(s: string) {
   return s ? s[0].toUpperCase() + s.slice(1) : s;
 }
 
+export default function TodayScreen() {
+  const router = useRouter();
+  const { t, i18n } = useTranslation();
+  const { user } = useAuth();
+  const { profile } = useProfile();
+  const { session, refresh: refreshSession } = useTodaySession();
+  const { items: menu, refresh: refreshMenu } = useMenu();
+  const { data: day, refresh: refreshDay } = useDayData();
+  const mindset = useTodayMindset();
+  const refreshMindset = mindset.refresh;
+
+  // Les séances n'ont pas d'image propre : on montre celle de leur programme.
+  const [sessionCover, setSessionCover] = useState<string | null>(null);
+  const programId = session?.program_id ?? null;
+  useEffect(() => {
+    if (!programId) {
+      setSessionCover(null);
+      return;
+    }
+    let alive = true;
+    supabase
+      .from('programs')
+      .select('cover_url')
+      .eq('id', programId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (alive) setSessionCover((data as { cover_url: string | null } | null)?.cover_url ?? null);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [programId]);
+
+  const today = useMemo(() => new Date(), []);
+  const todayKey = isoDay(today);
+  const [selected, setSelected] = useState(todayKey);
+  const [anchor, setAnchor] = useState(today); // semaine affichée
+  const [intentionDone, setIntentionDone] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshSession();
+      refreshMenu();
+      refreshDay();
+      refreshMindset();
+    }, [refreshSession, refreshMenu, refreshDay, refreshMindset]),
+  );
+
+  const intentionKey = `bby.intentionDone.${todayKey}`;
+  useEffect(() => {
+    AsyncStorage.getItem(intentionKey)
+      .then((v) => setIntentionDone(v === '1'))
+      .catch(() => {});
+  }, [intentionKey]);
+
+  const firstName = profile ? capitalize((profile.display_name || user?.email?.split('@')[0] || '').split(' ')[0]) : '';
+  const letters = t('v2today.weekLetters', { returnObjects: true }) as unknown;
+  const week = weekOf(anchor, Array.isArray(letters) && letters.length === 7 ? (letters as string[]) : undefined);
+  const selDate = week.find((d) => d.key === selected)?.date ?? today;
+  const month = capitalize(selDate.toLocaleDateString(i18n.language, { month: 'long' }));
+  const dayLabel = capitalize(selDate.toLocaleDateString(i18n.language, { weekday: 'short', day: 'numeric', month: 'short' }));
+
+  const shiftWeek = (n: number) => {
+    const d = new Date(anchor);
+    d.setDate(d.getDate() + 7 * n);
+    setAnchor(d);
+    const w = weekOf(d);
+    setSelected(w.some((x) => x.key === todayKey) ? todayKey : w[0].key);
+  };
+
+  // --- Nutrition : prochain repas du menu pour le jour choisi -------------------
+  const tracking = profile?.nutrition_tracking === true;
+  const weekday = (selDate.getDay() + 6) % 7; // 0 = lundi
+  const isToday = selected === todayKey;
+  const now = new Date();
+  const hourNow = now.getHours() + now.getMinutes() / 60;
+  const slot = (isToday ? SLOTS.find((s) => hourNow < s.until) : SLOTS[1]) ?? SLOTS[3];
+  const meal = menu.find((m) => m.day === weekday && m.meal_type === slot.key);
+  const mealsLogged = (['petit_dejeuner', 'dejeuner', 'collation', 'diner'] as const).filter((k) => day.meals[k].logged).length;
+  const hasMenu = menu.length > 0;
+
+  // --- Rituels -----------------------------------------------------------------
+  const r = mindset.ritualsCount;
+  const isNewcomer = !mindset.loading && !mindset.gesture && r.total === 0 && !hasMenu;
+
+  const doneBadge = (
+    <View style={styles.doneBadge}>
+      <Check size={18} color={Bby.ink} strokeWidth={2.6} />
+      <Text style={styles.doneText}>{t('v2today.done')}</Text>
+    </View>
+  );
+
+  // --- La carte jaune ----------------------------------------------------------
+  let tilt: React.ReactNode;
+  if (mindset.gesture) {
+    const g = mindset.gesture;
+    tilt = (
+      <TiltCard>
+        <Pressable onPress={() => router.push(`/mindset/day?program=${g.programId}` as any)} style={{ alignSelf: 'flex-start' }}>
+          <View style={styles.tiltChip}>
+            <Text style={styles.tiltChipText}>{t('v2today.programDay', { day: g.day, count: g.dayCount })}</Text>
+          </View>
+        </Pressable>
+        <Text style={styles.tiltTitle}>{t('v2today.yourGesture')}</Text>
+        <Text style={styles.tiltBody}>{g.text}</Text>
+        <View style={styles.tiltFoot}>
+          <Text style={styles.tiltSmall} numberOfLines={2}>
+            {g.programTitle}
+          </Text>
+          {g.done ? doneBadge : <PillButton label={t('v2today.itsDone')} icon={Check} onPress={() => g.markDone()} />}
+        </View>
+      </TiltCard>
+    );
+  } else if (mindset.intention) {
+    tilt = (
+      <TiltCard>
+        <View style={styles.tiltHead}>
+          <Text style={[styles.tiltTitle, { marginTop: 0 }]}>{t('v2today.yourIntention')}</Text>
+          <Text style={styles.tiltSmall}>{t('v2today.setLastNight')}</Text>
+        </View>
+        <Editorial dark style={{ fontSize: 26, lineHeight: 34, marginTop: 10 }}>
+          {mindset.intention.text}
+        </Editorial>
+        <View style={[styles.tiltFoot, { justifyContent: 'flex-end' }]}>
+          {intentionDone ? (
+            doneBadge
+          ) : (
+            <PillButton
+              label={t('v2today.itsDone')}
+              icon={Check}
+              onPress={() => {
+                setIntentionDone(true);
+                AsyncStorage.setItem(intentionKey, '1').catch(() => {});
+              }}
+            />
+          )}
+        </View>
+      </TiltCard>
+    );
+  } else {
+    tilt = (
+      <TiltCard>
+        <Text style={[styles.tiltTitle, { marginTop: 0 }]}>{t('v2today.welcome')}</Text>
+        <Editorial dark style={{ fontSize: 26, lineHeight: 34, marginTop: 8 }}>
+          {t('v2today.welcomeLine')}
+        </Editorial>
+        <PillButton
+          label={isNewcomer ? t('v2today.chooseFirstSession') : t('v2today.chooseJourney')}
+          icon={Plus}
+          onPress={() => router.push((isNewcomer ? '/training' : '/mindset/programs') as any)}
+          style={{ marginTop: 16 }}
+        />
+      </TiltCard>
+    );
+  }
+
+  const goSession = () => router.push((session ? `/session/${session.id}` : '/training') as any);
+  const goMeal = () => router.push((meal?.recipe ? `/recipe/${meal.recipe.id}` : '/nutrition') as any);
+  const goRituals = () =>
+    r.total ? router.navigate({ pathname: '/(tabs)/mindset', params: { filter: 'rituals' } } as any) : router.push('/mindset/rituals' as any);
+
+  return (
+    <BbyScreen>
+      <TopBar name={firstName} onSettings={() => router.push('/account' as any)} />
+      <AdminButton />
+
+      <View style={styles.monthRow}>
+        <Text style={styles.month} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+          {month}
+        </Text>
+        <View style={styles.arrows}>
+          <Pressable onPress={() => shiftWeek(-1)} hitSlop={8} accessibilityLabel={t('v2today.prevWeek')} style={styles.arrow}>
+            <ArrowLeft size={20} color={Bby.text} />
+          </Pressable>
+          <Pressable onPress={() => shiftWeek(1)} hitSlop={8} accessibilityLabel={t('v2today.nextWeek')} style={styles.arrow}>
+            <ArrowRight size={20} color={Bby.text} />
+          </Pressable>
+        </View>
+      </View>
+      <WeekStrip days={week} selected={selected} onSelect={setSelected} />
+
+      {tilt}
+
+      {isNewcomer ? (
+        <>
+          <SectionHeader title={t('v2today.toStart')} />
+          <PhotoCard
+            label={t('v2today.session')}
+            title={t('v2today.chooseProgram')}
+            sub={t('v2today.chooseProgramSub')}
+            button={<RoundButton icon={ArrowRight} variant="outline" onPress={() => router.push('/training' as any)} />}
+            onPress={() => router.push('/training' as any)}
+          />
+          <PhotoCard
+            label={t('v2today.nutrition')}
+            title={t('v2today.choosePlan')}
+            sub={t('v2today.choosePlanSub')}
+            button={<RoundButton icon={ArrowRight} variant="outline" onPress={() => router.push('/nutrition' as any)} />}
+            onPress={() => router.push('/nutrition' as any)}
+          />
+          <RowCard
+            label={t('v2today.rituals')}
+            title={t('v2today.firstRitual')}
+            sub={t('v2today.firstRitualSub')}
+            right={<RoundButton icon={ArrowRight} variant="outline" onPress={goRituals} />}
+            onPress={goRituals}
+          />
+        </>
+      ) : (
+        <>
+          <SectionHeader title={t('v2today.yourDay')} right={dayLabel} />
+          <PhotoCard
+            tone="light"
+            label={t('v2today.sessionOfDay')}
+            title={session?.title ?? t('v2today.nothingPlanned')}
+            sub={session?.duration_min ? t('v2today.minutes', { count: session.duration_min }) : t('v2today.atYourPace')}
+            photo={sessionCover}
+            button={<RoundButton icon={Play} filled variant="black" size={64} label={t('v2today.sessionOfDay')} onPress={goSession} />}
+            onPress={goSession}
+          />
+          <PhotoCard
+            label={t('v2today.nutrition')}
+            title={meal?.recipe?.title ?? t(`v2today.slot.${slot.key}`)}
+            sub={
+              tracking && isToday
+                ? `${slot.hour} · ${t('v2today.mealsLogged', { done: mealsLogged, total: 4 })}`
+                : meal?.recipe
+                  ? `${t(`v2today.slot.${slot.key}`)} · ${slot.hour}`
+                  : t('v2today.noMealPlanned')
+            }
+            photo={meal?.recipe?.cover_url}
+            button={<RoundButton icon={ArrowRight} variant="outline" onPress={goMeal} />}
+            onPress={goMeal}
+          />
+          <RowCard
+            label={t('v2today.rituals')}
+            title={r.total ? `${r.done} / ${r.total}` : t('v2today.firstRitual')}
+            sub={r.total ? (r.next ? t('v2today.next', { name: r.next }) : t('v2today.allDone')) : t('v2today.firstRitualSub')}
+            right={<RoundButton icon={ArrowRight} variant="outline" onPress={goRituals} />}
+            onPress={goRituals}
+          />
+        </>
+      )}
+    </BbyScreen>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  content: { paddingHorizontal: 20, paddingBottom: 140, maxWidth: 640, width: '100%', alignSelf: 'center' },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  eyebrow: { fontSize: 11, letterSpacing: 1.6, color: TileText.muted, fontFamily: Fonts.sansSemibold },
-  hello: { fontSize: 30, letterSpacing: -0.5, color: TileText.primary, marginTop: 4 },
-  square: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  avatarRing: { width: 44, height: 44, borderRadius: 15, padding: 2, overflow: 'hidden' },
-  avatarInner: {
-    flex: 1,
-    borderRadius: 13,
-    backgroundColor: '#1A1020',
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  avatarInitial: { fontSize: 17, color: TileText.primary },
-  hero: {
-    marginTop: 22,
-    minHeight: 156,
-    borderRadius: 28,
-    padding: 20,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 16,
-    overflow: 'hidden',
-    shadowColor: '#FF3D7F',
-    shadowOpacity: 0.6,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 12 },
-  },
-  heroDisc: {
-    position: 'absolute',
-    right: -40,
-    top: -60,
-    width: 190,
-    height: 190,
-    borderRadius: 95,
-    backgroundColor: 'rgba(255,255,255,0.16)',
-  },
-  heroRing: {
-    position: 'absolute',
-    right: 40,
-    top: -90,
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.35)',
-  },
-  heroTag: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 10,
-    backgroundColor: 'rgba(26,11,20,0.14)',
-  },
-  heroTagText: { fontSize: 11, letterSpacing: 1.2, fontFamily: Fonts.sansBold },
-  heroTitle: { fontSize: 26, lineHeight: 28, letterSpacing: -0.4, marginTop: 10 },
-  heroMeta: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 10 },
-  heroMetaText: { fontSize: 13, fontFamily: Fonts.sansSemibold },
-  play: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 6,
-    borderColor: 'rgba(255,255,255,0.22)',
-  },
-  row4: { flexDirection: 'row', gap: 10 },
-  row2: { flexDirection: 'row', gap: 10 },
-  ritualCard: { paddingVertical: 14 },
-  ritualRow: { paddingHorizontal: 4, gap: 0, flexGrow: 1, justifyContent: 'space-between' },
-  ritual: { alignItems: 'center', gap: 7, width: 70 },
-  ritualOpen: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ritualLabel: { fontSize: 11, lineHeight: 14, textAlign: 'center', color: TileText.secondary, fontFamily: Fonts.sansMedium },
-  ritualEmpty: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 14 },
-  ritualEmptyText: { fontSize: 14, color: TileText.primary, fontFamily: Fonts.sansSemibold },
-  wide: { flex: 1, minHeight: 96, padding: 14, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  wideText: { flex: 1, fontSize: 14, lineHeight: 18, color: TileText.primary, fontFamily: Fonts.sansSemibold },
+  monthRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 4 },
+  month: { fontFamily: BFont.display, fontSize: 50, color: Bby.text, letterSpacing: -1, flexShrink: 1 },
+  arrows: { flexDirection: 'row', borderWidth: 1.5, borderColor: Bby.text, borderRadius: 999, height: 44, alignItems: 'center' },
+  arrow: { width: 40, height: 44, alignItems: 'center', justifyContent: 'center' },
+  tiltChip: { borderWidth: 1.5, borderColor: Bby.ink, borderRadius: 999, paddingHorizontal: 14, height: 34, justifyContent: 'center' },
+  tiltChipText: { fontFamily: BFont.sansSemibold, fontSize: 14, color: Bby.ink },
+  tiltHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 10 },
+  tiltTitle: { fontFamily: BFont.display, fontSize: 28, color: Bby.ink, letterSpacing: -0.4, marginTop: 12 },
+  tiltBody: { fontFamily: BFont.sans, fontSize: 19, lineHeight: 26, color: Bby.ink, marginTop: 10 },
+  tiltFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 18 },
+  tiltSmall: { fontFamily: BFont.sans, fontSize: 14, color: Bby.ink, flexShrink: 1 },
+  doneBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 50, paddingHorizontal: 18, borderRadius: 999, borderWidth: 1.5, borderColor: Bby.ink },
+  doneText: { fontFamily: BFont.sansBold, fontSize: 16, color: Bby.ink },
 });

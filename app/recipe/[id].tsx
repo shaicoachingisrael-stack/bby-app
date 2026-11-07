@@ -1,399 +1,203 @@
 import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { useVideoPlayer, VideoView } from 'expo-video';
-import { ChevronLeft, Clock, Flame, Pencil } from 'lucide-react-native';
-import { useCallback } from 'react';
+import { Bookmark, Camera, Pencil, Plus } from 'lucide-react-native';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { ActionBar, BFont, Bby, Card, Chip, MacroTiles, RoundButton } from '@/components/bby/kit';
+import { FooterScreen, NavHeader, Stepper } from '@/components/bby/nutrition/ui';
 import { AttachmentCarousel } from '@/components/ui/attachment-carousel';
-import { AccentFill } from '@/components/ui/accent-fill';
-import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useAuth } from '@/lib/auth-provider';
-import { formatIngredient } from '@/lib/ingredients';
+import { formatNumber } from '@/lib/ingredients';
+import { useRecipeFavorites } from '@/lib/nutrition/favorites';
+import { fmtInt, hasMacros, mealLabel, unitLabel } from '@/lib/nutrition/format';
+import { useNutritionPrefs } from '@/lib/nutrition/prefs';
+import { kcalOf } from '@/lib/nutrition/targets';
+import type { Recipe } from '@/lib/types';
 import { useAttachments } from '@/lib/use-attachments';
-import { useIngredientNames } from '@/lib/use-ingredient-names';
 import { useRecipe } from '@/lib/use-content';
+import { useIngredientNames } from '@/lib/use-ingredient-names';
 import { useRecipeIngredients } from '@/lib/use-meal-plan';
-import { useProfile } from '@/lib/use-profile';
 
-export default function RecipeDetailScreen() {
+// Écran 6 — Une recette : photo, portions, macros par portion, ingrédients,
+// préparation, et « Ajouter à mon menu » fixé en bas.
+export default function RecipeScreen() {
+  const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { t } = useTranslation();
   const { user } = useAuth();
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
-  const { profile } = useProfile();
-  const tracking = profile?.nutrition_tracking === true;
-  const params = useLocalSearchParams<{ id?: string }>();
-  const id = params.id;
-
-  const MEAL_LABELS: Record<string, string> = {
-    petit_dejeuner: t('nutrition.breakfast'),
-    dejeuner: t('nutrition.lunch'),
-    diner: t('nutrition.dinner'),
-    collation: t('nutrition.snack'),
-  };
-
-  const { recipe, loading, refresh: refreshRecipe } = useRecipe(id);
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { recipe, loading, refresh } = useRecipe(id);
   const { ingredients, refresh: refreshIngredients } = useRecipeIngredients(id);
-  const isMine = !!recipe?.owner_id && recipe.owner_id === user?.id;
-  // Noms traduits par le dictionnaire des ingrédients (repli : nom d'origine).
+  const { items: attachments, refresh: refreshAttachments } = useAttachments('recipe', id);
   const { tr } = useIngredientNames();
-  const showStructured = ingredients.length > 0;
-  const { items: attachments, refresh: refreshAttachments } = useAttachments(
-    'recipe',
-    id,
-  );
+  const { ids: favs, toggle } = useRecipeFavorites();
+  const { showCalories } = useNutritionPrefs();
+
+  const r = recipe as (Recipe & { servings?: number | null }) | null;
+  const base = Math.max(1, r?.servings ?? 1);
+  const [people, setPeople] = useState(base);
+  useEffect(() => setPeople(base), [base]);
 
   useFocusEffect(
     useCallback(() => {
-      refreshAttachments();
-      refreshRecipe();
+      refresh();
       refreshIngredients();
-    }, [refreshAttachments, refreshRecipe, refreshIngredients]),
+      refreshAttachments();
+    }, [refresh, refreshIngredients, refreshAttachments]),
   );
 
-  const heroVideoSource = recipe?.video_url ?? null;
-  const heroImageSource = !heroVideoSource ? recipe?.cover_url ?? null : null;
-
-  const player = useVideoPlayer(heroVideoSource, (p) => {
-    if (heroVideoSource) {
-      p.loop = true;
-      p.muted = true;
-      p.play();
-    }
-  });
-
-  if (loading && !recipe) {
+  if (loading && !r) {
     return (
-      <View style={[styles.flex, { backgroundColor: palette.background, alignItems: 'center', justifyContent: 'center' }]}>
-        <ActivityIndicator color={palette.text} />
+      <View style={[s.flex, s.center]}>
+        <ActivityIndicator color={Bby.text} />
+      </View>
+    );
+  }
+  if (!r) {
+    return (
+      <View style={[s.flex, s.center, { padding: 22 }]}>
+        <Text style={s.muted}>{t('v2nutrition.recipe.notFound')}</Text>
       </View>
     );
   }
 
-  if (!recipe) {
-    return (
-      <View style={[styles.flex, { backgroundColor: palette.background, alignItems: 'center', justifyContent: 'center' }]}>
-        <Text style={[{ color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          {t('recipe.notFound')}
-        </Text>
-      </View>
-    );
-  }
+  const mine = !!r.owner_id && r.owner_id === user?.id;
+  const fav = favs.has(r.id);
+  const factor = people / base;
+  const steps = (r.steps ?? '')
+    .split(/\n+/)
+    .map((x) => x.replace(/^\s*\d+[.)-]?\s*/, '').trim())
+    .filter(Boolean);
+  const kcal = r.kcal ?? kcalOf(r.protein_g ?? 0, r.fat_g ?? 0, r.carbs_g ?? 0);
 
   return (
-    <View style={[styles.flex, { backgroundColor: palette.background }]}>
-      <View style={styles.hero}>
-        {heroVideoSource ? (
-          <VideoView
-            player={player}
-            style={StyleSheet.absoluteFill}
-            contentFit="cover"
-            nativeControls={false}
-          />
-        ) : heroImageSource ? (
-          <Image
-            source={{ uri: heroImageSource }}
-            style={StyleSheet.absoluteFill}
-            contentFit="cover"
-          />
-        ) : (
-          <View style={[StyleSheet.absoluteFill, { backgroundColor: Palette.gray[300] }]} />
-        )}
-        <View style={styles.heroOverlay} />
-        <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-          <Pressable
-            onPress={() => router.back()}
-            hitSlop={10}
-            style={({ pressed }) => [
-              styles.iconBtn,
-              { backgroundColor: Palette.albatre, opacity: pressed ? 0.8 : 1 },
-            ]}
-          >
-            <ChevronLeft size={20} color={Palette.encre} />
-          </Pressable>
-          {isMine ? (
+    <FooterScreen
+      footer={
+        <ActionBar
+          icon={Plus}
+          label={t('v2nutrition.recipe.addToMenu')}
+          note={t('v2nutrition.recipe.addNote')}
+          onPress={() => router.push(`/menu-add?recipe=${r.id}&meal=${r.meal_type ?? 'dejeuner'}` as any)}
+        />
+      }
+    >
+      <NavHeader
+        right={
+          <View style={s.row8}>
+            {mine ? (
+              <RoundButton icon={Pencil} variant="outline" size={48} label={t('v2nutrition.recipe.edit')} onPress={() => router.push(`/my-recipe-edit?id=${r.id}` as any)} />
+            ) : null}
             <Pressable
-              onPress={() => router.push(`/my-recipe-edit?id=${recipe.id}` as any)}
-              hitSlop={10}
-              accessibilityLabel={t('myRecipes.editTitle')}
-              style={({ pressed }) => [
-                styles.iconBtn,
-                { backgroundColor: Palette.albatre, opacity: pressed ? 0.8 : 1 },
-              ]}
+              onPress={() => toggle(r.id)}
+              accessibilityRole="button"
+              accessibilityLabel={fav ? t('v2nutrition.recipe.unfavorite') : t('v2nutrition.recipe.favorite')}
+              accessibilityState={{ selected: fav }}
+              style={[s.fav, fav && { backgroundColor: Bby.yellow, borderColor: 'transparent' }]}
             >
-              <Pencil size={18} color={Palette.encre} />
+              <Bookmark size={18} color={fav ? Bby.ink : Bby.text} fill={fav ? Bby.ink : 'transparent'} />
             </Pressable>
-          ) : null}
-        </View>
-        <View style={styles.heroTitleBlock}>
-          <Text style={styles.heroEyebrow}>
-            {recipe.meal_type ? (MEAL_LABELS[recipe.meal_type] ?? recipe.meal_type).toUpperCase() : 'RECETTE'}
-          </Text>
-          <Text style={styles.heroTitle}>{recipe.title}</Text>
-        </View>
-      </View>
-
-      <View style={[styles.sheet, { backgroundColor: palette.background }]}>
-        <View style={[styles.handle, { backgroundColor: palette.border }]} />
-
-        <ScrollView
-          contentContainerStyle={{ paddingBottom: insets.bottom + (tracking ? 150 : 100) }}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={{ paddingHorizontal: Spacing.xl, paddingTop: Spacing.lg }}>
-            <View style={styles.metaRow}>
-              {recipe.prep_min ? (
-                <Meta icon={Clock} label={t('recipe.preparation')} value={`${recipe.prep_min} ${t('common.min')}`} palette={palette} />
-              ) : null}
-              {recipe.kcal ? (
-                <Meta icon={Flame} label={t('recipe.intake')} value={`${recipe.kcal} ${t('common.kcal')}`} palette={palette} />
-              ) : null}
-            </View>
-
-            {/* Macros */}
-            {(recipe.protein_g || recipe.carbs_g || recipe.fat_g) ? (
-              <View style={[styles.macros, { backgroundColor: palette.surface }]}>
-                <MacroPill label="P" value={recipe.protein_g ?? 0} palette={palette} />
-                <MacroPill label="L" value={recipe.fat_g ?? 0} palette={palette} />
-                <MacroPill label="G" value={recipe.carbs_g ?? 0} palette={palette} />
-              </View>
-            ) : null}
-
-            {recipe.description ? (
-              <>
-                <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                  {t('recipe.description')}
-                </Text>
-                <Text style={[styles.body, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                  {recipe.description}
-                </Text>
-              </>
-            ) : null}
-
-            {showStructured ? (
-              <>
-                <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                  {t('recipe.ingredients')}
-                </Text>
-                <View style={{ gap: 6 }}>
-                  {ingredients.map((ing) => (
-                    <Text key={ing.id} style={[styles.ingredientLine, { color: palette.text, fontFamily: Fonts.sans }]}>
-                      {formatIngredient({ ...ing, name: tr(ing.name) }, t)}
-                    </Text>
-                  ))}
-                </View>
-              </>
-            ) : recipe.ingredients ? (
-              <>
-                <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                  {t('recipe.ingredients')}
-                </Text>
-                <Text style={[styles.ingredients, { color: palette.text, fontFamily: Fonts.sans }]}>
-                  {recipe.ingredients}
-                </Text>
-              </>
-            ) : null}
-
-            {recipe.steps ? (
-              <>
-                <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-                  {t('recipe.steps')}
-                </Text>
-                <Text style={[styles.ingredients, { color: palette.text, fontFamily: Fonts.sans }]}>
-                  {recipe.steps}
-                </Text>
-              </>
-            ) : null}
           </View>
+        }
+      />
 
-          <AttachmentCarousel attachments={attachments} title={t('recipe.videosTitle')} />
-        </ScrollView>
-
-        <View style={[styles.cta, { paddingBottom: insets.bottom + Spacing.md, backgroundColor: palette.background }]}>
-          <Pressable
-            onPress={() => router.push(`/menu-add?recipe=${recipe.id}&meal=${recipe.meal_type ?? 'dejeuner'}` as any)}
-            style={({ pressed }) => [
-              styles.ctaButton,
-              { backgroundColor: palette.accent, overflow: 'hidden', opacity: pressed ? 0.85 : 1 },
-            ]}
-          >
-            <AccentFill />
-            <Text style={[styles.ctaText, { color: palette.onAccent, fontFamily: Fonts.sansSemibold }]}>
-              {t('menu.addToMenu')}
-            </Text>
-          </Pressable>
-          {/* « Logger ce repas » n'a de sens qu'avec le suivi activé */}
-          {tracking ? (
-            <Pressable
-              onPress={() => router.push(`/meal-log?type=${recipe.meal_type ?? 'dejeuner'}` as any)}
-              hitSlop={6}
-              style={({ pressed }) => [styles.ctaSecondary, { opacity: pressed ? 0.6 : 1 }]}
-            >
-              <Text style={[styles.ctaSecondaryText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-                {t('recipe.logMeal')}
-              </Text>
-            </Pressable>
-          ) : null}
-        </View>
+      <View style={[s.photo, !r.cover_url && s.photoEmpty]}>
+        {r.cover_url ? (
+          <Image source={{ uri: r.cover_url }} style={StyleSheet.absoluteFill} contentFit="cover" />
+        ) : (
+          <View style={[s.center, { gap: 8 }]}>
+            <Camera size={22} color={Bby.muted} />
+            <Text style={s.photoHint}>{t('v2nutrition.recipe.photo')}</Text>
+          </View>
+        )}
       </View>
-    </View>
-  );
-}
 
-function Meta({ icon: Icon, label, value, palette }: any) {
-  return (
-    <View style={[styles.metaCard, { backgroundColor: palette.surface }]}>
-      <Icon size={18} color={palette.text} />
-      <View>
-        <Text style={[styles.metaLabel, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          {label}
-        </Text>
-        <Text style={[styles.metaValue, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-          {value}
-        </Text>
+      <View style={[s.row8, { marginTop: 4 }]}>
+        {r.meal_type ? <Chip label={mealLabel(t, r.meal_type)} /> : null}
+        {r.prep_min ? <Chip label={t('v2nutrition.common.minutes', { n: r.prep_min })} /> : null}
+        {mine ? <Chip label={t('v2nutrition.recipes.mine')} yellow /> : null}
       </View>
-    </View>
+      <Text style={s.title}>{r.title}</Text>
+      {r.description ? <Text style={s.desc}>{r.description}</Text> : null}
+
+      <Stepper
+        label={t('v2nutrition.common.people', { count: people })}
+        onMinus={() => setPeople((p) => Math.max(1, p - 1))}
+        onPlus={() => setPeople((p) => Math.min(20, p + 1))}
+        minusDisabled={people <= 1}
+      />
+
+      {hasMacros(r) ? (
+        <>
+          <Text style={s.small}>{t('v2nutrition.recipe.perPortion')}</Text>
+          <MacroTiles
+            labels={[t('v2nutrition.macro.protein'), t('v2nutrition.macro.fat'), t('v2nutrition.macro.carb')]}
+            values={[r.protein_g ?? 0, r.fat_g ?? 0, r.carbs_g ?? 0]}
+          />
+          {showCalories ? <Text style={s.small}>{t('v2nutrition.common.kcalAbout', { kcal: fmtInt(kcal, i18n.language) })}</Text> : null}
+        </>
+      ) : null}
+
+      {ingredients.length > 0 || r.ingredients ? (
+        <Card tone="light">
+          <Text style={s.cardTitleDark}>{t('v2nutrition.recipe.ingredients')}</Text>
+          {ingredients.length > 0 ? (
+            ingredients.map((ing, i) => (
+              <View key={ing.id} style={[s.ingRow, i > 0 && s.ingSep]}>
+                <Text style={s.ingName}>{tr(ing.name)}</Text>
+                <Text style={s.ingQty}>
+                  {ing.quantity === null
+                    ? ''
+                    : `${formatNumber(Math.round(Number(ing.quantity) * factor * 100) / 100)}${ing.unit ? ` ${unitLabel(t, ing.unit)}` : ''}`}
+                </Text>
+              </View>
+            ))
+          ) : (
+            <Text style={s.ingText}>{r.ingredients}</Text>
+          )}
+        </Card>
+      ) : null}
+
+      {steps.length > 0 ? (
+        <Card>
+          <Text style={s.cardTitle}>{t('v2nutrition.recipe.steps')}</Text>
+          {steps.map((step, i) => (
+            <View key={i} style={s.step}>
+              <View style={s.stepNum}>
+                <Text style={s.stepNumText}>{i + 1}</Text>
+              </View>
+              <Text style={s.stepText}>{step}</Text>
+            </View>
+          ))}
+        </Card>
+      ) : null}
+
+      {attachments.length > 0 ? <AttachmentCarousel attachments={attachments} title={t('v2nutrition.recipe.videos')} /> : null}
+    </FooterScreen>
   );
 }
 
-function MacroPill({ label, value, palette }: any) {
-  return (
-    <View style={styles.macroPill}>
-      <Text style={[styles.macroLabel, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-        {label}
-      </Text>
-      <Text style={[styles.macroValue, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-        {value} g
-      </Text>
-    </View>
-  );
-}
-
-
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  hero: {
-    height: 420,
-    overflow: 'hidden',
-    backgroundColor: Palette.gray[200],
-  },
-  heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(10,10,10,0.28)',
-  },
-  topBar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: Spacing.xl,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  heroTitleBlock: {
-    position: 'absolute',
-    left: Spacing.xl,
-    right: Spacing.xl,
-    bottom: Spacing.xxl,
-  },
-  heroEyebrow: {
-    color: Palette.albatre,
-    fontSize: 11,
-    letterSpacing: 1.6,
-    fontWeight: '600',
-    marginBottom: 8,
-    opacity: 0.9,
-  },
-  heroTitle: {
-    color: Palette.albatre,
-    fontSize: 32,
-    fontWeight: '700',
-    letterSpacing: -0.5,
-    lineHeight: 36,
-  },
-  sheet: {
-    flex: 1,
-    marginTop: -32,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    paddingTop: Spacing.sm,
-  },
-  handle: {
-    width: 44,
-    height: 4,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginTop: 10,
-    marginBottom: Spacing.sm,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-    marginTop: Spacing.md,
-  },
-  metaCard: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-    padding: Spacing.lg,
-    borderRadius: Radius.md,
-  },
-  metaLabel: { fontSize: 11 },
-  metaValue: { fontSize: 14, marginTop: 2 },
-  macros: {
-    flexDirection: 'row',
-    gap: Spacing.md,
-    marginTop: Spacing.md,
-    padding: Spacing.lg,
-    borderRadius: Radius.md,
-  },
-  macroPill: { flex: 1, alignItems: 'center' },
-  macroLabel: { fontSize: 11, letterSpacing: 1.4 },
-  macroValue: { fontSize: 16, marginTop: 4 },
-  section: {
-    fontSize: 18,
-    letterSpacing: -0.3,
-    marginTop: Spacing.xl,
-    marginBottom: Spacing.sm,
-  },
-  body: { fontSize: 14, lineHeight: 22 },
-  ingredients: { fontSize: 14, lineHeight: 24 },
-  cta: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.md,
-  },
-  ctaButton: {
-    height: 56,
-    borderRadius: Radius.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ctaText: { fontSize: 16 },
-  ctaSecondary: { height: 40, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
-  ctaSecondaryText: { fontSize: 14 },
-  ingredientLine: { fontSize: 14, lineHeight: 22 },
+const s = StyleSheet.create({
+  flex: { flex: 1, backgroundColor: Bby.bg },
+  center: { alignItems: 'center', justifyContent: 'center' },
+  muted: { fontFamily: BFont.sans, fontSize: 15, color: Bby.muted },
+  row8: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
+  fav: { width: 48, height: 48, borderRadius: 24, borderWidth: 1.5, borderColor: Bby.text, alignItems: 'center', justifyContent: 'center' },
+  photo: { height: 200, borderRadius: 28, overflow: 'hidden', backgroundColor: Bby.card, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
+  photoEmpty: { borderWidth: 1.5, borderStyle: 'dashed', borderColor: Bby.line },
+  photoHint: { fontFamily: BFont.sans, fontSize: 13, color: Bby.muted },
+  title: { fontFamily: BFont.display, fontSize: 30, lineHeight: 34, color: Bby.text, letterSpacing: -0.5, marginVertical: 4 },
+  desc: { fontFamily: BFont.sans, fontSize: 15, lineHeight: 21, color: Bby.muted },
+  small: { fontFamily: BFont.sans, fontSize: 13, color: Bby.muted, marginTop: 4 },
+  cardTitleDark: { fontFamily: BFont.display, fontSize: 22, color: Bby.ink, marginBottom: 8 },
+  cardTitle: { fontFamily: BFont.display, fontSize: 22, color: Bby.text, marginBottom: 8 },
+  ingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 11, gap: 12 },
+  ingSep: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: Bby.lineOnLight },
+  ingName: { fontFamily: BFont.sans, fontSize: 15, color: Bby.ink, flex: 1 },
+  ingQty: { fontFamily: BFont.sans, fontSize: 14, color: Bby.mutedOnLight },
+  ingText: { fontFamily: BFont.sans, fontSize: 15, lineHeight: 24, color: Bby.ink },
+  step: { flexDirection: 'row', gap: 12, alignItems: 'flex-start', paddingVertical: 8 },
+  stepNum: { width: 28, height: 28, borderRadius: 14, backgroundColor: Bby.cardAlt, alignItems: 'center', justifyContent: 'center' },
+  stepNumText: { fontFamily: BFont.sansBold, fontSize: 13, color: Bby.text },
+  stepText: { fontFamily: BFont.sans, fontSize: 15, lineHeight: 22, color: Bby.text, flex: 1 },
 });

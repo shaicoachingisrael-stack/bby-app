@@ -40,6 +40,10 @@ export function useIngredientNames() {
     };
   }, [lang]);
 
-  const tr = useCallback((name: string) => dict[ingredientNameKey(name)] ?? name, [dict]);
+  // Affichage : première lettre en majuscule (« avocat » → « Avocat »), comme dans les maquettes.
+  const tr = useCallback((name: string) => {
+    const v = dict[ingredientNameKey(name)] ?? name;
+    return v ? v.charAt(0).toLocaleUpperCase() + v.slice(1) : v;
+  }, [dict]);
   return { tr };
 }

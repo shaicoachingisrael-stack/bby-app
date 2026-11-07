@@ -31,6 +31,9 @@ export type Profile = {
   macro_split: 'balanced' | 'high_protein' | null;
   // false/null = macros en simple repère (défaut) ; true = suivi au fil de la journée
   nutrition_tracking: boolean | null;
+  // Refonte nov. 2026 : calories visibles ou non, rythme du moment
+  nutrition_show_calories: boolean;
+  nutrition_rhythm: 'perte_de_gras' | 'maintien' | 'prise_de_masse';
   locale: 'fr' | 'en' | 'he' | 'es' | 'ru' | null;
 };
 

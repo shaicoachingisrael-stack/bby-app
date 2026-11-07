@@ -1,249 +1,207 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ChevronLeft } from 'lucide-react-native';
-import { useState } from 'react';
+import { Camera, Check, Mic, Plus, ScanBarcode, Search } from 'lucide-react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-import { Segmented } from '@/components/ui/segmented';
-import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { ActionBar, BFont, Bby, Card, Editorial, PillButton, PillTabs } from '@/components/bby/kit';
+import { FooterScreen, NavHeader, SoonModal } from '@/components/bby/nutrition/ui';
 import { useAuth } from '@/lib/auth-provider';
-import { supabase } from '@/lib/supabase';
+import { addLogItem, fetchRecentItems, type LogItem } from '@/lib/nutrition/day-log';
+import { useRecipeFavorites } from '@/lib/nutrition/favorites';
+import { fold, searchFoods, useFoods } from '@/lib/nutrition/foods';
+import { currentMeal, MEALS, plg, shortDate } from '@/lib/nutrition/format';
+import { kcalOf } from '@/lib/nutrition/targets';
+import type { MealType, Recipe } from '@/lib/types';
+import { useRecipes } from '@/lib/use-content';
 
-const MEAL_VALUES = ['petit_dejeuner', 'dejeuner', 'diner', 'collation'] as const;
+type Tab = 'recent' | 'favorites' | 'mine';
+type Row = LogItem & { key: string };
 
-type MealType = (typeof MEAL_VALUES)[number];
-
+// Écran 3 — Noter mon repas (mode suivi). « + » ajoute une portion au repas visé.
 export default function MealLogScreen() {
+  const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
   const { user } = useAuth();
   const params = useLocalSearchParams<{ type?: string }>();
+  const meal: MealType = (MEALS as string[]).includes(params.type ?? '') ? (params.type as MealType) : currentMeal();
 
-  const MEAL_OPTIONS = [
-    { value: 'petit_dejeuner' as const, label: t('nutrition.breakfast') },
-    { value: 'dejeuner' as const, label: t('nutrition.lunch') },
-    { value: 'diner' as const, label: t('nutrition.dinner') },
-    { value: 'collation' as const, label: t('nutrition.snack') },
-  ];
+  const foods = useFoods();
+  const { recipes } = useRecipes('all');
+  const { ids: favIds } = useRecipeFavorites();
+  const [query, setQuery] = useState('');
+  const [tab, setTab] = useState<Tab>('recent');
+  const [recent, setRecent] = useState<Row[]>([]);
+  const [added, setAdded] = useState<Record<string, number>>({});
+  const [soon, setSoon] = useState<null | 'barcode' | 'photo'>(null);
+  const input = useRef<TextInput>(null);
 
-  const [mealType, setMealType] = useState<MealType>(
-    (MEAL_VALUES.some((m) => m === params.type)
-      ? (params.type as MealType)
-      : 'petit_dejeuner'),
-  );
-  const [title, setTitle] = useState('');
-  const [kcal, setKcal] = useState('');
-  const [protein, setProtein] = useState('');
-  const [carbs, setCarbs] = useState('');
-  const [fat, setFat] = useState('');
-  const [saving, setSaving] = useState(false);
-
-  async function save() {
+  useEffect(() => {
     if (!user) return;
-    if (!kcal) {
-      Alert.alert(t('mealLog.missingKcal'), t('mealLog.missingKcalBody'));
-      return;
+    fetchRecentItems(user.id).then((list) => setRecent(list.map((r, i) => ({ ...r, key: `r${i}` }))));
+  }, [user]);
+
+  const recipeRow = (r: Recipe): Row => ({
+    key: `rec-${r.id}`,
+    title: r.title,
+    quantityLabel: t('v2nutrition.log.onePortion'),
+    protein: r.protein_g ?? 0,
+    fat: r.fat_g ?? 0,
+    carb: r.carbs_g ?? 0,
+    kcal: r.kcal ?? kcalOf(r.protein_g ?? 0, r.fat_g ?? 0, r.carbs_g ?? 0),
+    recipeId: r.id,
+  });
+
+  const mine = useMemo(() => recipes.filter((r) => r.owner_id && r.owner_id === user?.id), [recipes, user?.id]);
+
+  const rows: Row[] = useMemo(() => {
+    if (query.trim()) {
+      const q = fold(query);
+      const fromFoods: Row[] = searchFoods(foods, query).map((f) => ({
+        key: `f-${f.id}`,
+        title: f.label,
+        quantityLabel: f.portion,
+        protein: f.protein_g,
+        fat: f.fat_g,
+        carb: f.carb_g,
+        kcal: f.kcal,
+      }));
+      // Recettes de la cliente (les siennes et les BBY) dont le nom contient la recherche.
+      const fromRecipes = recipes.filter((r) => fold(r.title).includes(q)).slice(0, 10).map(recipeRow);
+      return [...fromRecipes, ...fromFoods];
     }
-    setSaving(true);
+    if (tab === 'favorites') return recipes.filter((r) => favIds.has(r.id)).map(recipeRow);
+    if (tab === 'mine') return mine.map(recipeRow);
+    return recent;
+  }, [query, foods, recipes, tab, favIds, mine, recent]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const add = async (row: Row) => {
+    if (!user) return;
+    setAdded((a) => ({ ...a, [row.key]: (a[row.key] ?? 0) + 1 }));
     try {
-      const num = (s: string) => {
-        const n = Number.parseInt(s.replace(/\D/g, ''), 10);
-        return Number.isFinite(n) && n >= 0 ? n : null;
-      };
-      const { error } = await supabase.from('meal_entries').insert({
-        user_id: user.id,
-        meal_type: mealType,
-        title: title.trim() || null,
-        kcal: num(kcal),
-        protein_g: num(protein),
-        carbs_g: num(carbs),
-        fat_g: num(fat),
-      });
-      if (error) throw error;
-      router.back();
+      await addLogItem(user.id, meal, row);
     } catch (e: any) {
-      Alert.alert(t('common.saveImpossible'), e?.message ?? t('common.error'));
-    } finally {
-      setSaving(false);
+      setAdded((a) => ({ ...a, [row.key]: Math.max(0, (a[row.key] ?? 1) - 1) }));
+      Alert.alert(t('v2nutrition.common.error'), e?.message ?? '');
     }
-  }
+  };
+
+  const emptyText =
+    query.trim()
+      ? t('v2nutrition.log.noResult')
+      : tab === 'favorites'
+        ? t('v2nutrition.log.emptyFavorites')
+        : tab === 'mine'
+          ? t('v2nutrition.log.emptyMine')
+          : t('v2nutrition.log.emptyRecent');
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={[styles.flex, { backgroundColor: palette.background }]}
-    >
-      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <ChevronLeft size={24} color={palette.text} />
-          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>{t('common.back')}</Text>
-        </Pressable>
-        <Pressable onPress={save} disabled={saving} hitSlop={12}>
-          {saving ? (
-            <ActivityIndicator color={palette.text} />
-          ) : (
-            <Text style={[styles.action, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-              {t('common.save')}
-            </Text>
-          )}
-        </Pressable>
-      </View>
+    <FooterScreen footer={<ActionBar label={t('v2nutrition.common.done')} onPress={() => router.back()} />}>
+      <NavHeader right={<Text style={s.date}>{shortDate(new Date(), i18n.language)}</Text>} />
+      <Text style={s.title}>{t('v2nutrition.log.title')}</Text>
+      <Text style={s.for}>{t(`v2nutrition.log.for.${meal}`)}</Text>
 
-      <ScrollView
-        contentContainerStyle={{
-          paddingHorizontal: Spacing.xl,
-          paddingBottom: insets.bottom + Spacing.xxl,
-          gap: Spacing.lg,
-        }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          {t('mealLog.title')}
-        </Text>
-
-        <View style={{ gap: Spacing.sm }}>
-          <Label palette={palette}>{t('mealLog.type')}</Label>
-          <View style={{ gap: Spacing.sm }}>
-            <Segmented
-              value={mealType}
-              options={MEAL_OPTIONS.slice(0, 2) as any}
-              onChange={(v: MealType) => setMealType(v)}
-            />
-            <Segmented
-              value={mealType}
-              options={MEAL_OPTIONS.slice(2) as any}
-              onChange={(v: MealType) => setMealType(v)}
-            />
-          </View>
-        </View>
-
-        <View style={{ gap: Spacing.sm }}>
-          <Label palette={palette}>{t('mealLog.mealName')}</Label>
-          <TextInput
-            value={title}
-            onChangeText={setTitle}
-            placeholder={t('mealLog.mealNamePlaceholder')}
-            placeholderTextColor={palette.textSecondary}
-            style={[
-              styles.input,
-              { backgroundColor: palette.surface, borderColor: palette.border, color: palette.text, fontFamily: Fonts.sans },
-            ]}
-          />
-        </View>
-
-        <View style={{ flexDirection: 'row', gap: Spacing.md }}>
-          <NumberField label={t('mealLog.calories')} suffix={t('common.kcal')} value={kcal} onChange={setKcal} palette={palette} />
-          <NumberField label={t('mealLog.protein')} suffix={t('common.g')} value={protein} onChange={setProtein} palette={palette} />
-        </View>
-
-        <View style={{ flexDirection: 'row', gap: Spacing.md }}>
-          <NumberField label={t('mealLog.carbs')} suffix={t('common.g')} value={carbs} onChange={setCarbs} palette={palette} />
-          <NumberField label={t('mealLog.fats')} suffix={t('common.g')} value={fat} onChange={setFat} palette={palette} />
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
-  );
-}
-
-function Label({ children, palette }: any) {
-  return (
-    <Text
-      style={[
-        { color: palette.textSecondary, fontFamily: Fonts.sansMedium, fontSize: 11, letterSpacing: 1.4 },
-      ]}
-    >
-      {children.toString().toUpperCase()}
-    </Text>
-  );
-}
-
-function NumberField({
-  label,
-  suffix,
-  value,
-  onChange,
-  palette,
-}: {
-  label: string;
-  suffix: string;
-  value: string;
-  onChange: (s: string) => void;
-  palette: any;
-}) {
-  return (
-    <View style={{ flex: 1, gap: Spacing.sm }}>
-      <Label palette={palette}>{label}</Label>
-      <View
-        style={[
-          styles.numberWrap,
-          { backgroundColor: palette.surface, borderColor: palette.border },
-        ]}
-      >
+      <View style={s.search}>
+        <Search size={18} color={Bby.muted} />
         <TextInput
-          value={value}
-          onChangeText={onChange}
-          keyboardType="number-pad"
-          placeholder="0"
-          placeholderTextColor={palette.textSecondary}
-          style={[styles.numberInput, { color: palette.text, fontFamily: Fonts.sans }]}
+          ref={input}
+          value={query}
+          onChangeText={setQuery}
+          placeholder={t('v2nutrition.log.searchPlaceholder')}
+          placeholderTextColor={Bby.muted}
+          style={s.searchInput}
+          autoCorrect={false}
+          returnKeyType="search"
+          accessibilityLabel={t('v2nutrition.log.searchPlaceholder')}
         />
-        <Text style={[styles.suffix, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-          {suffix}
-        </Text>
+        {/* La dictée passe par le clavier du téléphone : le micro ouvre le champ. */}
+        <Pressable onPress={() => input.current?.focus()} style={s.mic} accessibilityRole="button" accessibilityLabel={t('v2nutrition.log.dictation')}>
+          <Mic size={18} color={Bby.text} />
+        </Pressable>
       </View>
-    </View>
+
+      <View style={s.row8}>
+        <PillButton label={t('v2nutrition.log.barcode')} icon={ScanBarcode} variant="outline" style={s.half} onPress={() => setSoon('barcode')} />
+        <PillButton label={t('v2nutrition.log.photo')} icon={Camera} variant="outline" style={s.half} onPress={() => setSoon('photo')} />
+      </View>
+
+      {!query.trim() ? (
+        <PillTabs
+          items={[
+            { key: 'recent', label: t('v2nutrition.log.tabs.recent') },
+            { key: 'favorites', label: t('v2nutrition.log.tabs.favorites') },
+            { key: 'mine', label: t('v2nutrition.log.tabs.mine') },
+          ]}
+          value={tab}
+          onChange={setTab}
+        />
+      ) : null}
+
+      {rows.map((r) => {
+        const n = added[r.key] ?? 0;
+        return (
+          <Card key={r.key} style={s.rowCard}>
+            <View style={s.rowBetween}>
+              <View style={{ flex: 1 }}>
+                <Text style={s.name} numberOfLines={2}>
+                  {r.title}
+                </Text>
+                <Text style={s.meta}>{[r.quantityLabel, plg(t, r.protein, r.fat, r.carb)].filter(Boolean).join(' · ')}</Text>
+              </View>
+              <Pressable
+                onPress={() => add(r)}
+                accessibilityRole="button"
+                accessibilityLabel={t('v2nutrition.log.addA11y', { name: r.title })}
+                style={({ pressed }) => [s.plus, n > 0 && s.plusOn, pressed && { transform: [{ scale: 0.92 }] }]}
+              >
+                {n > 0 ? (
+                  n > 1 ? <Text style={s.count}>{`×${n}`}</Text> : <Check size={18} color={Bby.ink} strokeWidth={2.6} />
+                ) : (
+                  <Plus size={18} color={Bby.text} />
+                )}
+              </Pressable>
+            </View>
+          </Card>
+        );
+      })}
+      {rows.length === 0 ? <Text style={s.empty}>{emptyText}</Text> : null}
+
+      <Editorial style={s.editorial}>{t('v2nutrition.log.editorial')}</Editorial>
+
+      <SoonModal
+        visible={soon !== null}
+        onClose={() => setSoon(null)}
+        body={soon === 'barcode' ? t('v2nutrition.soon.barcode') : t('v2nutrition.soon.photo')}
+      />
+    </FooterScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  topBar: {
+const s = StyleSheet.create({
+  date: { fontFamily: BFont.sans, fontSize: 14, color: Bby.muted },
+  title: { fontFamily: BFont.display, fontSize: 44, lineHeight: 50, color: Bby.text, letterSpacing: -0.8, marginTop: 10 },
+  for: { fontFamily: BFont.sans, fontSize: 15, color: Bby.muted, marginBottom: 8 },
+  search: {
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: Bby.card,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.sm,
+    paddingLeft: 18,
+    paddingRight: 6,
+    gap: 10,
   },
-  back: { flexDirection: 'row', alignItems: 'center' },
-  backText: { fontSize: 15, marginLeft: 2 },
-  action: { fontSize: 15 },
-  title: {
-    fontSize: 30,
-    letterSpacing: -0.5,
-    marginTop: Spacing.lg,
-    marginBottom: Spacing.sm,
-  },
-  input: {
-    height: 52,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    paddingHorizontal: Spacing.lg,
-    fontSize: 16,
-  },
-  numberWrap: {
-    height: 52,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
-  },
-  numberInput: { flex: 1, fontSize: 16 },
-  suffix: { fontSize: 13 },
+  searchInput: { flex: 1, fontFamily: BFont.sans, fontSize: 16, color: Bby.text, height: 56 },
+  mic: { width: 44, height: 44, borderRadius: 22, backgroundColor: Bby.cardAlt, alignItems: 'center', justifyContent: 'center' },
+  row8: { flexDirection: 'row', gap: 8 },
+  half: { flex: 1, height: 48, paddingHorizontal: 10 },
+  rowCard: { paddingVertical: 14, paddingHorizontal: 18 },
+  rowBetween: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  name: { fontFamily: BFont.sansSemibold, fontSize: 15, color: Bby.text },
+  meta: { fontFamily: BFont.sans, fontSize: 12, color: Bby.muted, marginTop: 3 },
+  plus: { width: 44, height: 44, borderRadius: 22, borderWidth: 1.5, borderColor: Bby.line, alignItems: 'center', justifyContent: 'center' },
+  plusOn: { backgroundColor: Bby.yellow, borderColor: 'transparent' },
+  count: { fontFamily: BFont.sansBold, fontSize: 14, color: Bby.ink },
+  empty: { fontFamily: BFont.sans, fontSize: 14, color: Bby.muted, textAlign: 'center', paddingVertical: 16 },
+  editorial: { fontSize: 16, lineHeight: 22, color: Bby.muted, marginTop: 8 },
 });

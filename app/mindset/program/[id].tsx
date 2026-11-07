@@ -1,245 +1,123 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import {
-  BookOpen,
-  Check,
-  CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
-  Heart,
-  PenLine,
-  Play,
-  Sparkles,
-  Wind,
-} from 'lucide-react-native';
-import { useMemo } from 'react';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { ArrowRight, Check } from 'lucide-react-native';
+import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useMindsetProgram } from '@/lib/use-mindset-programs';
-import type { MindsetProgramStep, MindsetProgramStepKind } from '@/lib/types';
+import { ActionBar, BFont, Bby, Card, Chip } from '@/components/bby/kit';
+import { BackRow, Body, MindsetFilters, MScreen, mstyles, Small } from '@/components/bby/mindset/ui';
+import { useParcours } from '@/lib/mindset/use-parcours';
 
-const STEP_ICON: Record<MindsetProgramStepKind, typeof Wind> = {
-  breathing: Wind,
-  affirmation: Sparkles,
-  reading: BookOpen,
-  meditation: Heart,
-  journal_prompt: PenLine,
-};
+const PHASES = [
+  { key: 'comprendre', a: 1, b: 2 },
+  { key: 'essayer', a: 3, b: 5 },
+  { key: 'ancrer', a: 6, b: 7 },
+] as const;
 
-export default function MindsetProgramDetail() {
+// Écran 2 · Fiche d'un parcours : présentation avant de commencer.
+export default function ParcoursSheet() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
-  const { program, steps, progress, loading, start, completeDay } = useMindsetProgram(id);
+  const { program, progress, state, loading, refresh, start } = useParcours(id);
+  const [busy, setBusy] = useState(false);
 
-  const byDay = useMemo(() => {
-    const map = new Map<number, MindsetProgramStep[]>();
-    for (const s of steps) {
-      const arr = map.get(s.day_number) ?? [];
-      arr.push(s);
-      map.set(s.day_number, arr);
-    }
-    return Array.from(map.entries()).sort((a, b) => a[0] - b[0]);
-  }, [steps]);
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh]),
+  );
 
-  const currentDay = progress?.current_day ?? 1;
-  const isDone = !!progress?.completed_at;
+  if (loading || !program) return <MScreen><BackRow /></MScreen>;
 
-  function openStep(s: MindsetProgramStep) {
-    if (s.kind === 'breathing' && s.ref_slug) router.push(`/mindset/breathe?slug=${s.ref_slug}&duration=5` as any);
-    else if (s.kind === 'journal_prompt') router.push('/mindset-log?kind=journal' as any);
-    else if (s.ref_content_id) router.push(`/mindset/${s.ref_content_id}` as any);
-  }
+  const begin = async () => {
+    if (busy) return;
+    setBusy(true);
+    await start();
+    setBusy(false);
+    router.push(`/mindset/day?program=${program.id}` as any);
+  };
 
-  if (loading) {
-    return (
-      <View style={[styles.flex, { backgroundColor: palette.background, alignItems: 'center', justifyContent: 'center' }]}>
-        <ActivityIndicator color={palette.text} />
-      </View>
-    );
-  }
-  if (!program) {
-    return <View style={[styles.flex, { backgroundColor: palette.background }]} />;
+  const restart = () =>
+    Alert.alert(t('v2mindset.parcours.restartTitle'), t('v2mindset.parcours.restartBody'), [
+      { text: t('v2mindset.common.cancel'), style: 'cancel' },
+      { text: t('v2mindset.parcours.restart'), onPress: begin },
+    ]);
+
+  // Commencer · Reprendre au jour N · (terminé) Retrouver mon geste / Recommencer
+  let label = t('v2mindset.parcours.start');
+  let action = begin;
+  if (state.started && !state.finished) {
+    label = t('v2mindset.parcours.resume', { n: state.day });
+    action = async () => router.push(`/mindset/day?program=${program.id}` as any);
+  } else if (state.finished && !progress?.kept) {
+    label = t('v2mindset.parcours.findGesture');
+    action = async () => router.push(`/mindset/closing?program=${program.id}` as any);
+  } else if (state.finished) {
+    label = t('v2mindset.parcours.restart');
+    action = async () => restart();
   }
 
   return (
-    <View style={[styles.flex, { backgroundColor: palette.background }]}>
-      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <ChevronLeft size={24} color={palette.text} />
-          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-            {t('common.back')}
-          </Text>
-        </Pressable>
-      </View>
+    <MScreen>
+      <BackRow />
+      <MindsetFilters value="parcours" />
 
-      <ScrollView
-        contentContainerStyle={{ paddingHorizontal: Spacing.xl, paddingBottom: insets.bottom + Spacing.xxl }}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={[styles.eyebrow, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-          {t('programs.dayCount', { count: program.day_count }).toUpperCase()}
-        </Text>
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>{program.title}</Text>
-        {program.description ? (
-          <Text style={[styles.desc, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-            {program.description}
-          </Text>
-        ) : null}
-
-        {!progress ? (
-          <Pressable
-            onPress={start}
-            style={({ pressed }) => [styles.cta, { backgroundColor: palette.text, opacity: pressed ? 0.85 : 1 }]}
-          >
-            <Play size={16} color={palette.background} />
-            <Text style={[styles.ctaText, { color: palette.background, fontFamily: Fonts.sansSemibold }]}>
-              {t('programs.start')}
-            </Text>
-          </Pressable>
-        ) : isDone ? (
-          <View style={styles.completedBanner}>
-            <CheckCircle2 size={18} color={palette.textSecondary} />
-            <Text style={[styles.completedText, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-              {t('programs.completed')}
-            </Text>
-          </View>
-        ) : (
-          <Text style={[styles.progressLine, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-            {t('programs.dayProgress', { current: currentDay, total: program.day_count })}
-          </Text>
-        )}
-
-        <View style={{ gap: Spacing.md, marginTop: Spacing.xl }}>
-          {byDay.map(([day, daySteps]) => {
-            const state = day < currentDay || isDone ? 'done' : day === currentDay ? 'current' : 'upcoming';
-            return (
-              <View
-                key={day}
-                style={[
-                  styles.dayCard,
-                  { backgroundColor: palette.surface },
-                  state === 'current' && { borderWidth: 1, borderColor: palette.border },
-                ]}
-              >
-                <View style={styles.dayHead}>
-                  <View
-                    style={[
-                      styles.dayBadge,
-                      { backgroundColor: state === 'upcoming' ? palette.background : palette.text },
-                    ]}
-                  >
-                    {state === 'done' ? (
-                      <Check size={13} color={palette.background} />
-                    ) : (
-                      <Text
-                        style={{
-                          color: state === 'current' ? palette.background : palette.textSecondary,
-                          fontFamily: Fonts.sansSemibold,
-                          fontSize: 12,
-                        }}
-                      >
-                        {day}
-                      </Text>
-                    )}
-                  </View>
-                  <Text style={[styles.dayTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                    {t('programs.day')} {day}
-                  </Text>
-                </View>
-
-                <View style={{ marginTop: Spacing.sm }}>
-                  {daySteps.map((s) => {
-                    const Icon = STEP_ICON[s.kind];
-                    const tappable = state === 'current';
-                    return (
-                      <Pressable
-                        key={s.id}
-                        onPress={() => tappable && openStep(s)}
-                        disabled={!tappable}
-                        style={styles.step}
-                      >
-                        <Icon
-                          size={16}
-                          color={tappable ? palette.textSecondary : palette.textSecondary}
-                          strokeWidth={1.8}
-                        />
-                        <View style={{ flex: 1 }}>
-                          {s.title ? (
-                            <Text
-                              style={{
-                                color: tappable ? palette.text : palette.textSecondary,
-                                fontFamily: Fonts.sans,
-                                fontSize: 14,
-                              }}
-                            >
-                              {s.title}
-                            </Text>
-                          ) : null}
-                          {s.prompt_text ? (
-                            <Text style={[styles.stepPrompt, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                              {s.prompt_text}
-                            </Text>
-                          ) : null}
-                        </View>
-                        {tappable && s.kind !== 'affirmation' ? (
-                          <ChevronRight size={16} color={palette.textSecondary} />
-                        ) : null}
-                      </Pressable>
-                    );
-                  })}
-                </View>
-
-                {state === 'current' && !isDone ? (
-                  <Pressable
-                    onPress={() => completeDay(day)}
-                    style={[styles.doneBtn, { borderColor: palette.border }]}
-                  >
-                    <Check size={15} color={palette.text} />
-                    <Text style={[styles.doneBtnText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-                      {t('programs.markDone')}
-                    </Text>
-                  </Pressable>
-                ) : null}
-              </View>
-            );
-          })}
+      {program.photo_url ? (
+        <View style={s.photo}>
+          <Image source={{ uri: program.photo_url }} style={StyleSheet.absoluteFill} resizeMode="cover" />
         </View>
-      </ScrollView>
-    </View>
+      ) : null}
+
+      <View style={[mstyles.chips, { marginTop: 8 }]}>
+        <Chip label={t('v2mindset.common.daysCount', { count: program.day_count })} yellow />
+        {program.minutes_range ? <Chip label={program.minutes_range} /> : null}
+      </View>
+      <Text style={[mstyles.bigTitle, { marginTop: 6 }]}>{program.title}</Text>
+      {program.subtitle ? <Text style={[mstyles.serif, s.subtitle]}>{program.subtitle}</Text> : null}
+
+      {program.for_you_if ? (
+        <Card tone="dark" style={{ marginTop: 8 }}>
+          <Small>{t('v2mindset.parcours.forYouIf')}</Small>
+          <Body style={{ marginTop: 8 }}>{program.for_you_if}</Body>
+        </Card>
+      ) : null}
+
+      <Card tone="alt">
+        <Small>{t('v2mindset.parcours.path')}</Small>
+        {PHASES.map((p, i) => (
+          <View key={p.key}>
+            {i > 0 ? <View style={mstyles.sep} /> : null}
+            <View style={s.phaseRow}>
+              <Text style={s.phase}>{t(`v2mindset.parcours.phase.${p.key}`)}</Text>
+              <Small>{t('v2mindset.parcours.daysRange', { a: p.a, b: p.b })}</Small>
+            </View>
+          </View>
+        ))}
+      </Card>
+
+      <View style={{ marginTop: 10 }}>
+        <ActionBar
+          label={label}
+          icon={Check}
+          onPress={action}
+          disabled={busy}
+          trailing={<ArrowRight size={20} color={Bby.ink} />}
+          note={t('v2mindset.parcours.dailyNote')}
+        />
+      </View>
+      {state.started && !state.finished ? (
+        <Pressable onPress={restart} hitSlop={10} style={{ alignSelf: 'center', marginTop: 8 }}>
+          <Small style={{ textDecorationLine: 'underline' }}>{t('v2mindset.parcours.restart')}</Small>
+        </Pressable>
+      ) : null}
+    </MScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  topBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.lg, paddingBottom: Spacing.sm },
-  back: { flexDirection: 'row', alignItems: 'center' },
-  backText: { fontSize: 15, marginLeft: 2 },
-  eyebrow: { fontSize: 11, letterSpacing: 1.4, marginTop: Spacing.lg },
-  title: { fontSize: 30, letterSpacing: -0.5, marginTop: Spacing.sm },
-  desc: { fontSize: 15, lineHeight: 22, marginTop: Spacing.md },
-  cta: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm,
-    height: 50, borderRadius: Radius.pill, marginTop: Spacing.xl,
-  },
-  ctaText: { fontSize: 15 },
-  completedBanner: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, justifyContent: 'center', marginTop: Spacing.xl },
-  completedText: { fontSize: 14 },
-  progressLine: { fontSize: 13, textAlign: 'center', marginTop: Spacing.xl },
-  dayCard: { borderRadius: Radius.md, padding: Spacing.lg },
-  dayHead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
-  dayBadge: { width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
-  dayTitle: { fontSize: 14 },
-  step: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingVertical: Spacing.sm },
-  stepPrompt: { fontSize: 13.5, marginTop: 2, lineHeight: 19, fontStyle: 'italic' },
-  doneBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm,
-    height: 44, borderRadius: Radius.pill, borderWidth: 1, marginTop: Spacing.sm,
-  },
-  doneBtnText: { fontSize: 13 },
+const s = StyleSheet.create({
+  photo: { height: 190, borderRadius: 26, overflow: 'hidden', backgroundColor: Bby.card, marginTop: 4 },
+  subtitle: { color: Bby.muted, fontSize: 18, lineHeight: 25, marginTop: 4 },
+  phaseRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14 },
+  phase: { fontFamily: BFont.display, fontSize: 20, color: Bby.text, letterSpacing: -0.2 },
 });

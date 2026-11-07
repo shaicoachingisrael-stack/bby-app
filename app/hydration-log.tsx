@@ -1,151 +1,51 @@
 import { useRouter } from 'expo-router';
-import { ChevronLeft, Droplet } from 'lucide-react-native';
-import { useState } from 'react';
+import { Droplet } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import {
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useAuth } from '@/lib/auth-provider';
-import { supabase } from '@/lib/supabase';
+import { ActionBar, BFont, Bby, Card, Editorial, PillButton } from '@/components/bby/kit';
+import { FooterScreen, NavHeader, ScreenTitle } from '@/components/bby/nutrition/ui';
+import { useDayLog } from '@/lib/nutrition/day-log';
+import { liters } from '@/lib/nutrition/format';
+import { useDayTargets } from '@/lib/nutrition/targets';
 
-const QUICK = [250, 500, 1000];
-
+// Hydratation du jour : + 20 cl / + 50 cl, cumul simple, aucun compteur à remplir.
 export default function HydrationLogScreen() {
+  const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
-  const { user } = useAuth();
-  const [busy, setBusy] = useState<number | null>(null);
+  const { waterMl, addWater } = useDayLog();
+  const { targets } = useDayTargets();
+  const lang = i18n.language;
 
-  async function add(ml: number) {
-    if (!user) return;
-    setBusy(ml);
-    try {
-      const { error } = await supabase
-        .from('hydration_entries')
-        .insert({ user_id: user.id, ml });
-      if (error) throw error;
-      router.back();
-    } catch (e: any) {
-      Alert.alert(t('common.error'), e?.message ?? t('common.saveImpossible'));
-    } finally {
-      setBusy(null);
-    }
-  }
+  const add = (ml: number) => addWater(ml).catch((e) => Alert.alert(t('v2nutrition.common.error'), e?.message ?? ''));
 
   return (
-    <View style={[styles.flex, { backgroundColor: palette.background }]}>
-      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <ChevronLeft size={24} color={palette.text} />
-          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-            {t('common.back')}
-          </Text>
-        </Pressable>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={{
-          paddingHorizontal: Spacing.xl,
-          paddingBottom: insets.bottom + Spacing.xxl,
-          gap: Spacing.xl,
-        }}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          {t('hydrationLog.title')}
-        </Text>
-        <Text style={[styles.subtitle, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          {t('hydrationLog.subtitle')}
-        </Text>
-
-        <View style={{ gap: Spacing.md, marginTop: Spacing.lg }}>
-          {QUICK.map((ml) => (
-            <Pressable
-              key={ml}
-              disabled={busy !== null}
-              onPress={() => add(ml)}
-              style={({ pressed }) => [
-                styles.button,
-                {
-                  backgroundColor: busy === ml ? palette.text : palette.surface,
-                  borderColor: palette.border,
-                  opacity: pressed ? 0.85 : 1,
-                },
-              ]}
-            >
-              <View
-                style={[
-                  styles.iconWrap,
-                  { backgroundColor: busy === ml ? palette.background : palette.text },
-                ]}
-              >
-                <Droplet
-                  size={20}
-                  color={busy === ml ? palette.text : palette.background}
-                  fill={busy === ml ? palette.text : palette.background}
-                />
-              </View>
-              <Text
-                style={[
-                  styles.amount,
-                  {
-                    color: busy === ml ? palette.background : palette.text,
-                    fontFamily: Fonts.displayBold,
-                  },
-                ]}
-              >
-                + {ml} ml
-              </Text>
-            </Pressable>
-          ))}
+    <FooterScreen footer={<ActionBar label={t('v2nutrition.common.done')} onPress={() => router.back()} />}>
+      <NavHeader />
+      <ScreenTitle sub={t('v2nutrition.water.sub')}>{t('v2nutrition.water.title')}</ScreenTitle>
+      <Card tone="alt">
+        <View style={s.row}>
+          <View style={s.drop}>
+            <Droplet size={22} color={Bby.text} strokeWidth={1.8} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={s.big}>{t('v2nutrition.common.liters', { l: liters(waterMl, lang) })}</Text>
+            <Text style={s.sub}>{t('v2nutrition.today.waterTracked', { l: liters(targets?.waterMl ?? 2000, lang, 0.5) })}</Text>
+          </View>
         </View>
-      </ScrollView>
-    </View>
+        <View style={[s.row, { marginTop: 16, gap: 8 }]}>
+          <PillButton label={t('v2nutrition.today.add20')} variant="outline" style={{ flex: 1 }} onPress={() => add(200)} />
+          <PillButton label={t('v2nutrition.today.add50')} variant="outline" style={{ flex: 1 }} onPress={() => add(500)} />
+        </View>
+      </Card>
+      <Editorial style={{ marginTop: 12 }}>{t('v2nutrition.water.editorial')}</Editorial>
+    </FooterScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.sm,
-  },
-  back: { flexDirection: 'row', alignItems: 'center' },
-  backText: { fontSize: 15, marginLeft: 2 },
-  title: {
-    fontSize: 30,
-    letterSpacing: -0.5,
-    marginTop: Spacing.lg,
-  },
-  subtitle: { fontSize: 15, lineHeight: 22 },
-  button: {
-    height: 80,
-    borderRadius: Radius.lg,
-    borderWidth: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.xl,
-    gap: Spacing.lg,
-  },
-  iconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  amount: { fontSize: 24, letterSpacing: -0.4 },
+const s = StyleSheet.create({
+  row: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  drop: { width: 48, height: 48, borderRadius: 24, borderWidth: 1.5, borderColor: Bby.line, alignItems: 'center', justifyContent: 'center' },
+  big: { fontFamily: BFont.display, fontSize: 32, color: Bby.text },
+  sub: { fontFamily: BFont.sans, fontSize: 14, color: Bby.muted, marginTop: 2 },
 });

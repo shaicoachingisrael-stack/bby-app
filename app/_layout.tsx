@@ -13,6 +13,8 @@ import {
   Montserrat_700Bold,
 } from '@expo-google-fonts/montserrat';
 import { DarkTheme, ThemeProvider } from '@react-navigation/native';
+import { Syne_700Bold, Syne_800ExtraBold } from '@expo-google-fonts/syne';
+import { Fraunces_400Regular_Italic } from '@expo-google-fonts/fraunces';
 import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -76,7 +78,8 @@ function RootStack() {
         colors: { ...DarkTheme.colors, background: palette.background, card: palette.background, border: palette.border, text: palette.text },
       }}
     >
-      <Stack>
+      {/* Par défaut, aucun en-tête système : chaque écran dessine le sien. */}
+      <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
@@ -151,6 +154,9 @@ function RootStack() {
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
+    Syne_700Bold,
+    Syne_800ExtraBold,
+    Fraunces_400Regular_Italic,
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,

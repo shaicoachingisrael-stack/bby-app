@@ -61,31 +61,33 @@ export const Colors = {
     done: Palette.albatre,
     tabBar: 'rgba(20,20,18,0.7)',
   },
+  // « ember » = l'apparence par défaut, devenue la charte de la refonte de Shaï
+  // (nov. 2026) : noir, blanc cassé, jaune. Mêmes valeurs que `Bby` (components/bby/kit.tsx).
   ember: {
-    text: '#FFF4EE',
-    textSecondary: '#B49FBE',
-    background: '#0B0710',
-    surface: '#160F1E',
-    surfaceAlt: '#211632',
-    border: '#31213F',
-    tint: '#FF3D7F',
-    icon: '#B49FBE',
-    tabIconDefault: '#8E7A99',
-    tabIconSelected: '#FFF4EE',
-    accent: '#FF3D7F',
-    accentMid: '#FF7A4D',
-    accentEnd: '#FFB03A',
-    accentSoft: 'rgba(255,61,127,0.14)',
-    onAccent: '#22070F',
-    done: '#3BE0A0',
-    tabBar: 'rgba(22,15,30,0.82)',
+    text: '#FAFAF8',
+    textSecondary: '#A8A8A4',
+    background: '#0A0A0A',
+    surface: '#1C1C1B',
+    surfaceAlt: '#2A2A28',
+    border: 'rgba(250,250,248,0.16)',
+    tint: '#E8F27C',
+    icon: '#A8A8A4',
+    tabIconDefault: '#A8A8A4',
+    tabIconSelected: '#0A0A0A',
+    accent: '#E8F27C',
+    accentMid: '#E8F27C',
+    accentEnd: '#E8F27C',
+    accentSoft: 'rgba(232,242,124,0.14)',
+    onAccent: '#0A0A0A',
+    done: '#E8F27C',
+    tabBar: '#1E1E1D',
   },
 };
 
 export type SchemeName = keyof typeof Colors;
 
 const DISPLAY_FONTS = {
-  ember: { display: 'BricolageGrotesque_600SemiBold', displayBold: 'BricolageGrotesque_800ExtraBold' },
+  ember: { display: 'Syne_700Bold', displayBold: 'Syne_800ExtraBold' },
   encre: { display: 'Montserrat_600SemiBold', displayBold: 'Montserrat_700Bold' },
 } as const;
 
