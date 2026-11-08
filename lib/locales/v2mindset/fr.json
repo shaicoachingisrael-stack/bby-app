@@ -230,5 +230,8 @@
     "anchorNote": "Un nouveau geste tient mieux quand il s'accroche à un ancien.",
     "rhythmNote": "D'autres rythmes viendront.",
     "submit": "Ajouter à ma liste"
+  },
+  "library": {
+    "title": "Méditations et lectures"
   }
 }

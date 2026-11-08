@@ -26,7 +26,7 @@ export default function MindsetAdminScreen() {
       <View style={{ gap: 18 }}>
         <AdminHeader
           title="Mindset"
-          intro="Ta bibliothèque de méditations, articles et affirmations. Depuis la nouvelle version de l’app, ces contenus ne sont plus affichés aux clientes : ce sont les Parcours et les Affirmations du jour qui les remplacent. Tu peux les garder ici en réserve."
+          intro="Tes méditations et lectures. Elles s’affichent dans Mindset › Tous, sous « Méditations et lectures ». Touche un contenu pour le modifier."
         />
         <PillButton label="Créer un contenu" icon={Plus} variant="yellow" onPress={() => router.push('/(admin)/mindset-edit' as any)} />
 

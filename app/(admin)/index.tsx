@@ -3,6 +3,7 @@ import { Bell, CheckCircle2, ChevronRight, Dumbbell, FileText, GitBranch, Leaf, 
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { CoachNotificationsCard } from '@/components/bby/admin/coach-notifications';
 import { AdminHeader } from '@/components/bby/admin/ui';
 import { BFont, Bby, BbyScreen } from '@/components/bby/kit';
 import { supabase } from '@/lib/supabase';
@@ -45,6 +46,7 @@ export default function AdminDashboard() {
     <BbyScreen bottomSpace={40}>
       <View style={{ gap: 18 }}>
         <AdminHeader title="Tableau de bord" intro="Gère le contenu que tes clientes voient dans l’app. Touche une rubrique pour l’ouvrir." />
+        <CoachNotificationsCard />
 
         <Text style={st.group}>Training</Text>
         <View style={{ gap: 10 }}>

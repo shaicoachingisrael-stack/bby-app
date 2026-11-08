@@ -1,4 +1,5 @@
 import { Image } from 'expo-image';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { ChevronLeft, Clock, Heart } from 'lucide-react-native';
 import { useCallback } from 'react';
@@ -67,13 +68,13 @@ export default function MindsetDetailScreen() {
     <View style={[styles.flex, { backgroundColor: palette.background }]}>
       <View style={styles.hero}>
         {item.cover_url ? (
-          <Image
-            source={{ uri: item.cover_url }}
-            style={StyleSheet.absoluteFill}
-            contentFit="cover"
-          />
+          /\.(mp4|mov|m4v)(\?|$)/i.test(item.cover_url) ? (
+            <HeroVideo uri={item.cover_url} />
+          ) : (
+            <Image source={{ uri: item.cover_url }} style={StyleSheet.absoluteFill} contentFit="cover" />
+          )
         ) : (
-          <View style={[StyleSheet.absoluteFill, { backgroundColor: Palette.gray[300] }]} />
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: '#1C1C1B' }]} />
         )}
         <View style={styles.heroOverlay} />
         <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
@@ -157,7 +158,7 @@ export default function MindsetDetailScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  hero: { height: 380, overflow: 'hidden', backgroundColor: Palette.gray[200] },
+  hero: { height: 380, overflow: 'hidden', backgroundColor: '#1C1C1B' },
   heroOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(10,10,10,0.32)',
@@ -218,3 +219,13 @@ const styles = StyleSheet.create({
   },
   ctaText: { fontSize: 16 },
 });
+
+// Couverture vidéo (méditations) : lecture en boucle, sans le son, comme sur l'ancien accueil.
+function HeroVideo({ uri }: { uri: string }) {
+  const player = useVideoPlayer(uri, (p) => {
+    p.loop = true;
+    p.muted = true;
+    p.play();
+  });
+  return <VideoView player={player} style={StyleSheet.absoluteFill} contentFit="cover" nativeControls={false} />;
+}

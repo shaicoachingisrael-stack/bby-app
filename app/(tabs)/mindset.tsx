@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next';
 
 import { BbyScreen, BigTitle, PillTabs, TopBar } from '@/components/bby/kit';
 import { type MindsetFilter, useFilterItems } from '@/components/bby/mindset/ui';
-import { AllView, JournalView, ParcoursView, RitualsView } from '@/components/bby/mindset/views';
+import { AllView, JournalView, LibrarySection, ParcoursView, RitualsView } from '@/components/bby/mindset/views';
 import { useAuth } from '@/lib/auth-provider';
 import { useJournal } from '@/lib/mindset/use-journal';
 import { useMyRituals } from '@/lib/mindset/use-my-rituals';
 import { useParcoursList } from '@/lib/mindset/use-parcours';
+import { useMindsetContent } from '@/lib/use-content';
 import { useDailyAffirmation } from '@/lib/use-daily-affirmation';
 import { useProfile } from '@/lib/use-profile';
 
@@ -53,17 +54,20 @@ export default function MindsetScreen() {
   const parcours = useParcoursList();
   const journal = useJournal();
   const rituals = useMyRituals();
+  const library = useMindsetContent();
 
   const { refresh: rp } = parcours;
   const { refresh: rj } = journal;
   const { refresh: rr } = rituals;
+  const { refresh: rl } = library;
   useFocusEffect(
     useCallback(() => {
       refreshAffirmation();
       rp();
       rj();
       rr();
-    }, [refreshAffirmation, rp, rj, rr]),
+      rl();
+    }, [refreshAffirmation, rp, rj, rr, rl]),
   );
 
   const parcoursTags = useMemo(() => {
@@ -93,6 +97,9 @@ export default function MindsetScreen() {
           nextRitual={rituals.next?.label ?? null}
           onFilter={choose}
         />
+      ) : null}
+      {filter === 'all' ? (
+        <LibrarySection items={library.items} />
       ) : null}
       {filter === 'parcours' && !parcours.loading ? <ParcoursView
           active={parcours.active}

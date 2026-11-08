@@ -227,5 +227,8 @@
     "anchorNote": "A new gesture holds better when it hooks onto an old one.",
     "rhythmNote": "Other rhythms will come.",
     "submit": "Add to my list"
+  },
+  "library": {
+    "title": "Meditations and readings"
   }
 }

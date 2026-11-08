@@ -25,6 +25,7 @@ import {
   isoDay,
   weekOf,
 } from '@/components/bby/kit';
+import { CoachNotificationsCard } from '@/components/bby/admin/coach-notifications';
 import { AdminButton } from '@/components/ui/admin-button';
 import { useAuth } from '@/lib/auth-provider';
 import { supabase } from '@/lib/supabase';
@@ -211,6 +212,7 @@ export default function TodayScreen() {
     <BbyScreen>
       <TopBar name={firstName} onSettings={() => router.push('/account' as any)} />
       <AdminButton />
+      <CoachNotificationsCard compact />
 
       <View style={styles.monthRow}>
         <Text style={styles.month} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>

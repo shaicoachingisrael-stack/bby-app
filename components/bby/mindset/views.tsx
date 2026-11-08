@@ -448,3 +448,32 @@ const s = StyleSheet.create({
   ritualTitle: { fontFamily: BFont.display, fontSize: 16, lineHeight: 20, letterSpacing: -0.2 },
   note: { textAlign: 'center', fontFamily: BFont.sans, fontSize: 13, color: Bby.muted, marginTop: 4 },
 });
+
+// ---------------------------------------------------------------------------
+// Méditations et lectures (contenus « Mindset » de l'admin, remis en place en attendant
+// leur nouvelle maquette) : liste simple, ouvre la page de lecture existante.
+
+export function LibrarySection({
+  items,
+}: {
+  items: { id: string; kind: string; title: string; duration_min: number | null }[];
+}) {
+  const router = useRouter();
+  const { t } = useTranslation();
+  if (!items.length) return null;
+  return (
+    <>
+      <SectionHeader title={t('v2mindset.library.title')} />
+      {items.map((m) => (
+        <RowCard
+          key={m.id}
+          tone="alt"
+          label={`${t(`mindset.kind.${m.kind}`)}${m.duration_min ? ` · ${m.duration_min} min` : ''}`}
+          title={m.title}
+          onPress={() => go(router, `/mindset/${m.id}`)}
+          right={<RoundButton icon={ArrowRight} variant="outline" size={48} />}
+        />
+      ))}
+    </>
+  );
+}
