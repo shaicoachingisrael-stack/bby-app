@@ -46,6 +46,7 @@
   "parcours": {
     "inProgressSection": "In progress",
     "discover": "To discover",
+    "finished": "Completed",
     "meta_one": "{{count}} day · {{range}}",
     "meta_other": "{{count}} days · {{range}}",
     "forYouIf": "For you if",

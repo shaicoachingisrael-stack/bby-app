@@ -48,6 +48,7 @@
   "parcours": {
     "inProgressSection": "В процессе",
     "discover": "Открыть для себя",
+    "finished": "Завершён",
     "meta_one": "{{count}} день · {{range}}",
     "meta_few": "{{count}} дня · {{range}}",
     "meta_many": "{{count}} дней · {{range}}",

@@ -47,6 +47,7 @@
   "parcours": {
     "inProgressSection": "בתהליך",
     "discover": "לגלות",
+    "finished": "הושלם",
     "meta_one": "יום אחד · {{range}}",
     "meta_two": "יומיים · {{range}}",
     "meta_other": "{{count}} ימים · {{range}}",

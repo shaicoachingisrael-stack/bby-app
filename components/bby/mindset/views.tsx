@@ -9,6 +9,7 @@ import {
   Bby,
   Card,
   CheckCircle,
+  Chip,
   Editorial,
   PillButton,
   RoundButton,
@@ -154,9 +155,19 @@ export function AllView({
 // ---------------------------------------------------------------------------
 // 1B · Parcours
 
-export function ParcoursView({ active, toDiscover }: { active: ActiveParcours[]; toDiscover: Parcours[] }) {
+export function ParcoursView({
+  active,
+  toDiscover,
+  finished = {},
+}: {
+  active: ActiveParcours[];
+  toDiscover: Parcours[];
+  finished?: Record<string, boolean>;
+}) {
   const router = useRouter();
   const { t } = useTranslation();
+  // Les parcours déjà terminés passent après les nouveaux : la carte jaune reste une découverte.
+  const ordered = [...toDiscover.filter((p) => !finished[p.id]), ...toDiscover.filter((p) => finished[p.id])];
   return (
     <>
       {active.length ? (
@@ -170,16 +181,21 @@ export function ParcoursView({ active, toDiscover }: { active: ActiveParcours[];
       {toDiscover.length ? (
         <>
           <SectionHeader title={t('v2mindset.parcours.discover')} />
-          {toDiscover.map((p, i) => (
-            <RowCard
-              key={p.id}
-              tone={i === 0 ? 'yellow' : 'alt'}
-              title={p.title}
-              sub={parcoursMeta(t, p)}
-              onPress={() => go(router, `/mindset/program/${p.id}`)}
-              right={<RoundButton icon={ArrowRight} variant={i === 0 ? 'outlineDark' : 'outline'} size={48} />}
-            />
-          ))}
+          {ordered.map((p, i) => {
+            const done = !!finished[p.id];
+            const highlight = i === 0 && !done;
+            return (
+              <RowCard
+                key={p.id}
+                tone={highlight ? 'yellow' : 'alt'}
+                badge={done ? <Chip label={t('v2mindset.parcours.finished')} /> : undefined}
+                title={p.title}
+                sub={parcoursMeta(t, p)}
+                onPress={() => go(router, `/mindset/program/${p.id}`)}
+                right={<RoundButton icon={ArrowRight} variant={highlight ? 'outlineDark' : 'outline'} size={48} />}
+              />
+            );
+          })}
         </>
       ) : null}
     </>

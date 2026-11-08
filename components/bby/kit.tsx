@@ -260,8 +260,10 @@ export function RowCard({
   right,
   onPress,
   left,
+  badge,
 }: {
   label?: string;
+  badge?: ReactNode;
   title: string;
   sub?: string;
   tone?: 'dark' | 'alt' | 'light' | 'yellow';
@@ -276,6 +278,7 @@ export function RowCard({
         {left}
         <View style={{ flex: 1 }}>
           {label ? <Text style={[s.cardLabel, { color: c.muted }]}>{label}</Text> : null}
+          {badge ? <View style={{ marginBottom: 8 }}>{badge}</View> : null}
           <Text style={[s.rowTitle, { color: c.text }]} numberOfLines={3}>
             {title}
           </Text>

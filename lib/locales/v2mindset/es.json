@@ -47,6 +47,7 @@
   "parcours": {
     "inProgressSection": "En curso",
     "discover": "Por descubrir",
+    "finished": "Terminado",
     "meta_one": "{{count}} día · {{range}}",
     "meta_many": "{{count}} días · {{range}}",
     "meta_other": "{{count}} días · {{range}}",

@@ -94,7 +94,11 @@ export default function MindsetScreen() {
           onFilter={choose}
         />
       ) : null}
-      {filter === 'parcours' && !parcours.loading ? <ParcoursView active={parcours.active} toDiscover={parcours.toDiscover} /> : null}
+      {filter === 'parcours' && !parcours.loading ? <ParcoursView
+          active={parcours.active}
+          toDiscover={parcours.toDiscover}
+          finished={Object.fromEntries(Object.entries(parcours.progress).map(([id, pr]) => [id, !!pr?.completed_at]))}
+        /> : null}
       {filter === 'journal' && !journal.loading ? (
         <JournalView entries={journal.entries} dayInfo={journal.dayInfo} todayPage={journal.todayPage} />
       ) : null}
