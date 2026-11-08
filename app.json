@@ -15,10 +15,10 @@
       "entitlements": {
         "aps-environment": "development"
       },
-      "buildNumber": "8"
+      "buildNumber": "9"
     },
     "android": {
-      "versionCode": 2,
+      "versionCode": 3,
       "package": "com.bodybyyou.app",
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
