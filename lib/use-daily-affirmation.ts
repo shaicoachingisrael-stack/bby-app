@@ -24,12 +24,25 @@ export function useDailyAffirmation() {
       return;
     }
     const now = new Date();
-    const { data } = await supabase
-      .from('daily_affirmations')
-      .select('*')
-      .eq('month', now.getMonth() + 1)
-      .eq('day', now.getDate())
-      .maybeSingle();
+    const query = () =>
+      supabase
+        .from('daily_affirmations')
+        .select('*')
+        .eq('month', now.getMonth() + 1)
+        .eq('day', now.getDate())
+        .maybeSingle();
+    let { data, error } = await query();
+    // Coupure réseau passagère (vue sur iPhone au retour dans l'app) : une seconde tentative
+    // avant de retomber sur le texte de secours, sans effacer la phrase déjà affichée.
+    if (error) {
+      await new Promise((r) => setTimeout(r, 1500));
+      ({ data, error } = await query());
+      if (error) {
+        console.warn('daily affirmation fetch', error);
+        setLoading(false);
+        return;
+      }
+    }
     const row = localize(data as DailyAffirmation | null, 'daily_affirmations', i18n.language);
     setAffirmation(row?.text?.trim() || null);
     setLoading(false);

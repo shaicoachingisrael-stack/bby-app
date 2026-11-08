@@ -12,7 +12,15 @@ export function useSavedPhrases() {
 
   const refresh = useCallback(async () => {
     if (!user) return setTexts(new Set());
-    const { data } = await supabase.from('saved_phrases').select('text').eq('user_id', user.id);
+    const query = () => supabase.from('saved_phrases').select('text').eq('user_id', user.id);
+    let { data, error } = await query();
+    // Réseau pas encore prêt (vu au premier lancement sur iPhone) : une seconde tentative,
+    // et on ne vide pas la liste déjà connue si elle échoue aussi.
+    if (error) {
+      await new Promise((r) => setTimeout(r, 1500));
+      ({ data, error } = await query());
+      if (error) return;
+    }
     setTexts(new Set(((data as { text: string }[] | null) ?? []).map((r) => r.text)));
   }, [user]);
 

@@ -292,7 +292,7 @@ const st = StyleSheet.create({
   recipeTitle: { fontFamily: BFont.display, fontSize: 18, lineHeight: 22, letterSpacing: -0.2 },
   meta: { fontFamily: BFont.sans, fontSize: 13, marginTop: 4 },
   nav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 52 },
-  title: { fontFamily: BFont.display, fontSize: 44, lineHeight: 50, color: Bby.text, letterSpacing: -0.8 },
+  title: { fontFamily: BFont.display, fontSize: 36, lineHeight: 41, color: Bby.text, letterSpacing: -0.7 },
   sub: { fontFamily: BFont.sans, fontSize: 15, lineHeight: 21, color: Bby.muted },
   fieldLabel: { fontFamily: BFont.sans, fontSize: 13, color: Bby.muted, marginTop: 8 },
   caps: { fontFamily: BFont.sansSemibold, fontSize: 12, letterSpacing: 1.2, marginTop: 16 },

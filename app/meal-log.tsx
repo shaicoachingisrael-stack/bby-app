@@ -179,7 +179,7 @@ export default function MealLogScreen() {
 
 const s = StyleSheet.create({
   date: { fontFamily: BFont.sans, fontSize: 14, color: Bby.muted },
-  title: { fontFamily: BFont.display, fontSize: 44, lineHeight: 50, color: Bby.text, letterSpacing: -0.8, marginTop: 10 },
+  title: { fontFamily: BFont.display, fontSize: 36, lineHeight: 41, color: Bby.text, letterSpacing: -0.8, marginTop: 10 },
   for: { fontFamily: BFont.sans, fontSize: 15, color: Bby.muted, marginBottom: 8 },
   search: {
     height: 56,
