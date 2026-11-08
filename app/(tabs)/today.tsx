@@ -4,7 +4,7 @@
 // séance, nutrition, rituels — cartes séparées, aucun score.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Check, Play, Plus } from 'lucide-react-native';
+import { Check, MessageCircle, Play, Plus, Sparkles } from 'lucide-react-native';
 import { ArrowLeft, ArrowRight } from '@/lib/rtl-icons';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -33,6 +33,7 @@ import { useAuth } from '@/lib/auth-provider';
 import { supabase } from '@/lib/supabase';
 import { useTodayMindset } from '@/lib/mindset/use-today-mindset';
 import type { MealType } from '@/lib/types';
+import { useMyCoaching } from '@/lib/use-coaching';
 import { useTodaySession } from '@/lib/use-content';
 import { useDayData } from '@/lib/use-day-data';
 import { useMenu } from '@/lib/use-meal-plan';
@@ -59,6 +60,9 @@ export default function TodayScreen() {
   const { data: day, refresh: refreshDay } = useDayData();
   const mindset = useTodayMindset();
   const refreshMindset = mindset.refresh;
+  // Coaching perso : « Ma coach » en haut de Ta journée pour ses clientes, l'offre en bas pour les autres.
+  const coaching = useMyCoaching();
+  const refreshCoaching = coaching.refresh;
 
   // Les séances n'ont pas d'image propre : on montre celle de leur programme.
   const [sessionCover, setSessionCover] = useState<string | null>(null);
@@ -94,7 +98,8 @@ export default function TodayScreen() {
       refreshMenu();
       refreshDay();
       refreshMindset();
-    }, [refreshSession, refreshMenu, refreshDay, refreshMindset]),
+      refreshCoaching();
+    }, [refreshSession, refreshMenu, refreshDay, refreshMindset, refreshCoaching]),
   );
 
   const intentionKey = `bby.intentionDone.${todayKey}`;
@@ -205,6 +210,27 @@ export default function TodayScreen() {
     );
   }
 
+  const todo = coaching.assignments.filter((x) => !x.done).length;
+  const coachCard = coaching.isClient ? (
+    <RowCard
+      tone="yellow"
+      label={t('coaching.myCoachTitle')}
+      title={t('coaching.todayCardSub')}
+      sub={todo ? t('v2today.coachTodo', { count: todo }) : undefined}
+      right={<RoundButton icon={MessageCircle} variant="outlineDark" onPress={() => router.push('/my-coach' as any)} />}
+      onPress={() => router.push('/my-coach' as any)}
+    />
+  ) : null;
+  const offerCard =
+    !coaching.loading && !coaching.isClient ? (
+      <RowCard
+        label={t('coachingOffer.discoverTitle')}
+        title={t('coachingOffer.discoverSub')}
+        right={<RoundButton icon={Sparkles} variant="outline" onPress={() => router.push('/coaching-offer' as any)} />}
+        onPress={() => router.push('/coaching-offer' as any)}
+      />
+    ) : null;
+
   const goSession = () => router.push((session ? `/session/${session.id}` : '/training') as any);
   const goMeal = () => router.push((meal?.recipe ? `/recipe/${meal.recipe.id}` : '/nutrition') as any);
   const goRituals = () =>
@@ -236,6 +262,7 @@ export default function TodayScreen() {
       {isNewcomer ? (
         <>
           <SectionHeader title={t('v2today.toStart')} />
+          {coachCard}
           <PhotoCard
             label={t('v2today.session')}
             title={t('v2today.chooseProgram')}
@@ -257,10 +284,12 @@ export default function TodayScreen() {
             right={<RoundButton icon={ArrowRight} variant="outline" onPress={goRituals} />}
             onPress={goRituals}
           />
+          {offerCard}
         </>
       ) : (
         <>
           <SectionHeader title={t('v2today.yourDay')} right={dayLabel} />
+          {coachCard}
           <PhotoCard
             tone="light"
             label={t('v2today.sessionOfDay')}
@@ -291,6 +320,7 @@ export default function TodayScreen() {
             right={<RoundButton icon={ArrowRight} variant="outline" onPress={goRituals} />}
             onPress={goRituals}
           />
+          {offerCard}
         </>
       )}
     </BbyScreen>

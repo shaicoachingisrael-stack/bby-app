@@ -50,5 +50,8 @@
     "see": "Ver",
     "next": "Próxima sesión"
   },
-  "hello": "Hola {{name}}"
+  "hello": "Hola {{name}}",
+  "coachTodo_one": "{{count}} paso pendiente",
+  "coachTodo_other": "{{count}} pasos pendientes",
+  "coachTodo_many": "{{count}} pasos pendientes"
 }

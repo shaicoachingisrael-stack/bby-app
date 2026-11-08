@@ -50,5 +50,7 @@
     "see": "לצפייה",
     "next": "האימון הבא"
   },
-  "hello": "שלום {{name}}"
+  "hello": "שלום {{name}}",
+  "coachTodo_one": "שלב {{count}} לביצוע",
+  "coachTodo_other": "{{count}} שלבים לביצוע"
 }

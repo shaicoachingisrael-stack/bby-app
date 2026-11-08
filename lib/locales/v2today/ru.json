@@ -50,5 +50,9 @@
     "see": "Смотреть",
     "next": "Следующая тренировка"
   },
-  "hello": "Привет, {{name}}"
+  "hello": "Привет, {{name}}",
+  "coachTodo_one": "{{count}} шаг впереди",
+  "coachTodo_other": "{{count}} шагов впереди",
+  "coachTodo_few": "{{count}} шага впереди",
+  "coachTodo_many": "{{count}} шагов впереди"
 }

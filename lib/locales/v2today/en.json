@@ -50,5 +50,7 @@
     "see": "See",
     "next": "Next session"
   },
-  "hello": "Hello {{name}}"
+  "hello": "Hello {{name}}",
+  "coachTodo_one": "{{count}} step to do",
+  "coachTodo_other": "{{count}} steps to do"
 }

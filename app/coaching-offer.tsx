@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   backText: { fontSize: 15, marginLeft: 2 },
   hero: { borderRadius: Radius.lg, padding: Spacing.xl, marginTop: Spacing.sm, gap: Spacing.sm, alignItems: 'flex-start' },
   heroEyebrow: { fontSize: 10, letterSpacing: 1.6, opacity: 0.7, marginTop: Spacing.md },
-  heroTitle: { fontSize: 28, letterSpacing: -0.5, lineHeight: 32 },
+  heroTitle: { fontSize: 18, letterSpacing: -0.2, lineHeight: 23 },
   pitch: { fontSize: 15.5, lineHeight: 23, marginTop: Spacing.lg },
   perk: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
   perkDot: { width: 26, height: 26, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
