@@ -72,6 +72,8 @@ export function AdminInput({ big, style, ...props }: TextInputProps & { big?: bo
       placeholderTextColor="#6E6E6A"
       selectionColor={Bby.yellow}
       multiline={big || props.multiline}
+      // Champs de chiffres : tout est sélectionné au toucher, la saisie remplace l'ancienne valeur.
+      selectTextOnFocus={!!props.keyboardType && props.keyboardType !== 'default'}
       {...props}
       style={[a.input, (big || props.multiline) && a.inputBig, big && { minHeight: 160 }, style]}
     />

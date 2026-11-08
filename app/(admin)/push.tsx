@@ -1,8 +1,10 @@
+import { useLocalSearchParams } from 'expo-router';
 import { Bell, Send } from 'lucide-react-native';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 
-import { AdminChoice, AdminField, AdminHeader, AdminInput, useLeaveGuard } from '@/components/bby/admin/ui';
+import { AdminChoice, AdminField, AdminHeader, AdminInput, AdminRow, useLeaveGuard } from '@/components/bby/admin/ui';
+import { useCoachingClients } from '@/lib/use-coaching-admin';
 import { ActionBar, BFont, Bby } from '@/components/bby/kit';
 import { FooterScreen } from '@/components/bby/nutrition/ui';
 import { supabase } from '@/lib/supabase';
@@ -16,7 +18,22 @@ const LINK_CHOICES: { key: string; label: string }[] = [
   { key: '/chat', label: 'Coach IA' },
 ];
 
+type Target = 'all' | 'one';
+const fold = (v: string) => v.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
 export default function PushAdminScreen() {
+  // Ouvert depuis la fiche d'une cliente : elle est déjà choisie.
+  const params = useLocalSearchParams<{ client?: string }>();
+  const { clients } = useCoachingClients();
+  const [target, setTarget] = useState<Target>(params.client ? 'one' : 'all');
+  const [clientId, setClientId] = useState<string | null>(params.client ?? null);
+  const [search, setSearch] = useState('');
+  const chosen = clients.find((c) => c.id === clientId) ?? null;
+  const chosenName = chosen?.display_name?.trim() || 'cette cliente';
+  const matches = useMemo(() => {
+    const q = fold(search.trim());
+    return clients.filter((c) => !q || fold(c.display_name ?? '').includes(q)).slice(0, 8);
+  }, [clients, search]);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
@@ -30,9 +47,15 @@ export default function PushAdminScreen() {
       Alert.alert('Il manque un texte', 'Écris un titre et un message avant d’envoyer.');
       return;
     }
+    if (target === 'one' && !clientId) {
+      Alert.alert('Choisis la cliente', 'Touche son nom dans la liste « À qui ».');
+      return;
+    }
     Alert.alert(
-      'Envoyer à toutes tes clientes ?',
-      'La notification part tout de suite sur leurs téléphones. On ne peut pas l’annuler ensuite.',
+      target === 'one' ? `Envoyer à ${chosenName} ?` : 'Envoyer à toutes tes clientes ?',
+      target === 'one'
+        ? 'Elle seule la reçoit, tout de suite. On ne peut pas l’annuler ensuite.'
+        : 'La notification part tout de suite sur leurs téléphones. On ne peut pas l’annuler ensuite.',
       [
         { text: 'Annuler', style: 'cancel' },
         {
@@ -53,16 +76,26 @@ export default function PushAdminScreen() {
           title: title.trim(),
           body: body.trim(),
           data: url ? { url } : undefined,
+          user_ids: target === 'one' && clientId ? [clientId] : undefined,
         },
       });
       if (error) throw error;
       const sent = (data as any)?.sent ?? 0;
       const errors = (data as any)?.errors ?? 0;
       const total = (data as any)?.total ?? 0;
-      Alert.alert(
-        'Push envoyé',
-        `${sent} envoyé(s) sur ${total}${errors ? ` (${errors} erreurs)` : ''}.`,
-      );
+      if (target === 'one' && total === 0) {
+        Alert.alert(
+          'Notification gardée dans l’app',
+          `${chosenName} n’a pas activé les notifications sur son téléphone : rien n’est arrivé sur son écran. Elle la verra dans la cloche de l’app.`,
+        );
+      } else {
+        Alert.alert(
+          'Notification envoyée',
+          target === 'one'
+            ? `Envoyée à ${chosenName}${errors ? ` (${errors} téléphone(s) en erreur)` : ''}.`
+            : `${sent} téléphone(s) sur ${total}${errors ? ` (${errors} en erreur)` : ''}.`,
+        );
+      }
       setTitle('');
       setBody('');
       setLinkUrl('');
@@ -81,15 +114,56 @@ export default function PushAdminScreen() {
           label={sending ? 'Envoi…' : 'Envoyer'}
           onPress={handleSend}
           disabled={sending}
-          note="À toutes tes clientes qui ont accepté les notifications."
+          note={
+            target === 'one'
+              ? chosen
+                ? `À ${chosenName} seulement.`
+                : 'Choisis d’abord la cliente.'
+              : 'À toutes tes clientes qui ont accepté les notifications.'
+          }
         />
       }
     >
       <View style={{ gap: 22 }}>
         <AdminHeader
           title="Envoyer une notification"
-          intro="Elle arrive sur le téléphone de toutes tes clientes qui ont accepté les notifications. Tu confirmes avant l’envoi."
+          intro="À toutes tes clientes, ou à une seule. Tu confirmes avant l’envoi."
         />
+
+        <AdminField label="À qui" hint="Toutes tes clientes, ou une seule que tu choisis.">
+          <AdminChoice
+            options={[
+              { key: 'all', label: 'Toutes mes clientes' },
+              { key: 'one', label: 'Une cliente' },
+            ]}
+            value={target}
+            onChange={setTarget}
+          />
+        </AdminField>
+
+        {target === 'one' ? (
+          <View style={{ gap: 10 }}>
+            {chosen ? (
+              <AdminRow top="Cliente choisie" title={chosenName} sub="Touche pour en choisir une autre" highlight onPress={() => setClientId(null)} />
+            ) : (
+              <>
+                <AdminInput value={search} onChangeText={setSearch} placeholder="Cherche son prénom…" autoCorrect={false} />
+                {matches.map((c) => (
+                  <AdminRow
+                    key={c.id}
+                    title={c.display_name?.trim() || 'Sans prénom'}
+                    sub={c.is_personal_coaching ? 'Coaching perso' : undefined}
+                    onPress={() => {
+                      setClientId(c.id);
+                      setSearch('');
+                    }}
+                  />
+                ))}
+                {!matches.length ? <Text style={st.empty}>Aucune cliente à ce nom.</Text> : null}
+              </>
+            )}
+          </View>
+        ) : null}
 
         <AdminField label="Titre" hint="En gras, en haut de la notification." counter={`${title.length} / 60`}>
           <AdminInput value={title} onChangeText={setTitle} placeholder="Ex : Nouvelle séance dispo" maxLength={60} />
@@ -129,6 +203,7 @@ export default function PushAdminScreen() {
 }
 
 const st = StyleSheet.create({
+  empty: { fontFamily: BFont.sans, fontSize: 14, color: Bby.muted, textAlign: 'center', paddingVertical: 8 },
   previewLabel: { fontFamily: BFont.sansBold, fontSize: 15, color: Bby.text },
   notif: { flexDirection: 'row', gap: 12, padding: 14, borderRadius: 22, backgroundColor: Bby.cardAlt },
   notifIcon: { width: 38, height: 38, borderRadius: 10, backgroundColor: Bby.yellow, alignItems: 'center', justifyContent: 'center' },

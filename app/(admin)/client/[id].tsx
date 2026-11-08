@@ -1,5 +1,5 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { MessageCircle, Plus, Trash2 } from 'lucide-react-native';
+import { Bell, MessageCircle, Plus, Target, Trash2 } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 
@@ -72,6 +72,36 @@ export default function ClientDetailScreen() {
           <View style={{ flex: 1 }}>
             <Text style={st.cardTitle}>Messagerie</Text>
             <Text style={st.cardSub}>Écris-lui directement.</Text>
+          </View>
+        </Pressable>
+
+        {/* Repères nutrition */}
+        <Pressable
+          onPress={() => router.push(`/(admin)/client-targets/${id}` as any)}
+          accessibilityRole="button"
+          style={({ pressed }) => [st.msgRow, pressed && { opacity: 0.85 }]}
+        >
+          <View style={st.msgIcon}>
+            <Target size={20} color={Bby.ink} strokeWidth={2} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={st.cardTitle}>Ses repères</Text>
+            <Text style={st.cardSub}>Protéines, lipides, glucides, eau, calories.</Text>
+          </View>
+        </Pressable>
+
+        {/* Notification à elle seule */}
+        <Pressable
+          onPress={() => router.push(`/(admin)/push?client=${id}` as any)}
+          accessibilityRole="button"
+          style={({ pressed }) => [st.msgRow, pressed && { opacity: 0.85 }]}
+        >
+          <View style={st.msgIcon}>
+            <Bell size={20} color={Bby.ink} strokeWidth={2} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={st.cardTitle}>Lui envoyer une notification</Text>
+            <Text style={st.cardSub}>Elle seule la reçoit.</Text>
           </View>
         </Pressable>
 

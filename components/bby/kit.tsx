@@ -423,7 +423,7 @@ export function MacroTiles({
 }) {
   // Même taille de chiffre dans les trois tuiles : un « 262 » ne doit pas paraître plus petit qu'un « 96 ».
   const longest = Math.max(...values.map((v) => String(v).length));
-  const valueSize = longest >= 4 ? { fontSize: 22 } : longest === 3 ? { fontSize: 26 } : null;
+  const valueSize = longest >= 4 ? { fontSize: 18 } : longest === 3 ? { fontSize: 22 } : null;
   return (
     <View style={s.tiles}>
       {values.map((v, i) => (

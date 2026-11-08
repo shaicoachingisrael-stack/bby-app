@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Bell, CheckCircle2, ChevronRight, Dumbbell, FileText, GitBranch, Leaf, Sun, Users, UtensilsCrossed } from 'lucide-react-native';
+import { Apple, Bell, CheckCircle2, ChevronRight, Dumbbell, FileText, GitBranch, Leaf, Sun, Users, UtensilsCrossed } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -55,7 +55,10 @@ export default function AdminDashboard() {
         </View>
 
         <Text style={st.group}>Nutrition</Text>
-        <Tile icon={UtensilsCrossed} title="Recettes" count={counts.recipes} onPress={go('/(admin)/recipes')} />
+        <View style={{ gap: 10 }}>
+          <Tile icon={UtensilsCrossed} title="Recettes" count={counts.recipes} onPress={go('/(admin)/recipes')} />
+          <Tile icon={Apple} title="Aliments" count="Pour « Noter mon repas »" onPress={go('/(admin)/foods')} />
+        </View>
 
         <Text style={st.group}>Mindset</Text>
         <View style={{ gap: 10 }}>

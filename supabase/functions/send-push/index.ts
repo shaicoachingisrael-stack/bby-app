@@ -79,8 +79,14 @@ Deno.serve(async (req) => {
     title = (body.title ?? '').trim();
     message = (body.body ?? '').trim();
     if (!title || !message) return json({ error: 'title et body requis' }, 400);
-    // Persist a history row so users can see this in their inbox even if APNs fails or is offline
-    await admin.from('notifications').insert({ title, body: message, data: body.data ?? null });
+    // Persist a history row so users can see this in their inbox even if APNs fails or is offline.
+    // Envoi à UNE cliente : la ligne lui est réservée (colonne user_id, migration 037) ;
+    // à plusieurs clientes choisies : pas d'historique partagé (il serait lu par toutes).
+    if (!targetIds) {
+      await admin.from('notifications').insert({ title, body: message, data: body.data ?? null });
+    } else if (targetIds.length === 1) {
+      await admin.from('notifications').insert({ title, body: message, data: body.data ?? null, user_id: targetIds[0] });
+    }
   }
 
   let q = admin

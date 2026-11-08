@@ -42,7 +42,12 @@ const FIELDS_BY_TABLE: Record<string, string[]> = {
   mindset_program_steps: ['title', 'prompt_text', 'idea', 'gesture', 'take_away'],
   // Affirmations du jour : pas de colonne id, la clé est (month, day) → id reçu sous la forme « 11-8 ».
   daily_affirmations: ['text'],
+  // Base d'aliments (« Noter mon repas ») : l'app lit i18n.<langue>.name et .portion.
+  food_items: ['name', 'portion_label'],
 };
+
+// Nom de la clé dans i18n quand il diffère du nom de colonne.
+const I18N_KEY: Record<string, Record<string, string>> = { food_items: { portion_label: 'portion' } };
 
 // Filtre « cette ligne-là » : par id, ou par (mois, jour) pour les affirmations.
 function rowKey(table: string, id: string): Record<string, string | number> | null {
@@ -153,7 +158,7 @@ Deno.serve(async (req) => {
       const clean: Record<string, string> = {};
       for (const f of fields) {
         const v = block[f];
-        if (typeof v === 'string' && v.trim().length > 0) clean[f] = v;
+        if (typeof v === 'string' && v.trim().length > 0) clean[I18N_KEY[table]?.[f] ?? f] = v;
       }
       if (Object.keys(clean).length > 0) i18n[loc] = clean;
     }
