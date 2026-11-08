@@ -1,21 +1,11 @@
 // Petits composants propres à l'onglet Mindset (le kit commun reste intact).
 import { useRouter } from 'expo-router';
-import { ArrowLeft, Bookmark, BookmarkCheck, Lock, Share2 } from 'lucide-react-native';
+import { Bookmark, BookmarkCheck, Lock, Share2 } from 'lucide-react-native';
+import { ArrowLeft } from '@/lib/rtl-icons';
 import { ReactNode, forwardRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleProp,
-  StyleSheet,
-  Text,
-  TextInput,
-  TextInputProps,
-  TextStyle,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleProp, StyleSheet, TextInputProps, TextStyle, View, ViewStyle } from 'react-native';
+import { Text, TextInput } from '@/components/ui/text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BFont, Bby, PillTabs, RoundButton, StatusFill } from '@/components/bby/kit';

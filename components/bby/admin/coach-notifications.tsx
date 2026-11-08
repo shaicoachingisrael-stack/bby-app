@@ -6,7 +6,8 @@ import * as Notifications from 'expo-notifications';
 import { useFocusEffect } from 'expo-router';
 import { Bell, BellOff, Check } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
-import { AppState, Linking, StyleSheet, Text, View } from 'react-native';
+import { AppState, Linking, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { BFont, Bby, PillButton } from '@/components/bby/kit';
 import { useAuth } from '@/lib/auth-provider';

@@ -2,7 +2,8 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ellipsis, MessageCircle, Pencil } from 'lucide-react-native';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { BFont, Bby, Card, Chip, PillButton, RoundButton } from '@/components/bby/kit';
 import { BackRow, Body, CardTitle, MScreen, mstyles, PhraseButtons, PrivateNote, Small } from '@/components/bby/mindset/ui';

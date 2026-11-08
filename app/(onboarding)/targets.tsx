@@ -1,7 +1,8 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { OnboardingScaffold } from '@/components/onboarding-scaffold';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';

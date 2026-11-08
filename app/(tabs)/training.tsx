@@ -3,10 +3,12 @@
 // séparées. Ni niveau, ni récompense, ni barre de progression.
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { ArrowRight, Check, Dumbbell, Play } from 'lucide-react-native';
+import { Check, Dumbbell, Play } from 'lucide-react-native';
+import { ArrowRight } from '@/lib/rtl-icons';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import {
   BbyScreen,

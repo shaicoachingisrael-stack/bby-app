@@ -4,10 +4,12 @@
 // séance, nutrition, rituels — cartes séparées, aucun score.
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { ArrowLeft, ArrowRight, Check, Play, Plus } from 'lucide-react-native';
+import { Check, Play, Plus } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight } from '@/lib/rtl-icons';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import {
   BbyScreen,

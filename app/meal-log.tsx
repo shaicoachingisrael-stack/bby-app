@@ -2,7 +2,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Camera, Check, Mic, Plus, ScanBarcode, Search } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from '@/components/ui/text';
 
 import { ActionBar, BFont, Bby, Card, Editorial, PillButton, PillTabs } from '@/components/bby/kit';
 import { FooterScreen, NavHeader, SoonModal } from '@/components/bby/nutrition/ui';

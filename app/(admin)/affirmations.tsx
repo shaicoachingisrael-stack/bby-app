@@ -1,7 +1,8 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { ArrowLeft, ArrowRight } from 'lucide-react-native';
+import { ArrowLeft, ArrowRight } from '@/lib/rtl-icons';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { AdminHeader, AdminRow, a } from '@/components/bby/admin/ui';
 import { BFont, BbyScreen, Bby, RoundButton } from '@/components/bby/kit';

@@ -1,8 +1,10 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowRight, Check } from 'lucide-react-native';
+import { Check } from 'lucide-react-native';
+import { ArrowRight } from '@/lib/rtl-icons';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { ActionBar, BFont, Bby, Card, Chip } from '@/components/bby/kit';
 import { BackRow, Body, MindsetFilters, MScreen, mstyles, Small } from '@/components/bby/mindset/ui';

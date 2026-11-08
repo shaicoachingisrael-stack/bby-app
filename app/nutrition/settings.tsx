@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { BFont, Bby, BbyScreen, Card, Editorial, SectionHeader } from '@/components/bby/kit';
 import { ChoiceCard, NavHeader, ScreenTitle, Toggle } from '@/components/bby/nutrition/ui';

@@ -1,23 +1,11 @@
 import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import {
-  BarChart3,
-  Calendar,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  Play,
-} from 'lucide-react-native';
+import { BarChart3, Calendar, Check, Play } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight } from '@/lib/rtl-icons';
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';

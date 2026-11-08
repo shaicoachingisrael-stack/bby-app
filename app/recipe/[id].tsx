@@ -3,7 +3,8 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Bookmark, Camera, Pencil, Plus } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { ActionBar, BFont, Bby, Card, Chip, MacroTiles, RoundButton } from '@/components/bby/kit';
 import { FooterScreen, NavHeader, Stepper } from '@/components/bby/nutrition/ui';

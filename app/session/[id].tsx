@@ -1,17 +1,11 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useVideoPlayer, VideoView } from 'expo-video';
-import { BarChart3, ChevronLeft, Clock, Dumbbell } from 'lucide-react-native';
+import { BarChart3, Clock, Dumbbell } from 'lucide-react-native';
+import { ChevronLeft } from '@/lib/rtl-icons';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AttachmentCarousel } from '@/components/ui/attachment-carousel';

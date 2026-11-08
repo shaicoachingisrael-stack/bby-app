@@ -3,7 +3,8 @@ import { useVideoPlayer, VideoView } from 'expo-video';
 import { Clock, type LucideIcon } from 'lucide-react-native';
 import { useId } from 'react';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { TileColors, type TileColor } from '@/components/ui/tiles';
 import { Fonts, Palette, Radius, Spacing } from '@/constants/theme';

@@ -1,7 +1,8 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Bell, MessageCircle, Plus, Target, Trash2 } from 'lucide-react-native';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Switch, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { AdminField, AdminHeader, AdminInput, a } from '@/components/bby/admin/ui';
 import { BFont, Bby, BbyScreen, PillButton } from '@/components/bby/kit';

@@ -38,6 +38,9 @@ export function recipeMeta(t: T, r: Recipe) {
 /** 1760 → « 1 760 » */
 export function fmtInt(n: number, lang: string) {
   try {
+    // En hébreu, une espace entre les chiffres fait inverser les groupes (« 2 040 » s'affichait
+    // « 040 2 ») : on garde la virgule, qui est d'ailleurs l'usage en Israël (« 2,040 »).
+    if (lang.startsWith('he')) return Math.round(n).toLocaleString('he-IL');
     return Math.round(n).toLocaleString(lang).replace(/[  ,]/g, ' ');
   } catch {
     return `${Math.round(n)}`.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');

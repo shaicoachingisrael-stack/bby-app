@@ -1,9 +1,10 @@
 // Espace admin de Shaï, dans la charte de la refonte (noir, blanc, jaune).
 // Pensé pour être rempli sans aide : chaque champ dit où il apparaît dans l'app.
-import { ArrowLeft } from 'lucide-react-native';
+import { ArrowLeft } from '@/lib/rtl-icons';
 import { useNavigation, useRouter } from 'expo-router';
 import { ReactNode, useEffect, useRef } from 'react';
-import { Alert, Pressable, StyleSheet, Text, TextInput, TextInputProps, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, TextInputProps, View } from 'react-native';
+import { Text, TextInput } from '@/components/ui/text';
 
 import { BFont, Bby, RoundButton } from '@/components/bby/kit';
 

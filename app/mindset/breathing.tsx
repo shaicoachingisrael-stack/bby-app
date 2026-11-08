@@ -1,8 +1,10 @@
 import { useRouter } from 'expo-router';
-import { ChevronLeft, Heart, Play } from 'lucide-react-native';
+import { Heart, Play } from 'lucide-react-native';
+import { ChevronLeft } from '@/lib/rtl-icons';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';

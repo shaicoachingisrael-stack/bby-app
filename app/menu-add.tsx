@@ -2,7 +2,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, StyleSheet, Text } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { ActionBar, BFont, Bby, PillTabs, WeekStrip, isoDay, weekOf } from '@/components/bby/kit';
 import { FieldLabel, FooterScreen, NavHeader, ScreenTitle } from '@/components/bby/nutrition/ui';

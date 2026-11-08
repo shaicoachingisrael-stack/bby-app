@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router';
 import { Droplet } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { ActionBar, BFont, Bby, Card, Editorial, PillButton } from '@/components/bby/kit';
 import { FooterScreen, NavHeader, ScreenTitle } from '@/components/bby/nutrition/ui';

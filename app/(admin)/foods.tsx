@@ -1,7 +1,8 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { AdminChoice, AdminHeader, AdminInput, AdminRow, a } from '@/components/bby/admin/ui';
 import { BbyScreen, Bby, PillButton } from '@/components/bby/kit';

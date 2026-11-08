@@ -1,7 +1,9 @@
 import { useRouter } from 'expo-router';
-import { Check, ChevronLeft } from 'lucide-react-native';
+import { Check } from 'lucide-react-native';
+import { ChevronLeft } from '@/lib/rtl-icons';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
@@ -24,15 +26,19 @@ export default function LanguageScreen() {
   const { t } = useTranslation();
   const { locale, setLocale } = useLocale();
 
+  // Après un passage hébreu ↔ autre langue, l'app se recharge sur cette page sans
+  // page précédente : « retour » ramène alors à l'accueil au lieu de ne rien faire.
+  const leave = () => (router.canGoBack() ? router.back() : router.replace('/' as any));
+
   async function handlePick(l: Locale) {
     await setLocale(l);
-    router.back();
+    leave();
   }
 
   return (
     <View style={[styles.flex, { backgroundColor: palette.background }]}>
       <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
+        <Pressable onPress={leave} hitSlop={12} style={styles.back}>
           <ChevronLeft size={24} color={palette.text} />
           <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
             {t('common.back')}

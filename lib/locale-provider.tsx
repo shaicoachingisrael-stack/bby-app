@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
 import i18n, { Locale, SUPPORTED_LOCALES } from './i18n';
+import { ensureDirection } from './rtl';
 import { useProfile } from './use-profile';
 
 // Le choix est gardé sur le téléphone (lu au lancement, valable avant toute
@@ -30,6 +31,8 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
       .then((saved) => {
         if (isLocale(saved) && i18n.language !== saved) i18n.changeLanguage(saved);
         if (isLocale(saved)) setLocaleState(saved);
+        // Hébreu = de droite à gauche (sinon de gauche à droite), langue choisie ou celle du téléphone.
+        ensureDirection(isLocale(saved) ? saved : i18n.language);
       })
       .catch(() => {});
   }, []);
@@ -42,7 +45,9 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     if (isLocale(stored)) {
       if (i18n.language !== stored) i18n.changeLanguage(stored);
       setLocaleState(stored);
-      AsyncStorage.setItem(STORAGE_KEY, stored).catch(() => {});
+      AsyncStorage.setItem(STORAGE_KEY, stored)
+        .catch(() => {})
+        .then(() => ensureDirection(stored));
     } else if (isLocale(i18n.language)) {
       update({ locale: i18n.language as any }).catch(() => {});
     }
@@ -61,6 +66,8 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
           console.warn('locale persist error', e);
         }
       }
+      // Passage hébreu ↔ autre langue : l'app se recharge pour changer de sens.
+      await ensureDirection(l);
     },
     [update, profile],
   );

@@ -1,16 +1,10 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Bell, ChevronLeft, Trash2 } from 'lucide-react-native';
+import { Bell, Trash2 } from 'lucide-react-native';
+import { ChevronLeft } from '@/lib/rtl-icons';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';

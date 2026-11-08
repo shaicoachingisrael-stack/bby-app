@@ -1,7 +1,8 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { AdminChoice, AdminField, AdminHeader, AdminInput, a } from '@/components/bby/admin/ui';
 import { ActionBar, BFont, Bby, BbyScreen } from '@/components/bby/kit';

@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowLeft } from 'lucide-react-native';
-import { StyleSheet, Text, View } from 'react-native';
+import { ArrowLeft } from '@/lib/rtl-icons';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BFont, Bby, RoundButton } from '@/components/bby/kit';

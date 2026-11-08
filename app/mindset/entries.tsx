@@ -1,8 +1,9 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowRight } from 'lucide-react-native';
+import { ArrowRight } from '@/lib/rtl-icons';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { BFont, Bby, Card, RoundButton } from '@/components/bby/kit';
 import { BackRow, MScreen, mstyles, PrivateNote, Small } from '@/components/bby/mindset/ui';

@@ -1,8 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ArrowRight, Check, Pencil, X } from 'lucide-react-native';
+import { Check, Pencil, X } from 'lucide-react-native';
+import { ArrowRight } from '@/lib/rtl-icons';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { ActionBar, BFont, Bby, Card, Chip, PillButton, RoundButton, RowCard } from '@/components/bby/kit';
 import { Body, CardTitle, MInput, MScreen, mstyles, Small } from '@/components/bby/mindset/ui';

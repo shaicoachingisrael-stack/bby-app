@@ -1,8 +1,10 @@
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { useRouter } from 'expo-router';
-import { ArrowRight, Dumbbell, Leaf, Utensils } from 'lucide-react-native';
+import { Dumbbell, Leaf, Utensils } from 'lucide-react-native';
+import { ArrowRight } from '@/lib/rtl-icons';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { LanguageButton } from '@/components/ui/language-button';

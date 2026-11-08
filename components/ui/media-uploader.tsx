@@ -2,14 +2,8 @@ import { Image } from 'expo-image';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { ImagePlus, RefreshCw, Trash2, Video } from 'lucide-react-native';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { BFont, Bby } from '@/components/bby/kit';
 import { FileKind, inferExt, MediaBucket, pickMedia, uploadMedia } from '@/lib/upload';

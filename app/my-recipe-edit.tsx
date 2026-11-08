@@ -4,7 +4,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Camera, Check, Plus, X } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from '@/components/ui/text';
 
 import { ActionBar, BFont, Bby, Editorial, MacroTiles, PillButton, PillTabs, SectionHeader } from '@/components/bby/kit';
 import { Field, FieldLabel, FooterScreen, NavHeader, ScreenTitle, Stepper } from '@/components/bby/nutrition/ui';

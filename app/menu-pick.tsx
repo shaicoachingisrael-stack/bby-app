@@ -1,7 +1,8 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Pressable, StyleSheet, Text } from 'react-native';
+import { Alert, Pressable, StyleSheet } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { BFont, Bby, BbyScreen, PillTabs, weekOf } from '@/components/bby/kit';
 import { NavHeader, RecipeCard, ScreenTitle } from '@/components/bby/nutrition/ui';

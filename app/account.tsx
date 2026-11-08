@@ -1,17 +1,11 @@
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { CheckCircle2, ChevronLeft, Circle, Dumbbell, FileText, LogOut, Pencil, Settings, Shield, Trash2 } from 'lucide-react-native';
+import { CheckCircle2, Circle, Dumbbell, FileText, LogOut, Pencil, Settings, Shield, Trash2 } from 'lucide-react-native';
+import { ChevronLeft } from '@/lib/rtl-icons';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Alert,
-  Linking,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { LEGAL_URLS } from '@/lib/legal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

@@ -1,15 +1,8 @@
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { Plus, Trash2, Video } from 'lucide-react-native';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from '@/components/ui/text';
 
 import { BFont, Bby } from '@/components/bby/kit';
 import { useAttachments } from '@/lib/use-attachments';

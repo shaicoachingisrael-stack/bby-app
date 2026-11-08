@@ -1,7 +1,9 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Apple, Bell, CheckCircle2, ChevronRight, Dumbbell, FileText, GitBranch, Leaf, Sun, Users, UtensilsCrossed } from 'lucide-react-native';
+import { Apple, Bell, CheckCircle2, Dumbbell, FileText, GitBranch, Leaf, Sun, Users, UtensilsCrossed } from 'lucide-react-native';
+import { ChevronRight } from '@/lib/rtl-icons';
 import { useCallback, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { CoachNotificationsCard } from '@/components/bby/admin/coach-notifications';
 import { AdminHeader } from '@/components/bby/admin/ui';

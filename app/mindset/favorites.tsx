@@ -1,8 +1,10 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { BookOpen, ChevronLeft, Heart, Sparkles, Wind } from 'lucide-react-native';
+import { BookOpen, Heart, Sparkles, Wind } from 'lucide-react-native';
+import { ChevronLeft } from '@/lib/rtl-icons';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';

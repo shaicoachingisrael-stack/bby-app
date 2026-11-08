@@ -2,7 +2,8 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Check, Plus } from 'lucide-react-native';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { ActionBar, BFont, Bby, Card } from '@/components/bby/kit';
 import { BackRow, MScreen, mstyles, Small } from '@/components/bby/mindset/ui';

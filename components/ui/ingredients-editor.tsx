@@ -1,6 +1,7 @@
 import { Plus, X } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from '@/components/ui/text';
 
 import { BFont, Bby } from '@/components/bby/kit';
 import { IngredientDraft, newDraft, UNITS } from '@/lib/ingredients';

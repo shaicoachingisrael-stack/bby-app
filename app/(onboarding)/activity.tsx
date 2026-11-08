@@ -2,7 +2,8 @@ import { useRouter } from 'expo-router';
 import { Bed, Bike, Flame, Footprints, Mountain } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Text, View } from 'react-native';
+import { Alert, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { OnboardingOption } from '@/components/onboarding-option';
 import { OnboardingScaffold } from '@/components/onboarding-scaffold';

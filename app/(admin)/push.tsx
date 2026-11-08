@@ -1,7 +1,8 @@
 import { useLocalSearchParams } from 'expo-router';
 import { Bell, Send } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { AdminChoice, AdminField, AdminHeader, AdminInput, AdminRow, useLeaveGuard } from '@/components/bby/admin/ui';
 import { useCoachingClients } from '@/lib/use-coaching-admin';

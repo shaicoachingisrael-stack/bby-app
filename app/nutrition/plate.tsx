@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router';
-import { ArrowRight } from 'lucide-react-native';
+import { ArrowRight } from '@/lib/rtl-icons';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { ActionBar, BFont, Bby, BbyScreen, Card, Editorial, onTone } from '@/components/bby/kit';
 import { NavHeader, plateColors, PlateChart, ScreenTitle } from '@/components/bby/nutrition/ui';

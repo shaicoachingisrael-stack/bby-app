@@ -1,8 +1,10 @@
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { ChevronRight, Settings2, Star } from 'lucide-react-native';
+import { Settings2, Star } from 'lucide-react-native';
+import { ChevronRight } from '@/lib/rtl-icons';
 import { useCallback } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { AdminHeader, a } from '@/components/bby/admin/ui';
 import { BFont, Bby, BbyScreen, PillButton } from '@/components/bby/kit';

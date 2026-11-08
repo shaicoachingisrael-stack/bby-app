@@ -1,18 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ChevronLeft, Send, Sparkles } from 'lucide-react-native';
+import { Send, Sparkles } from 'lucide-react-native';
+import { ChevronLeft } from '@/lib/rtl-icons';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from '@/components/ui/text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';

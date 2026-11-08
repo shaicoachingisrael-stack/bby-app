@@ -2,7 +2,8 @@ import * as Crypto from 'expo-crypto';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Check, Plus } from 'lucide-react-native';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { AdminField, AdminHeader, AdminInput, AdminLink, AdminRow, a, useLeaveGuard } from '@/components/bby/admin/ui';
 import { ActionBar, Bby, PillButton } from '@/components/bby/kit';

@@ -3,7 +3,8 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Plus, RefreshCw } from 'lucide-react-native';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import {
   BFont,

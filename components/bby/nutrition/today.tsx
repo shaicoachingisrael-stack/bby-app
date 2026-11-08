@@ -1,9 +1,11 @@
 // Vue « Aujourd'hui » de l'onglet Nutrition : écran 1 (sans suivi) et écran 2 (avec suivi).
 import { useFocusEffect, useRouter } from 'expo-router';
-import { ArrowRight, Droplet, Plus } from 'lucide-react-native';
+import { Droplet, Plus } from 'lucide-react-native';
+import { ArrowRight } from '@/lib/rtl-icons';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { BFont, Bby, Card, Editorial, MacroTiles, onTone, PillButton, RoundButton, SectionHeader } from '@/components/bby/kit';
 import { useDayLog, type LogEntry } from '@/lib/nutrition/day-log';

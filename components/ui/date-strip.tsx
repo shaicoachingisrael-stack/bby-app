@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
+import { Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { AccentFill } from '@/components/ui/accent-fill';
 import { Colors, Fonts, Spacing } from '@/constants/theme';

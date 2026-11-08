@@ -1,7 +1,8 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, View } from 'react-native';
+import { Text } from '@/components/ui/text';
 
 import { AdminField, AdminHeader, AdminInput, useLeaveGuard } from '@/components/bby/admin/ui';
 import { ActionBar, BFont, Bby, TiltCard } from '@/components/bby/kit';

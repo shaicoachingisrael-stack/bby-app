@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, StyleSheet, TextInput } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
+import { TextInput } from '@/components/ui/text';
 
 import { OnboardingScaffold } from '@/components/onboarding-scaffold';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
