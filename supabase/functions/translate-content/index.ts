@@ -37,9 +37,20 @@ const FIELDS_BY_TABLE: Record<string, string[]> = {
   ingredient_names: ['name'],
   mindset_content: ['title', 'body'],
   mindset_ritual_catalog: ['label'],
-  mindset_programs: ['title', 'subtitle', 'description'],
-  mindset_program_steps: ['title', 'prompt_text'],
+  // Parcours de 7 jours (refonte de Shaï, novembre 2026) : tous les textes affichés.
+  mindset_programs: ['title', 'subtitle', 'description', 'for_you_if', 'minutes_range'],
+  mindset_program_steps: ['title', 'prompt_text', 'idea', 'gesture', 'take_away'],
+  // Affirmations du jour : pas de colonne id, la clé est (month, day) → id reçu sous la forme « 11-8 ».
+  daily_affirmations: ['text'],
 };
+
+// Filtre « cette ligne-là » : par id, ou par (mois, jour) pour les affirmations.
+function rowKey(table: string, id: string): Record<string, string | number> | null {
+  if (table !== 'daily_affirmations') return { id };
+  const m = /^(\d{1,2})-(\d{1,2})$/.exec(id);
+  if (!m) return null;
+  return { month: Number(m[1]), day: Number(m[2]) };
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
@@ -64,10 +75,12 @@ Deno.serve(async (req) => {
     );
 
     const fields = FIELDS_BY_TABLE[table];
+    const key = rowKey(table, id);
+    if (!key) return json({ error: 'Invalid id' }, 400);
     const { data: row, error: fetchErr } = await supabase
       .from(table)
-      .select(['id', ...fields].join(', '))
-      .eq('id', id)
+      .select([...Object.keys(key), ...fields].join(', '))
+      .match(key)
       .maybeSingle();
     if (fetchErr || !row) {
       console.error('row fetch', fetchErr);
@@ -148,7 +161,7 @@ Deno.serve(async (req) => {
     const { error: updErr } = await supabase
       .from(table)
       .update({ i18n })
-      .eq('id', id);
+      .match(key);
     if (updErr) {
       console.error('update', updErr);
       return json({ error: 'DB update failed' }, 500);

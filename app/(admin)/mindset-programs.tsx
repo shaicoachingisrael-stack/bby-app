@@ -1,91 +1,91 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react-native';
-import { useCallback } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Plus } from 'lucide-react-native';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, Text, View } from 'react-native';
 
-import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useMindsetPrograms } from '@/lib/use-mindset-programs';
+import { AdminHeader, AdminRow, a } from '@/components/bby/admin/ui';
+import { BbyScreen, Bby, PillButton } from '@/components/bby/kit';
+import { supabase } from '@/lib/supabase';
 
-export default function MindsetProgramsAdminScreen() {
+type Row = { id: string; title: string; day_count: number | null; minutes_range: string | null };
+
+// Liste des parcours (Mindset). Toujours en français : c'est la langue dans laquelle Shaï écrit.
+export default function MindsetProgramsAdmin() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
-  const { programs, loading, refresh } = useMindsetPrograms();
+  const [programs, setPrograms] = useState<Row[]>([]);
+  const [written, setWritten] = useState<Record<string, number>>({});
+  const [loading, setLoading] = useState(true);
 
-  useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
+  useFocusEffect(
+    useCallback(() => {
+      let alive = true;
+      (async () => {
+        const [p, s] = await Promise.all([
+          supabase.from('mindset_programs').select('id, title, day_count, minutes_range').order('sort_order', { ascending: true }),
+          supabase.from('mindset_program_steps').select('program_id').not('idea', 'is', null),
+        ]);
+        if (!alive) return;
+        const count: Record<string, number> = {};
+        ((s.data as { program_id: string }[] | null) ?? []).forEach((r) => (count[r.program_id] = (count[r.program_id] ?? 0) + 1));
+        setPrograms((p.data as Row[] | null) ?? []);
+        setWritten(count);
+        setLoading(false);
+      })();
+      return () => {
+        alive = false;
+      };
+    }, []),
+  );
+
+  const current = programs.filter((p) => written[p.id]);
+  const drafts = programs.filter((p) => !written[p.id]);
 
   return (
-    <View style={[styles.flex, { backgroundColor: palette.background }]}>
-      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <ChevronLeft size={24} color={palette.text} />
-          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>Retour</Text>
-        </Pressable>
-        <Pressable
-          onPress={() => router.push('/(admin)/mindset-program-edit' as any)}
-          hitSlop={12}
-          style={[styles.add, { backgroundColor: palette.text }]}
-        >
-          <Plus size={18} color={palette.background} />
-        </Pressable>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={{ paddingHorizontal: Spacing.xl, paddingBottom: insets.bottom + Spacing.xxl }}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>Parcours</Text>
-        <Text style={[styles.subtitle, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          Métadonnées éditables ici. Les étapes jour par jour se gèrent en SQL (V1).
-        </Text>
-
+    <BbyScreen bottomSpace={40}>
+      <View style={{ gap: 18 }}>
+        <AdminHeader
+          title="Parcours"
+          intro="Les parcours de 7 jours de Mindset. Touche un parcours pour modifier sa fiche et ses jours."
+        />
+        <PillButton label="Créer un parcours" icon={Plus} variant="yellow" onPress={() => router.push('/(admin)/mindset-program-edit' as any)} />
         {loading ? (
-          <ActivityIndicator color={palette.text} style={{ marginTop: Spacing.xl }} />
-        ) : programs.length === 0 ? (
-          <Text style={[styles.empty, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-            Aucun parcours.
-          </Text>
+          <ActivityIndicator color={Bby.text} style={{ marginTop: 30 }} />
         ) : (
-          <View style={{ gap: Spacing.md, marginTop: Spacing.lg }}>
-            {programs.map((p) => (
-              <Pressable
-                key={p.id}
-                onPress={() => router.push(`/(admin)/mindset-program-edit?id=${p.id}` as any)}
-                style={({ pressed }) => [styles.row, { backgroundColor: palette.surface, opacity: pressed ? 0.9 : 1 }]}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                    {p.title}
-                  </Text>
-                  <Text style={[styles.rowMeta, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-                    {p.day_count} jours
-                  </Text>
+          <>
+            <Text style={a.label}>Visibles par les clientes</Text>
+            <View style={{ gap: 10 }}>
+              {current.map((p) => (
+                <AdminRow
+                  key={p.id}
+                  title={p.title}
+                  sub={`${written[p.id]} / ${p.day_count ?? 7} jours écrits${p.minutes_range ? ` · ${p.minutes_range}` : ''}`}
+                  onPress={() => router.push(`/(admin)/mindset-program-edit?id=${p.id}` as any)}
+                />
+              ))}
+              {!current.length ? <Text style={a.hint}>Aucun pour l’instant.</Text> : null}
+            </View>
+            {drafts.length ? (
+              <>
+                <Text style={a.label}>Pas encore visibles</Text>
+                <Text style={a.hint}>
+                  Un parcours apparaît chez les clientes dès qu’un de ses jours a son « idée du jour ». Les anciens parcours de respirations restent ici sans être montrés.
+                </Text>
+                <View style={{ gap: 10 }}>
+                  {drafts.map((p) => (
+                    <AdminRow
+                      key={p.id}
+                      title={p.title}
+                      sub="Aucun jour écrit"
+                      empty
+                      onPress={() => router.push(`/(admin)/mindset-program-edit?id=${p.id}` as any)}
+                    />
+                  ))}
                 </View>
-                <ChevronRight size={18} color={palette.textSecondary} />
-              </Pressable>
-            ))}
-          </View>
+              </>
+            ) : null}
+          </>
         )}
-      </ScrollView>
-    </View>
+      </View>
+    </BbyScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  topBar: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg, paddingBottom: Spacing.sm,
-  },
-  back: { flexDirection: 'row', alignItems: 'center' },
-  backText: { fontSize: 15, marginLeft: 2 },
-  add: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  title: { fontSize: 32, letterSpacing: -0.5, marginTop: Spacing.lg },
-  subtitle: { fontSize: 14, marginTop: 4, lineHeight: 20 },
-  empty: { fontSize: 14, marginTop: Spacing.xl },
-  row: { flexDirection: 'row', alignItems: 'center', padding: Spacing.lg, borderRadius: Radius.md, gap: Spacing.md },
-  rowTitle: { fontSize: 15 },
-  rowMeta: { fontSize: 13, marginTop: 2 },
-});

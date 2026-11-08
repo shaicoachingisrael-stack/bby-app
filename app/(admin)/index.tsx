@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Bell, CheckCircle2, ChevronLeft, ChevronRight, Dumbbell, FileText, GitBranch, Leaf, Users, UtensilsCrossed } from 'lucide-react-native';
+import { Bell, CheckCircle2, ChevronLeft, ChevronRight, Dumbbell, FileText, GitBranch, Leaf, Sun, Users, UtensilsCrossed } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -112,6 +112,13 @@ export default function AdminDashboard() {
             title="Parcours"
             count={counts.journeys}
             onPress={() => router.push('/(admin)/mindset-programs' as any)}
+            palette={palette}
+          />
+          <Tile
+            icon={Sun}
+            title="Affirmations du jour"
+            count="366 phrases, une par jour"
+            onPress={() => router.push('/(admin)/affirmations' as any)}
             palette={palette}
           />
           <Tile

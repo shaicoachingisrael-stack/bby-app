@@ -8,7 +8,8 @@ type Table =
   | 'mindset_content'
   | 'mindset_ritual_catalog'
   | 'mindset_programs'
-  | 'mindset_program_steps';
+  | 'mindset_program_steps'
+  | 'daily_affirmations';
 
 // Fire-and-forget: invoke the translate-content edge function for the given
 // row. Failures are logged but never thrown — translation is best-effort.
