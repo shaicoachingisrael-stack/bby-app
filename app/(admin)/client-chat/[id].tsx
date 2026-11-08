@@ -1,37 +1,38 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ChevronLeft } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ArrowLeft } from 'lucide-react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { BFont, Bby, RoundButton } from '@/components/bby/kit';
 import { CoachChat } from '@/components/ui/coach-chat';
-import { Colors, Fonts, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
+// Messagerie avec une cliente. Le fil (CoachChat) est partagé avec l'app cliente : seule l'enveloppe change ici.
 export default function ClientChatScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
 
   return (
-    <View style={[styles.flex, { backgroundColor: palette.background }]}>
-      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm, borderBottomColor: palette.border }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
-          <ChevronLeft size={24} color={palette.text} />
-        </Pressable>
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>Messagerie</Text>
-        <View style={{ width: 24 }} />
+    <View style={{ flex: 1, backgroundColor: Bby.bg }}>
+      <View style={[st.topBar, { paddingTop: insets.top + 8 }]}>
+        <RoundButton icon={ArrowLeft} variant="outline" size={44} onPress={() => router.back()} label="Retour" />
+        <Text style={st.title}>Messagerie</Text>
+        <View style={{ width: 44 }} />
       </View>
       <CoachChat clientId={id} role="coach" />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
+const st = StyleSheet.create({
   topBar: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg, paddingBottom: Spacing.sm, borderBottomWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 22,
+    paddingBottom: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: Bby.line,
   },
-  title: { fontSize: 16 },
+  title: { fontFamily: BFont.display, fontSize: 20, color: Bby.text },
 });

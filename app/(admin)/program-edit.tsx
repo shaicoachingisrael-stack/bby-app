@@ -1,41 +1,28 @@
 import * as Crypto from 'expo-crypto';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ChevronLeft, Trash2 } from 'lucide-react-native';
-import { useEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Check } from 'lucide-react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, View } from 'react-native';
 
+import { AdminChoice, AdminField, AdminHeader, AdminInput, AdminLink, useLeaveGuard } from '@/components/bby/admin/ui';
+import { ActionBar, Bby } from '@/components/bby/kit';
+import { FooterScreen } from '@/components/bby/nutrition/ui';
 import { MediaUploader } from '@/components/ui/media-uploader';
-import { Segmented } from '@/components/ui/segmented';
-import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { supabase } from '@/lib/supabase';
 import { triggerTranslate } from '@/lib/translate-content';
 import type { Program } from '@/lib/types';
 
 const LEVEL_OPTIONS = [
-  { value: 'debutant', label: 'Débutante' },
-  { value: 'intermediaire', label: 'Intermédiaire' },
-  { value: 'avance', label: 'Avancée' },
+  { key: 'debutant', label: 'Débutante' },
+  { key: 'intermediaire', label: 'Intermédiaire' },
+  { key: 'avance', label: 'Avancée' },
 ] as const;
 
-type Level = (typeof LEVEL_OPTIONS)[number]['value'];
+type Level = (typeof LEVEL_OPTIONS)[number]['key'];
 
+// Un programme d'entraînement : la carte de l'onglet Training.
 export default function ProgramEditScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
   const params = useLocalSearchParams<{ id?: string }>();
   const id = params.id;
   const isNew = !id;
@@ -49,6 +36,16 @@ export default function ProgramEditScreen() {
   const [coverUrl, setCoverUrl] = useState('');
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
+
+  // « Quitter sans enregistrer ? » : on compare aux valeurs chargées.
+  const snapshot = () => JSON.stringify([title, description, duration, level, coverUrl]);
+  const initial = useRef<string | null>(null);
+  const leaving = useRef(false);
+  useLeaveGuard(() => !leaving.current && initial.current !== null && snapshot() !== initial.current);
+  useEffect(() => {
+    if (!loading && initial.current === null) initial.current = snapshot();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   useEffect(() => {
     if (isNew) return;
@@ -74,7 +71,7 @@ export default function ProgramEditScreen() {
 
   async function handleSave() {
     if (!title.trim()) {
-      Alert.alert('Titre manquant');
+      Alert.alert('Il manque le titre', 'Donne un nom à ton programme avant d’enregistrer.');
       return;
     }
     setSaving(true);
@@ -98,9 +95,10 @@ export default function ProgramEditScreen() {
         if (error) throw error;
       }
       triggerTranslate('programs', programId);
+      leaving.current = true;
       router.back();
     } catch (e: any) {
-      Alert.alert('Sauvegarde impossible', e?.message ?? 'Erreur.');
+      Alert.alert('Enregistrement impossible', e?.message ?? 'Réessaie dans un instant.');
     } finally {
       setSaving(false);
     }
@@ -119,9 +117,10 @@ export default function ProgramEditScreen() {
             try {
               const { error } = await supabase.from('programs').delete().eq('id', id!);
               if (error) throw error;
+              leaving.current = true;
               router.back();
             } catch (e: any) {
-              Alert.alert('Erreur', e?.message ?? 'Suppression impossible.');
+              Alert.alert('Suppression impossible', e?.message ?? 'Réessaie dans un instant.');
             }
           },
         },
@@ -131,88 +130,47 @@ export default function ProgramEditScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.flex, { backgroundColor: palette.background, alignItems: 'center', justifyContent: 'center' }]}>
-        <ActivityIndicator color={palette.text} />
+      <View style={{ flex: 1, backgroundColor: Bby.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color={Bby.text} />
       </View>
     );
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={[styles.flex, { backgroundColor: palette.background }]}
+    <FooterScreen
+      footer={
+        <ActionBar
+          icon={Check}
+          label={saving ? 'Enregistrement…' : 'Enregistrer'}
+          onPress={handleSave}
+          disabled={saving}
+          note="Traduit automatiquement dans les 4 autres langues."
+        />
+      }
     >
-      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <ChevronLeft size={24} color={palette.text} />
-          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-            Retour
-          </Text>
-        </Pressable>
-        <Pressable onPress={handleSave} disabled={saving} hitSlop={12}>
-          {saving ? (
-            <ActivityIndicator color={palette.text} />
-          ) : (
-            <Text style={[styles.action, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-              Enregistrer
-            </Text>
-          )}
-        </Pressable>
-      </View>
+      <View style={{ gap: 22 }}>
+        <AdminHeader
+          title={isNew ? 'Nouveau programme' : 'Le programme'}
+          intro="La grande carte jaune de l’onglet Training et la liste des programmes."
+        />
 
-      <ScrollView
-        contentContainerStyle={{
-          paddingHorizontal: Spacing.xl,
-          paddingBottom: insets.bottom + Spacing.xxl,
-          gap: Spacing.lg,
-        }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          {isNew ? 'Nouveau programme' : 'Modifier le programme'}
-        </Text>
+        <AdminField label="Titre" hint="Le titre de la carte du programme.">
+          <AdminInput value={title} onChangeText={setTitle} placeholder="Ex : Full body débutant" />
+        </AdminField>
 
-        <Field label="Titre" palette={palette}>
-          <TextInput
-            value={title}
-            onChangeText={setTitle}
-            placeholder="Ex : Full body débutant"
-            placeholderTextColor={palette.textSecondary}
-            style={[styles.input, inputStyle(palette)]}
-          />
-        </Field>
+        <AdminField label="Description" hint="Quelques lignes sur le programme. Facultatif.">
+          <AdminInput value={description} onChangeText={setDescription} placeholder="Ex : Quatre semaines pour reprendre en douceur…" multiline />
+        </AdminField>
 
-        <Field label="Description" palette={palette}>
-          <TextInput
-            value={description}
-            onChangeText={setDescription}
-            placeholder="Optionnel"
-            placeholderTextColor={palette.textSecondary}
-            multiline
-            style={[styles.textarea, inputStyle(palette)]}
-          />
-        </Field>
+        <AdminField label="Niveau" hint="Affiché à côté du titre.">
+          <AdminChoice options={LEVEL_OPTIONS as any} value={level} onChange={(v: Level) => setLevel(v)} />
+        </AdminField>
 
-        <Field label="Niveau" palette={palette}>
-          <Segmented
-            value={level}
-            options={LEVEL_OPTIONS as any}
-            onChange={(v: Level) => setLevel(v)}
-          />
-        </Field>
+        <AdminField label="Durée (semaines)" hint="Affiché sur la carte : « 4 sem. ».">
+          <AdminInput value={duration} onChangeText={setDuration} placeholder="Ex : 4" keyboardType="number-pad" style={{ width: 120 }} />
+        </AdminField>
 
-        <Field label="Durée (semaines)" palette={palette}>
-          <TextInput
-            value={duration}
-            onChangeText={setDuration}
-            placeholder="Ex : 4"
-            placeholderTextColor={palette.textSecondary}
-            keyboardType="number-pad"
-            style={[styles.input, inputStyle(palette)]}
-          />
-        </Field>
-
-        <Field label="Image de couverture" palette={palette}>
+        <AdminField label="Photo" hint="La photo des séances de ce programme (Training et Aujourd’hui).">
           <MediaUploader
             kind="image"
             bucket="program-covers"
@@ -220,100 +178,10 @@ export default function ProgramEditScreen() {
             url={coverUrl || null}
             onChange={(u) => setCoverUrl(u ?? '')}
           />
-        </Field>
+        </AdminField>
 
-        {!isNew && (
-          <Pressable
-            onPress={handleDelete}
-            style={({ pressed }) => [
-              styles.danger,
-              { opacity: pressed ? 0.85 : 1 },
-            ]}
-          >
-            <Trash2 size={18} color={Palette.albatre} />
-            <Text style={[styles.dangerText, { fontFamily: Fonts.sansSemibold }]}>
-              Supprimer le programme
-            </Text>
-          </Pressable>
-        )}
-      </ScrollView>
-    </KeyboardAvoidingView>
+        {!isNew ? <AdminLink label="Supprimer ce programme" onPress={handleDelete} danger /> : null}
+      </View>
+    </FooterScreen>
   );
 }
-
-function Field({
-  label,
-  children,
-  palette,
-}: {
-  label: string;
-  children: React.ReactNode;
-  palette: any;
-}) {
-  return (
-    <View style={{ gap: Spacing.sm }}>
-      <Text
-        style={{
-          color: palette.textSecondary,
-          fontFamily: Fonts.sansMedium,
-          fontSize: 11,
-          letterSpacing: 1.4,
-        }}
-      >
-        {label.toUpperCase()}
-      </Text>
-      {children}
-    </View>
-  );
-}
-
-function inputStyle(palette: any) {
-  return {
-    backgroundColor: palette.surface,
-    borderColor: palette.border,
-    color: palette.text,
-    fontFamily: Fonts.sans,
-  };
-}
-
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.sm,
-  },
-  back: { flexDirection: 'row', alignItems: 'center' },
-  backText: { fontSize: 15, marginLeft: 2 },
-  action: { fontSize: 15 },
-  title: { fontSize: 28, letterSpacing: -0.5, marginTop: Spacing.lg },
-  input: {
-    height: 52,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    paddingHorizontal: Spacing.lg,
-    fontSize: 16,
-  },
-  textarea: {
-    minHeight: 120,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    padding: Spacing.lg,
-    fontSize: 15,
-    lineHeight: 22,
-    textAlignVertical: 'top',
-  },
-  danger: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.sm,
-    height: 52,
-    borderRadius: Radius.md,
-    backgroundColor: '#A8362A',
-    marginTop: Spacing.lg,
-  },
-  dangerText: { color: Palette.albatre, fontSize: 15 },
-});

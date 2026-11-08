@@ -1,28 +1,13 @@
-import { useRouter } from 'expo-router';
-import { Check, ChevronLeft, Plus, Star, Trash2 } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Check, Plus, Star, Trash2 } from 'lucide-react-native';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 
-import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AdminField, AdminHeader, AdminInput, a, useLeaveGuard } from '@/components/bby/admin/ui';
+import { ActionBar, BFont, Bby, PillButton } from '@/components/bby/kit';
+import { FooterScreen } from '@/components/bby/nutrition/ui';
 import { useCoachingOfferAdmin } from '@/lib/use-coaching-admin';
 
 export default function CoachingOfferEditScreen() {
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
   const { config, plans, loading, saveConfig, addPlan, removePlan } = useCoachingOfferAdmin();
 
   const [pitch, setPitch] = useState('');
@@ -31,10 +16,27 @@ export default function CoachingOfferEditScreen() {
   const [price, setPrice] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [highlighted, setHighlighted] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  // Texte de l'offre tel qu'il est enregistré : sert à prévenir avant de quitter sans enregistrer.
+  const initial = useRef<string | null>(null);
+  useLeaveGuard(() => initial.current !== null && JSON.stringify([pitch, perks]) !== initial.current);
 
   useEffect(() => {
-    if (config) { setPitch(config.pitch ?? ''); setPerks(config.perks ?? ''); }
+    if (config) {
+      setPitch(config.pitch ?? '');
+      setPerks(config.perks ?? '');
+      initial.current = JSON.stringify([config.pitch ?? '', config.perks ?? '']);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config?.id]);
+
+  async function onSave() {
+    await saveConfig(pitch, perks);
+    initial.current = JSON.stringify([pitch, perks]);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  }
 
   async function onAddPlan() {
     const m = Number.parseInt(months.replace(/\D/g, ''), 10);
@@ -45,115 +47,91 @@ export default function CoachingOfferEditScreen() {
 
   if (loading && !config) {
     return (
-      <View style={[styles.flex, { backgroundColor: palette.background, alignItems: 'center', justifyContent: 'center' }]}>
-        <ActivityIndicator color={palette.text} />
+      <View style={{ flex: 1, backgroundColor: Bby.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color={Bby.text} />
       </View>
     );
   }
 
   return (
-    <KeyboardAvoidingView style={[styles.flex, { backgroundColor: palette.background }]} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <ChevronLeft size={24} color={palette.text} />
-          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>Retour</Text>
-        </Pressable>
-        <Pressable onPress={() => saveConfig(pitch, perks)} hitSlop={12}>
-          <Text style={[styles.action, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>Enregistrer</Text>
-        </Pressable>
-      </View>
+    <FooterScreen
+      footer={
+        <ActionBar
+          icon={Check}
+          label={saved ? 'Enregistré' : 'Enregistrer le texte'}
+          onPress={onSave}
+          note="Enregistre la présentation et les bénéfices. Les formules s’ajoutent tout de suite."
+        />
+      }
+    >
+      <View style={{ gap: 22 }}>
+        <AdminHeader title="Offre de coaching" intro="Ce que tes clientes lisent sur la page de ton coaching perso." />
 
-      <ScrollView
-        contentContainerStyle={{ paddingHorizontal: Spacing.xl, paddingBottom: insets.bottom + Spacing.xxl, gap: Spacing.lg }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>Offre coaching</Text>
+        <AdminField label="Présentation" hint="Le texte d’accroche de l’offre.">
+          <AdminInput big value={pitch} onChangeText={setPitch} placeholder="Présentation de l’offre…" />
+        </AdminField>
+        <AdminField label="Bénéfices" hint="Un bénéfice par ligne.">
+          <AdminInput big value={perks} onChangeText={setPerks} placeholder={'Programme sur-mesure\nMessagerie directe\n…'} />
+        </AdminField>
 
-        <Field label="PITCH" palette={palette}>
-          <TextInput value={pitch} onChangeText={setPitch} multiline placeholder="Présentation de l'offre…"
-            placeholderTextColor={palette.textSecondary} style={[styles.textarea, inputStyle(palette)]} />
-        </Field>
-        <Field label="BÉNÉFICES (un par ligne)" palette={palette}>
-          <TextInput value={perks} onChangeText={setPerks} multiline placeholder={"Programme sur-mesure\nMessagerie directe\n…"}
-            placeholderTextColor={palette.textSecondary} style={[styles.textarea, inputStyle(palette)]} />
-        </Field>
-        <Text style={[styles.hint, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          « Enregistrer » (en haut) sauvegarde le pitch et les bénéfices.
-        </Text>
-
-        {/* Formules */}
-        <Text style={[styles.section, { color: palette.text, fontFamily: Fonts.displayBold }]}>Formules (par durée)</Text>
-        {plans.map((p) => (
-          <View key={p.id} style={[styles.planRow, { backgroundColor: palette.surface }]}>
-            {p.highlighted ? <Star size={14} color={palette.text} fill={palette.text} /> : null}
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.planTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-                {p.months} mois — {p.price_text}
-              </Text>
-              {p.subtitle ? (
-                <Text style={[styles.planSub, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>{p.subtitle}</Text>
-              ) : null}
+        <View style={{ gap: 10 }}>
+          <Text style={st.section}>Formules</Text>
+          <Text style={a.hint}>Une formule par durée. L’étoile la met en avant.</Text>
+          {plans.map((p) => (
+            <View key={p.id} style={[st.planRow, p.highlighted && st.planOn]}>
+              {p.highlighted ? <Star size={14} color={Bby.ink} fill={Bby.ink} /> : null}
+              <View style={{ flex: 1 }}>
+                <Text style={[st.planTitle, p.highlighted && { color: Bby.ink }]}>
+                  {p.months} mois · {p.price_text}
+                </Text>
+                {p.subtitle ? <Text style={[st.planSub, p.highlighted && { color: Bby.mutedOnLight }]}>{p.subtitle}</Text> : null}
+              </View>
+              <Pressable hitSlop={10} onPress={() => removePlan(p.id)} accessibilityLabel="Supprimer la formule">
+                <Trash2 size={18} color={p.highlighted ? Bby.ink : Bby.muted} />
+              </Pressable>
             </View>
-            <Pressable hitSlop={8} onPress={() => removePlan(p.id)}>
-              <Trash2 size={18} color={palette.textSecondary} />
-            </Pressable>
-          </View>
-        ))}
-
-        {/* Ajouter une formule */}
-        <View style={[styles.addCard, { backgroundColor: palette.surface }]}>
-          <Text style={[styles.addLabel, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>NOUVELLE FORMULE</Text>
-          <View style={styles.rowInputs}>
-            <TextInput value={months} onChangeText={setMonths} keyboardType="number-pad" placeholder="Mois"
-              placeholderTextColor={palette.textSecondary} style={[styles.smallInput, inputStyle(palette), { width: 80 }]} />
-            <TextInput value={price} onChangeText={setPrice} placeholder="149 €/mois"
-              placeholderTextColor={palette.textSecondary} style={[styles.smallInput, inputStyle(palette), { flex: 1 }]} />
-          </View>
-          <TextInput value={subtitle} onChangeText={setSubtitle} placeholder="Sous-titre (ex : soit 387 € · -13%)"
-            placeholderTextColor={palette.textSecondary} style={[styles.smallInput, inputStyle(palette)]} />
-          <View style={styles.rowBetween}>
-            <Text style={{ color: palette.text, fontFamily: Fonts.sans, fontSize: 14 }}>Mettre en avant</Text>
-            <Switch value={highlighted} onValueChange={setHighlighted} />
-          </View>
-          <Pressable onPress={onAddPlan} style={({ pressed }) => [styles.addBtn, { backgroundColor: palette.text, opacity: pressed || !price.trim() || !months.trim() ? 0.6 : 1 }]}>
-            <Plus size={16} color={palette.background} />
-            <Text style={{ color: palette.background, fontFamily: Fonts.sansSemibold, fontSize: 14 }}>Ajouter la formule</Text>
-          </Pressable>
+          ))}
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+
+        <View style={st.addCard}>
+          <Text style={a.label}>Nouvelle formule</Text>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <View style={{ width: 100 }}>
+              <AdminField label="Mois">
+                <AdminInput value={months} onChangeText={setMonths} keyboardType="number-pad" placeholder="3" />
+              </AdminField>
+            </View>
+            <View style={{ flex: 1 }}>
+              <AdminField label="Prix">
+                <AdminInput value={price} onChangeText={setPrice} placeholder="149 €/mois" />
+              </AdminField>
+            </View>
+          </View>
+          <AdminField label="Sous-titre" hint="Facultatif.">
+            <AdminInput value={subtitle} onChangeText={setSubtitle} placeholder="Ex : soit 387 € · -13 %" />
+          </AdminField>
+          <View style={a.rowBetween}>
+            <Text style={st.toggleText}>Mettre en avant</Text>
+            <Switch
+              value={highlighted}
+              onValueChange={setHighlighted}
+              trackColor={{ true: Bby.yellow, false: Bby.cardAlt }}
+              thumbColor={highlighted ? Bby.ink : Bby.light}
+            />
+          </View>
+          <PillButton label="Ajouter la formule" icon={Plus} variant="yellow" onPress={onAddPlan} />
+        </View>
+      </View>
+    </FooterScreen>
   );
 }
 
-function Field({ label, children, palette }: { label: string; children: React.ReactNode; palette: any }) {
-  return (
-    <View style={{ gap: Spacing.sm }}>
-      <Text style={{ color: palette.textSecondary, fontFamily: Fonts.sansMedium, fontSize: 11, letterSpacing: 1.4 }}>{label}</Text>
-      {children}
-    </View>
-  );
-}
-function inputStyle(palette: any) {
-  return { backgroundColor: palette.background, borderColor: palette.border, color: palette.text, fontFamily: Fonts.sans };
-}
-
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.lg, paddingBottom: Spacing.sm },
-  back: { flexDirection: 'row', alignItems: 'center' },
-  backText: { fontSize: 15, marginLeft: 2 },
-  action: { fontSize: 15 },
-  title: { fontSize: 28, letterSpacing: -0.5, marginTop: Spacing.lg },
-  textarea: { minHeight: 90, borderRadius: Radius.md, borderWidth: 1, padding: Spacing.lg, fontSize: 15, lineHeight: 21, textAlignVertical: 'top' },
-  hint: { fontSize: 12.5, lineHeight: 18 },
-  section: { fontSize: 22, letterSpacing: -0.4, marginTop: Spacing.md },
-  planRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, borderRadius: Radius.md, padding: Spacing.lg },
-  planTitle: { fontSize: 15 },
-  planSub: { fontSize: 13, marginTop: 2 },
-  addCard: { borderRadius: Radius.md, padding: Spacing.lg, gap: Spacing.md },
-  addLabel: { fontSize: 11, letterSpacing: 1.4 },
-  rowInputs: { flexDirection: 'row', gap: Spacing.sm },
-  smallInput: { height: 48, borderRadius: Radius.md, borderWidth: 1, paddingHorizontal: Spacing.md, fontSize: 15 },
-  rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  addBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm, height: 48, borderRadius: Radius.pill },
+const st = StyleSheet.create({
+  section: { fontFamily: BFont.display, fontSize: 20, color: Bby.text },
+  planRow: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 20, padding: 16, backgroundColor: Bby.card },
+  planOn: { backgroundColor: Bby.yellow },
+  planTitle: { fontFamily: BFont.sansSemibold, fontSize: 15, color: Bby.text },
+  planSub: { fontFamily: BFont.sans, fontSize: 13, color: Bby.muted, marginTop: 2 },
+  addCard: { borderRadius: 20, padding: 16, gap: 14, borderWidth: 1.5, borderColor: Bby.line, borderStyle: 'dashed' },
+  toggleText: { fontFamily: BFont.sansMedium, fontSize: 15, color: Bby.text },
 });

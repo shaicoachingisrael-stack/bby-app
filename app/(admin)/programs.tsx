@@ -1,19 +1,11 @@
 import { Image } from 'expo-image';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react-native';
+import { Dumbbell, Plus } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AdminHeader, a } from '@/components/bby/admin/ui';
+import { BFont, BbyScreen, Bby, PillButton } from '@/components/bby/kit';
 import { supabase } from '@/lib/supabase';
 import type { Program } from '@/lib/types';
 
@@ -23,10 +15,9 @@ const LEVEL_LABELS: Record<string, string> = {
   avance: 'Avancée',
 };
 
+// Liste des programmes d'entraînement (onglet Training).
 export default function ProgramsListScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -44,85 +35,38 @@ export default function ProgramsListScreen() {
   useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
 
   return (
-    <View style={[styles.flex, { backgroundColor: palette.background }]}>
-      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <ChevronLeft size={24} color={palette.text} />
-          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-            Retour
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={() => router.push('/(admin)/program-edit' as any)}
-          hitSlop={12}
-          style={[styles.add, { backgroundColor: palette.text }]}
-        >
-          <Plus size={18} color={palette.background} />
-        </Pressable>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={{
-          paddingHorizontal: Spacing.xl,
-          paddingBottom: insets.bottom + Spacing.xxl,
-        }}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          Programmes
-        </Text>
-
+    <BbyScreen bottomSpace={40}>
+      <View style={{ gap: 18 }}>
+        <AdminHeader
+          title="Programmes"
+          intro="Les programmes de l’onglet Training. Touche un programme pour modifier son titre, son niveau et sa photo."
+        />
+        <PillButton label="Créer un programme" icon={Plus} variant="yellow" onPress={() => router.push('/(admin)/program-edit' as any)} />
         {loading ? (
-          <ActivityIndicator color={palette.text} style={{ marginTop: Spacing.xl }} />
+          <ActivityIndicator color={Bby.text} style={{ marginTop: 30 }} />
         ) : programs.length === 0 ? (
-          <View style={{ marginTop: Spacing.xxl, alignItems: 'center', gap: Spacing.md }}>
-            <Text style={[styles.empty, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-              Aucun programme. Crée le premier.
-            </Text>
-            <Pressable
-              onPress={() => router.push('/(admin)/program-edit' as any)}
-              style={({ pressed }) => [
-                styles.cta,
-                { backgroundColor: palette.text, opacity: pressed ? 0.85 : 1 },
-              ]}
-            >
-              <Plus size={18} color={palette.background} />
-              <Text
-                style={[styles.ctaText, { color: palette.background, fontFamily: Fonts.sansSemibold }]}
-              >
-                Nouveau programme
-              </Text>
-            </Pressable>
-          </View>
+          <Text style={a.hint}>Aucun programme pour l’instant. Crée le premier.</Text>
         ) : (
-          <View style={{ gap: Spacing.md, marginTop: Spacing.lg }}>
+          <View style={{ gap: 10 }}>
             {programs.map((p) => (
               <Pressable
                 key={p.id}
                 onPress={() => router.push(`/(admin)/program-edit?id=${p.id}` as any)}
-                style={({ pressed }) => [
-                  styles.row,
-                  { backgroundColor: palette.surface, opacity: pressed ? 0.9 : 1 },
-                ]}
+                accessibilityRole="button"
+                style={({ pressed }) => [s.row, pressed && { opacity: 0.8 }]}
               >
                 {p.cover_url ? (
-                  <Image
-                    source={{ uri: p.cover_url }}
-                    style={[styles.thumb, { backgroundColor: palette.background }]}
-                    contentFit="cover"
-                  />
+                  <Image source={{ uri: p.cover_url }} style={s.thumb} contentFit="cover" />
                 ) : (
-                  <View style={[styles.thumb, { backgroundColor: palette.background }]} />
+                  <View style={[s.thumb, s.thumbEmpty]}>
+                    <Dumbbell size={20} color={Bby.muted} />
+                  </View>
                 )}
-                <View style={{ flex: 1 }}>
-                  <Text
-                    style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}
-                  >
+                <View style={{ flex: 1, gap: 3 }}>
+                  <Text style={s.title} numberOfLines={2}>
                     {p.title}
                   </Text>
-                  <Text
-                    style={[styles.rowMeta, { color: palette.textSecondary, fontFamily: Fonts.sans }]}
-                  >
+                  <Text style={s.meta}>
                     {[
                       p.level ? LEVEL_LABELS[p.level] ?? p.level : null,
                       p.duration_weeks ? `${p.duration_weeks} sem.` : null,
@@ -131,50 +75,19 @@ export default function ProgramsListScreen() {
                       .join(' · ') || 'Sans niveau'}
                   </Text>
                 </View>
-                <ChevronRight size={18} color={palette.textSecondary} />
               </Pressable>
             ))}
           </View>
         )}
-      </ScrollView>
-    </View>
+      </View>
+    </BbyScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.sm,
-  },
-  back: { flexDirection: 'row', alignItems: 'center' },
-  backText: { fontSize: 15, marginLeft: 2 },
-  add: {
-    width: 36, height: 36, borderRadius: 18,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  title: { fontSize: 32, letterSpacing: -0.5, marginTop: Spacing.lg },
-  empty: { fontSize: 14 },
-  cta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-    paddingHorizontal: Spacing.xl,
-    height: 48,
-    borderRadius: Radius.pill,
-  },
-  ctaText: { fontSize: 15 },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: Spacing.lg,
-    borderRadius: Radius.md,
-    gap: Spacing.md,
-  },
-  rowTitle: { fontSize: 15 },
-  rowMeta: { fontSize: 13, marginTop: 2 },
-  thumb: { width: 44, height: 44, borderRadius: Radius.sm, overflow: 'hidden' },
+const s = StyleSheet.create({
+  row: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: Bby.card, borderRadius: 20, padding: 12 },
+  thumb: { width: 56, height: 56, borderRadius: 14, overflow: 'hidden', backgroundColor: Bby.cardAlt },
+  thumbEmpty: { alignItems: 'center', justifyContent: 'center' },
+  title: { fontFamily: BFont.sansSemibold, fontSize: 16, lineHeight: 21, color: Bby.text },
+  meta: { fontFamily: BFont.sans, fontSize: 13, color: Bby.muted },
 });

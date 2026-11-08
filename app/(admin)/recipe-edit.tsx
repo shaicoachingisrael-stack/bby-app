@@ -1,47 +1,33 @@
 import * as Crypto from 'expo-crypto';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ChevronLeft, Trash2 } from 'lucide-react-native';
-import { useEffect, useMemo, useState } from 'react';
+import { Check } from 'lucide-react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ActivityIndicator, Alert, View } from 'react-native';
 
+import { AdminChoice, AdminField, AdminHeader, AdminInput, AdminLink, useLeaveGuard } from '@/components/bby/admin/ui';
+import { ActionBar, Bby } from '@/components/bby/kit';
+import { FooterScreen } from '@/components/bby/nutrition/ui';
 import { IngredientsEditor } from '@/components/ui/ingredients-editor';
 import { MediaList } from '@/components/ui/media-list';
 import { MediaUploader } from '@/components/ui/media-uploader';
-import { Segmented } from '@/components/ui/segmented';
-import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { draftsToPayload, IngredientDraft, ingredientsToText, newDraft } from '@/lib/ingredients';
 import { supabase } from '@/lib/supabase';
 import { translateMissingIngredientNames, triggerTranslate } from '@/lib/translate-content';
 import type { Recipe, RecipeIngredient } from '@/lib/types';
 import { saveRecipeIngredients } from '@/lib/use-meal-plan';
 
-const MEAL_OPTIONS = [
-  { value: 'petit_dejeuner', label: 'Petit-déj' },
-  { value: 'dejeuner', label: 'Déjeuner' },
-  { value: 'diner', label: 'Dîner' },
-  { value: 'collation', label: 'Collation' },
-] as const;
+type Meal = 'petit_dejeuner' | 'dejeuner' | 'diner' | 'collation';
+const MEAL_OPTIONS: { key: Meal; label: string }[] = [
+  { key: 'petit_dejeuner', label: 'Petit-déj' },
+  { key: 'dejeuner', label: 'Déjeuner' },
+  { key: 'diner', label: 'Dîner' },
+  { key: 'collation', label: 'Snack' },
+];
 
-type Meal = (typeof MEAL_OPTIONS)[number]['value'];
-
+// Fiche d'une recette BBY : ce que la cliente voit dans Nutrition › Recettes.
 export default function RecipeEditScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
   const { t } = useTranslation();
   const params = useLocalSearchParams<{ id?: string }>();
   const id = params.id;
@@ -63,6 +49,30 @@ export default function RecipeEditScreen() {
   const [videoUrl, setVideoUrl] = useState('');
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
+
+  // « Quitter sans enregistrer ? » : comparaison avec les valeurs chargées.
+  const snapshot = () =>
+    JSON.stringify([
+      title,
+      description,
+      mealType,
+      prepMin,
+      kcal,
+      protein,
+      carbs,
+      fat,
+      drafts.map((d) => [d.name, d.quantity, d.unit]),
+      steps,
+      coverUrl,
+      videoUrl,
+    ]);
+  const initial = useRef<string | null>(null);
+  const leaving = useRef(false);
+  useLeaveGuard(() => !leaving.current && initial.current !== null && snapshot() !== initial.current);
+  useEffect(() => {
+    if (!loading && initial.current === null) initial.current = snapshot();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   useEffect(() => {
     if (isNew) return;
@@ -103,7 +113,7 @@ export default function RecipeEditScreen() {
 
   async function handleSave() {
     if (!title.trim()) {
-      Alert.alert('Titre manquant');
+      Alert.alert('Il manque le titre', 'Donne un nom à ta recette avant d’enregistrer.');
       return;
     }
     setSaving(true);
@@ -137,16 +147,17 @@ export default function RecipeEditScreen() {
       await saveRecipeIngredients(recipeId, draftsToPayload(drafts));
       triggerTranslate('recipes', recipeId);
       void translateMissingIngredientNames();
+      leaving.current = true;
       router.back();
     } catch (e: any) {
-      Alert.alert('Sauvegarde impossible', e?.message ?? 'Erreur.');
+      Alert.alert('Enregistrement impossible', e?.message ?? 'Réessaie dans un instant.');
     } finally {
       setSaving(false);
     }
   }
 
   function handleDelete() {
-    Alert.alert('Supprimer cette recette ?', 'Action définitive.', [
+    Alert.alert('Supprimer cette recette ?', 'Elle disparaîtra de l’app pour toutes les clientes. Action définitive.', [
       { text: 'Annuler', style: 'cancel' },
       {
         text: 'Supprimer',
@@ -155,9 +166,10 @@ export default function RecipeEditScreen() {
           try {
             const { error } = await supabase.from('recipes').delete().eq('id', id!);
             if (error) throw error;
+            leaving.current = true;
             router.back();
           } catch (e: any) {
-            Alert.alert('Erreur', e?.message ?? 'Suppression impossible.');
+            Alert.alert('Suppression impossible', e?.message ?? 'Réessaie dans un instant.');
           }
         },
       },
@@ -166,82 +178,43 @@ export default function RecipeEditScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.flex, { backgroundColor: palette.background, alignItems: 'center', justifyContent: 'center' }]}>
-        <ActivityIndicator color={palette.text} />
+      <View style={{ flex: 1, backgroundColor: Bby.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color={Bby.text} />
       </View>
     );
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={[styles.flex, { backgroundColor: palette.background }]}
+    <FooterScreen
+      footer={
+        <ActionBar
+          icon={Check}
+          label={saving ? 'Enregistrement…' : 'Enregistrer'}
+          onPress={handleSave}
+          disabled={saving}
+          note="Traduit automatiquement dans les 4 autres langues."
+        />
+      }
     >
-      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <ChevronLeft size={24} color={palette.text} />
-          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>Retour</Text>
-        </Pressable>
-        <Pressable onPress={handleSave} disabled={saving} hitSlop={12}>
-          {saving ? (
-            <ActivityIndicator color={palette.text} />
-          ) : (
-            <Text style={[styles.action, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-              Enregistrer
-            </Text>
-          )}
-        </Pressable>
-      </View>
+      <View style={{ gap: 22 }}>
+        <AdminHeader
+          title={isNew ? 'Nouvelle recette' : 'La recette'}
+          intro="Ce que la cliente voit dans Nutrition › Recettes, et sur la fiche de la recette."
+        />
 
-      <ScrollView
-        contentContainerStyle={{
-          paddingHorizontal: Spacing.xl,
-          paddingBottom: insets.bottom + Spacing.xxl,
-          gap: Spacing.lg,
-        }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          {isNew ? 'Nouvelle recette' : 'Modifier la recette'}
-        </Text>
+        <AdminField label="Titre" hint="Le grand titre de la fiche et de la liste des recettes.">
+          <AdminInput value={title} onChangeText={setTitle} placeholder="Ex : Bowl protéiné saumon" />
+        </AdminField>
 
-        <Field label="Titre" palette={palette}>
-          <TextInput
-            value={title}
-            onChangeText={setTitle}
-            placeholder="Ex : Bowl protéiné saumon"
-            placeholderTextColor={palette.textSecondary}
-            style={[styles.input, inputStyle(palette)]}
-          />
-        </Field>
+        <AdminField label="Description" hint="Une phrase sous le titre de la fiche. Facultatif.">
+          <AdminInput value={description} onChangeText={setDescription} placeholder="Ex : Vert, doux et crémeux." multiline />
+        </AdminField>
 
-        <Field label="Description" palette={palette}>
-          <TextInput
-            value={description}
-            onChangeText={setDescription}
-            placeholder="Optionnel"
-            placeholderTextColor={palette.textSecondary}
-            multiline
-            style={[styles.textarea, inputStyle(palette)]}
-          />
-        </Field>
+        <AdminField label="Type de repas" hint="Sert aux filtres (Petit-déj, Déjeuner…) et au menu de la semaine.">
+          <AdminChoice options={MEAL_OPTIONS} value={mealType} onChange={setMealType} />
+        </AdminField>
 
-        <Field label="Type de repas" palette={palette}>
-          <View style={{ gap: Spacing.sm }}>
-            <Segmented
-              value={mealType}
-              options={MEAL_OPTIONS.slice(0, 2) as any}
-              onChange={(v: Meal) => setMealType(v)}
-            />
-            <Segmented
-              value={mealType}
-              options={MEAL_OPTIONS.slice(2) as any}
-              onChange={(v: Meal) => setMealType(v)}
-            />
-          </View>
-        </Field>
-
-        <Field label="Image de couverture" palette={palette}>
+        <AdminField label="Photo" hint="En haut de la fiche et dans la liste des recettes.">
           <MediaUploader
             kind="image"
             bucket="recipe-media"
@@ -249,9 +222,9 @@ export default function RecipeEditScreen() {
             url={coverUrl || null}
             onChange={(u) => setCoverUrl(u ?? '')}
           />
-        </Field>
+        </AdminField>
 
-        <Field label="Vidéo principale (optionnel)" palette={palette}>
+        <AdminField label="Vidéo principale" hint="Sur la fiche de la recette. Facultatif.">
           <MediaUploader
             kind="video"
             bucket="recipe-media"
@@ -259,154 +232,58 @@ export default function RecipeEditScreen() {
             url={videoUrl || null}
             onChange={(u) => setVideoUrl(u ?? '')}
           />
-        </Field>
+        </AdminField>
 
-        <Field label="Vidéos supplémentaires" palette={palette}>
-          <MediaList
-            parentType="recipe"
-            parentId={recipeId}
-            bucket="recipe-media"
-          />
-        </Field>
+        <AdminField label="Vidéos supplémentaires" hint="Ajoutées tout de suite, sans attendre « Enregistrer ».">
+          <MediaList parentType="recipe" parentId={recipeId} bucket="recipe-media" />
+        </AdminField>
 
-        <View style={{ flexDirection: 'row', gap: Spacing.md }}>
+        <View style={{ flexDirection: 'row', gap: 12 }}>
           <View style={{ flex: 1 }}>
-            <Field label="Préparation (min)" palette={palette}>
-              <TextInput
-                value={prepMin}
-                onChangeText={setPrepMin}
-                placeholder="20"
-                placeholderTextColor={palette.textSecondary}
-                keyboardType="number-pad"
-                style={[styles.input, inputStyle(palette)]}
-              />
-            </Field>
+            <AdminField label="Temps (min)" hint="« 20 min » sur la fiche.">
+              <AdminInput value={prepMin} onChangeText={setPrepMin} placeholder="20" keyboardType="number-pad" />
+            </AdminField>
           </View>
           <View style={{ flex: 1 }}>
-            <Field label="Calories" palette={palette}>
-              <TextInput
-                value={kcal}
-                onChangeText={setKcal}
-                placeholder="620"
-                placeholderTextColor={palette.textSecondary}
-                keyboardType="number-pad"
-                style={[styles.input, inputStyle(palette)]}
-              />
-            </Field>
+            <AdminField label="Calories" hint="« Environ … kcal ».">
+              <AdminInput value={kcal} onChangeText={setKcal} placeholder="620" keyboardType="number-pad" />
+            </AdminField>
           </View>
         </View>
 
-        <View style={{ flexDirection: 'row', gap: Spacing.md }}>
-          <View style={{ flex: 1 }}>
-            <Field label="Protéines (g)" palette={palette}>
-              <TextInput
-                value={protein}
-                onChangeText={setProtein}
-                placeholder="42"
-                placeholderTextColor={palette.textSecondary}
-                keyboardType="number-pad"
-                style={[styles.input, inputStyle(palette)]}
-              />
-            </Field>
+        <AdminField label="Par portion (en grammes)" hint="Les tuiles jaunes Protéines · Lipides · Glucides de la fiche.">
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <View style={{ flex: 1 }}>
+              <AdminField label="Protéines">
+                <AdminInput value={protein} onChangeText={setProtein} placeholder="42" keyboardType="number-pad" />
+              </AdminField>
+            </View>
+            <View style={{ flex: 1 }}>
+              <AdminField label="Lipides">
+                <AdminInput value={fat} onChangeText={setFat} placeholder="20" keyboardType="number-pad" />
+              </AdminField>
+            </View>
+            <View style={{ flex: 1 }}>
+              <AdminField label="Glucides">
+                <AdminInput value={carbs} onChangeText={setCarbs} placeholder="55" keyboardType="number-pad" />
+              </AdminField>
+            </View>
           </View>
-          <View style={{ flex: 1 }}>
-            <Field label="Glucides (g)" palette={palette}>
-              <TextInput
-                value={carbs}
-                onChangeText={setCarbs}
-                placeholder="55"
-                placeholderTextColor={palette.textSecondary}
-                keyboardType="number-pad"
-                style={[styles.input, inputStyle(palette)]}
-              />
-            </Field>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Field label="Lipides (g)" palette={palette}>
-              <TextInput
-                value={fat}
-                onChangeText={setFat}
-                placeholder="20"
-                placeholderTextColor={palette.textSecondary}
-                keyboardType="number-pad"
-                style={[styles.input, inputStyle(palette)]}
-              />
-            </Field>
-          </View>
-        </View>
+        </AdminField>
 
-        <Field label="Ingrédients" palette={palette}>
+        <AdminField
+          label="Ingrédients"
+          hint="Quantité, unité (touche la pastille pour la changer), puis le nom. Ils remplissent aussi la liste de courses."
+        >
           <IngredientsEditor value={drafts} onChange={setDrafts} />
-        </Field>
+        </AdminField>
 
-        <Field label="Étapes" palette={palette}>
-          <TextInput
-            value={steps}
-            onChangeText={setSteps}
-            placeholder={'1. …\n2. …'}
-            placeholderTextColor={palette.textSecondary}
-            multiline
-            style={[styles.textarea, inputStyle(palette)]}
-          />
-        </Field>
+        <AdminField label="Préparation" hint="Une étape par ligne : elles s’affichent numérotées sur la fiche.">
+          <AdminInput big value={steps} onChangeText={setSteps} placeholder={'Mets tous les ingrédients dans le blender.\nMixe 1 minute.'} />
+        </AdminField>
 
-        {!isNew && (
-          <Pressable
-            onPress={handleDelete}
-            style={({ pressed }) => [styles.danger, { opacity: pressed ? 0.85 : 1 }]}
-          >
-            <Trash2 size={18} color={Palette.albatre} />
-            <Text style={[styles.dangerText, { fontFamily: Fonts.sansSemibold }]}>
-              Supprimer la recette
-            </Text>
-          </Pressable>
-        )}
-      </ScrollView>
-    </KeyboardAvoidingView>
+        {!isNew ? <AdminLink label="Supprimer cette recette" onPress={handleDelete} danger /> : null}
+      </View>
+    </FooterScreen>
   );
 }
-
-function Field({ label, children, palette }: { label: string; children: React.ReactNode; palette: any }) {
-  return (
-    <View style={{ gap: Spacing.sm }}>
-      <Text style={{ color: palette.textSecondary, fontFamily: Fonts.sansMedium, fontSize: 11, letterSpacing: 1.4 }}>
-        {label.toUpperCase()}
-      </Text>
-      {children}
-    </View>
-  );
-}
-
-function inputStyle(palette: any) {
-  return {
-    backgroundColor: palette.surface,
-    borderColor: palette.border,
-    color: palette.text,
-    fontFamily: Fonts.sans,
-  };
-}
-
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  topBar: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg, paddingBottom: Spacing.sm,
-  },
-  back: { flexDirection: 'row', alignItems: 'center' },
-  backText: { fontSize: 15, marginLeft: 2 },
-  action: { fontSize: 15 },
-  title: { fontSize: 28, letterSpacing: -0.5, marginTop: Spacing.lg },
-  input: {
-    height: 52, borderRadius: Radius.md, borderWidth: 1,
-    paddingHorizontal: Spacing.lg, fontSize: 16,
-  },
-  textarea: {
-    minHeight: 100, borderRadius: Radius.md, borderWidth: 1,
-    padding: Spacing.lg, fontSize: 15, lineHeight: 22, textAlignVertical: 'top',
-  },
-  danger: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm,
-    height: 52, borderRadius: Radius.md, backgroundColor: '#A8362A', marginTop: Spacing.lg,
-  },
-  dangerText: { color: Palette.albatre, fontSize: 15 },
-});

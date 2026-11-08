@@ -546,6 +546,7 @@
     "notActive": "Personal coaching isn't active on your account.",
     "planEmpty": "Your coach is preparing your plan. Check back soon.",
     "chatEmpty": "Write your first message to your coach.",
+    "chatEmptyCoach": "Write your first message to your client.",
     "chatPlaceholder": "Your message…",
     "type_session": "Session",
     "type_recipe": "Recipe",

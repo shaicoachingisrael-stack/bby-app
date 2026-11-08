@@ -1,32 +1,53 @@
 import * as Crypto from 'expo-crypto';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { ChevronLeft, Trash2 } from 'lucide-react-native';
-import { useEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Check } from 'lucide-react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, Pressable, View } from 'react-native';
 
-import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AdminField, AdminHeader, AdminInput, AdminLink, useLeaveGuard } from '@/components/bby/admin/ui';
+import { ActionBar, Bby } from '@/components/bby/kit';
+import { FooterScreen } from '@/components/bby/nutrition/ui';
 import { RITUAL_ICON_KEYS, ritualIcon } from '@/lib/ritual-icons';
 import { supabase } from '@/lib/supabase';
 import { triggerTranslate } from '@/lib/translate-content';
 import type { RitualCatalogItem } from '@/lib/types';
 
+/** Grille d'icônes : 5 cases par ligne, taille calculée en points (pas de % + aspectRatio). */
+function IconGrid({ value, onChange }: { value: string; onChange: (k: string) => void }) {
+  const [w, setW] = useState(0);
+  const cols = 5;
+  const gap = 10;
+  const cell = w ? (w - gap * (cols - 1)) / cols : 0;
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap }} onLayout={(e) => setW(e.nativeEvent.layout.width)}>
+      {RITUAL_ICON_KEYS.map((key) => {
+        const Icon = ritualIcon(key);
+        const on = value === key;
+        return (
+          <Pressable
+            key={key}
+            onPress={() => onChange(key)}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: on }}
+            style={{
+              width: cell || 56,
+              height: cell ? Math.round(cell * 0.82) : 48,
+              borderRadius: 16,
+              backgroundColor: on ? Bby.yellow : Bby.card,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Icon size={22} color={on ? Bby.ink : Bby.text} strokeWidth={2} />
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
 export default function RitualsEditScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
   const params = useLocalSearchParams<{ id?: string }>();
   const id = params.id;
   const isNew = !id;
@@ -38,15 +59,21 @@ export default function RitualsEditScreen() {
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
 
+  // « Quitter sans enregistrer ? » : on compare aux valeurs chargées.
+  const snapshot = () => JSON.stringify([label, icon, sortOrder]);
+  const initial = useRef<string | null>(null);
+  const leaving = useRef(false);
+  useLeaveGuard(() => !leaving.current && initial.current !== null && snapshot() !== initial.current);
+  useEffect(() => {
+    if (!loading && initial.current === null) initial.current = snapshot();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
+
   useEffect(() => {
     if (isNew) return;
     (async () => {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('mindset_ritual_catalog')
-        .select('*')
-        .eq('id', id!)
-        .maybeSingle();
+      const { data, error } = await supabase.from('mindset_ritual_catalog').select('*').eq('id', id!).maybeSingle();
       if (error) console.warn('ritual_catalog fetch', error);
       if (data) {
         const c = data as RitualCatalogItem;
@@ -60,7 +87,7 @@ export default function RitualsEditScreen() {
 
   async function handleSave() {
     if (!label.trim()) {
-      Alert.alert('Label manquant');
+      Alert.alert('Il manque le nom', 'Ex : « Boire un verre d’eau au réveil ».');
       return;
     }
     setSaving(true);
@@ -75,27 +102,30 @@ export default function RitualsEditScreen() {
         if (error) throw error;
       }
       triggerTranslate('mindset_ritual_catalog', itemId);
+      leaving.current = true;
       router.back();
     } catch (e: any) {
-      Alert.alert('Sauvegarde impossible', e?.message ?? 'Erreur.');
+      Alert.alert('Enregistrement impossible', e?.message ?? 'Réessaie dans un instant.');
     } finally {
       setSaving(false);
     }
   }
 
   function handleDelete() {
-    Alert.alert('Supprimer ce rituel ?', 'Action définitive.', [
+    Alert.alert('Supprimer ce rituel ?', 'Il ne sera plus proposé aux clientes. Celles qui l’ont déjà ajouté le gardent.', [
       { text: 'Annuler', style: 'cancel' },
       {
         text: 'Supprimer',
         style: 'destructive',
         onPress: async () => {
           try {
+            leaving.current = true;
             const { error } = await supabase.from('mindset_ritual_catalog').delete().eq('id', id!);
             if (error) throw error;
             router.back();
           } catch (e: any) {
-            Alert.alert('Erreur', e?.message ?? 'Suppression impossible.');
+            leaving.current = false;
+            Alert.alert('Suppression impossible', e?.message ?? 'Réessaie dans un instant.');
           }
         },
       },
@@ -104,130 +134,44 @@ export default function RitualsEditScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.flex, { backgroundColor: palette.background, alignItems: 'center', justifyContent: 'center' }]}>
-        <ActivityIndicator color={palette.text} />
+      <View style={{ flex: 1, backgroundColor: Bby.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color={Bby.text} />
       </View>
     );
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={[styles.flex, { backgroundColor: palette.background }]}
+    <FooterScreen
+      footer={
+        <ActionBar
+          icon={Check}
+          label={saving ? 'Enregistrement…' : 'Enregistrer'}
+          onPress={handleSave}
+          disabled={saving}
+          note="Traduit automatiquement dans les 4 autres langues."
+        />
+      }
     >
-      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <ChevronLeft size={24} color={palette.text} />
-          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>Retour</Text>
-        </Pressable>
-        <Pressable onPress={handleSave} disabled={saving} hitSlop={12}>
-          {saving ? (
-            <ActivityIndicator color={palette.text} />
-          ) : (
-            <Text style={[styles.action, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-              Enregistrer
-            </Text>
-          )}
-        </Pressable>
+      <View style={{ gap: 22 }}>
+        <AdminHeader
+          title={isNew ? 'Nouveau rituel' : 'Le rituel'}
+          intro="Proposé aux clientes dans Mindset › Rituels › « Ajouter un rituel »."
+        />
+
+        <AdminField label="Nom du rituel" hint="Ce que la cliente lit dans le catalogue et dans sa liste du jour.">
+          <AdminInput value={label} onChangeText={setLabel} placeholder="Ex : Boire un verre d’eau au réveil" />
+        </AdminField>
+
+        <AdminField label="Icône" hint="Le petit dessin à gauche du rituel.">
+          <IconGrid value={icon} onChange={setIcon} />
+        </AdminField>
+
+        <AdminField label="Position dans la liste" hint="0 = en haut. Plus le nombre est grand, plus le rituel est bas.">
+          <AdminInput value={sortOrder} onChangeText={setSortOrder} placeholder="0" keyboardType="number-pad" style={{ width: 120 }} />
+        </AdminField>
+
+        {!isNew ? <AdminLink label="Supprimer ce rituel" onPress={handleDelete} danger /> : null}
       </View>
-
-      <ScrollView
-        contentContainerStyle={{ paddingHorizontal: Spacing.xl, paddingBottom: insets.bottom + Spacing.xxl, gap: Spacing.lg }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          {isNew ? 'Nouveau rituel' : 'Modifier le rituel'}
-        </Text>
-
-        <Field label="Label (FR)" palette={palette}>
-          <TextInput
-            value={label}
-            onChangeText={setLabel}
-            placeholder="Ex : Boire un verre d'eau au réveil"
-            placeholderTextColor={palette.textSecondary}
-            style={[styles.input, inputStyle(palette)]}
-          />
-        </Field>
-
-        <Field label="Icône" palette={palette}>
-          <View style={styles.iconGrid}>
-            {RITUAL_ICON_KEYS.map((key) => {
-              const Icon = ritualIcon(key);
-              const active = icon === key;
-              return (
-                <Pressable
-                  key={key}
-                  onPress={() => setIcon(key)}
-                  style={[styles.iconChip, { backgroundColor: active ? palette.text : palette.surface }]}
-                >
-                  <Icon size={18} color={active ? palette.background : palette.textSecondary} strokeWidth={1.8} />
-                </Pressable>
-              );
-            })}
-          </View>
-        </Field>
-
-        <Field label="Ordre" palette={palette}>
-          <TextInput
-            value={sortOrder}
-            onChangeText={setSortOrder}
-            placeholder="0"
-            placeholderTextColor={palette.textSecondary}
-            keyboardType="number-pad"
-            style={[styles.input, inputStyle(palette)]}
-          />
-        </Field>
-
-        {!isNew && (
-          <Pressable onPress={handleDelete} style={({ pressed }) => [styles.danger, { opacity: pressed ? 0.85 : 1 }]}>
-            <Trash2 size={18} color={Palette.albatre} />
-            <Text style={[styles.dangerText, { fontFamily: Fonts.sansSemibold }]}>Supprimer le rituel</Text>
-          </Pressable>
-        )}
-      </ScrollView>
-    </KeyboardAvoidingView>
+    </FooterScreen>
   );
 }
-
-function Field({ label, children, palette }: { label: string; children: React.ReactNode; palette: any }) {
-  return (
-    <View style={{ gap: Spacing.sm }}>
-      <Text style={{ color: palette.textSecondary, fontFamily: Fonts.sansMedium, fontSize: 11, letterSpacing: 1.4 }}>
-        {label.toUpperCase()}
-      </Text>
-      {children}
-    </View>
-  );
-}
-
-function inputStyle(palette: any) {
-  return {
-    backgroundColor: palette.surface,
-    borderColor: palette.border,
-    color: palette.text,
-    fontFamily: Fonts.sans,
-  };
-}
-
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  topBar: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg, paddingBottom: Spacing.sm,
-  },
-  back: { flexDirection: 'row', alignItems: 'center' },
-  backText: { fontSize: 15, marginLeft: 2 },
-  action: { fontSize: 15 },
-  title: { fontSize: 28, letterSpacing: -0.5, marginTop: Spacing.lg },
-  input: {
-    height: 52, borderRadius: Radius.md, borderWidth: 1,
-    paddingHorizontal: Spacing.lg, fontSize: 16,
-  },
-  iconGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
-  iconChip: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
-  danger: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm,
-    height: 52, borderRadius: Radius.md, backgroundColor: '#A8362A', marginTop: Spacing.lg,
-  },
-  dangerText: { color: Palette.albatre, fontSize: 15 },
-});

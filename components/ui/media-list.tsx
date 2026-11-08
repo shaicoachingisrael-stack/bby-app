@@ -11,8 +11,7 @@ import {
   View,
 } from 'react-native';
 
-import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { BFont, Bby } from '@/components/bby/kit';
 import { useAttachments } from '@/lib/use-attachments';
 import {
   inferExt,
@@ -29,7 +28,6 @@ type Props = {
 };
 
 export function MediaList({ parentType, parentId, bucket }: Props) {
-  const palette = Colors[useColorScheme() ?? 'light'];
   const { items, add, remove } = useAttachments(parentType, parentId);
   const [busy, setBusy] = useState(false);
 
@@ -46,7 +44,7 @@ export function MediaList({ parentType, parentId, bucket }: Props) {
       const url = await uploadMedia(bucket, `${parentId}/extras/${filename}`, picked);
       await add(url);
     } catch (e: any) {
-      Alert.alert('Upload impossible', e?.message ?? 'Erreur.');
+      Alert.alert('Envoi impossible', e?.message ?? 'Erreur.');
     } finally {
       setBusy(false);
     }
@@ -60,9 +58,9 @@ export function MediaList({ parentType, parentId, bucket }: Props) {
   }
 
   return (
-    <View style={{ gap: Spacing.sm }}>
+    <View style={{ gap: 8 }}>
       {items.map((it, i) => (
-        <Row key={it.id} item={it} index={i} palette={palette} onRemove={() => handleRemove(it.id)} />
+        <Row key={it.id} item={it} index={i} onRemove={() => handleRemove(it.id)} />
       ))}
 
       <Pressable
@@ -71,18 +69,18 @@ export function MediaList({ parentType, parentId, bucket }: Props) {
         style={({ pressed }) => [
           styles.addBtn,
           {
-            backgroundColor: palette.surface,
-            borderColor: palette.border,
+            backgroundColor: Bby.card,
+            borderColor: Bby.line,
             opacity: pressed || busy ? 0.85 : 1,
           },
         ]}
       >
         {busy ? (
-          <ActivityIndicator color={palette.text} />
+          <ActivityIndicator color={Bby.text} />
         ) : (
           <>
-            <Plus size={18} color={palette.text} />
-            <Text style={[styles.addText, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+            <Plus size={18} color={Bby.text} />
+            <Text style={[styles.addText, { color: Bby.text, fontFamily: BFont.sansSemibold }]}>
               {items.length === 0 ? 'Ajouter une vidéo' : 'Ajouter une autre vidéo'}
             </Text>
           </>
@@ -95,12 +93,10 @@ export function MediaList({ parentType, parentId, bucket }: Props) {
 function Row({
   item,
   index,
-  palette,
   onRemove,
 }: {
   item: MediaAttachment;
   index: number;
-  palette: any;
   onRemove: () => void;
 }) {
   const player = useVideoPlayer(item.url, (p) => {
@@ -108,7 +104,7 @@ function Row({
   });
 
   return (
-    <View style={[styles.row, { backgroundColor: palette.surface }]}>
+    <View style={[styles.row, { backgroundColor: Bby.card }]}>
       <View style={styles.thumb}>
         <VideoView
           player={player}
@@ -117,14 +113,14 @@ function Row({
           nativeControls={false}
         />
         <View style={styles.thumbOverlay}>
-          <Video size={14} color={Palette.albatre} />
+          <Video size={14} color={Bby.text} />
         </View>
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={[styles.rowTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+        <Text style={[styles.rowTitle, { color: Bby.text, fontFamily: BFont.sansSemibold }]}>
           {item.title?.trim() || `Vidéo ${index + 1}`}
         </Text>
-        <Text style={[styles.rowMeta, { color: palette.textSecondary, fontFamily: Fonts.sans }]} numberOfLines={1}>
+        <Text style={[styles.rowMeta, { color: Bby.muted, fontFamily: BFont.sans }]} numberOfLines={1}>
           {fileName(item.url)}
         </Text>
       </View>
@@ -133,7 +129,7 @@ function Row({
         hitSlop={8}
         style={({ pressed }) => [styles.trash, { opacity: pressed ? 0.6 : 1 }]}
       >
-        <Trash2 size={16} color={palette.textSecondary} />
+        <Trash2 size={16} color={Bby.muted} />
       </Pressable>
     </View>
   );
@@ -143,16 +139,16 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.md,
-    padding: Spacing.sm,
-    borderRadius: Radius.md,
+    gap: 12,
+    padding: 8,
+    borderRadius: 16,
   },
   thumb: {
     width: 56,
     height: 56,
-    borderRadius: Radius.sm,
+    borderRadius: 12,
     overflow: 'hidden',
-    backgroundColor: Palette.gray[300],
+    backgroundColor: Bby.cardAlt,
   },
   thumbOverlay: {
     position: 'absolute',
@@ -165,7 +161,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(10,10,10,0.55)',
   },
-  rowTitle: { fontSize: 14 },
+  rowTitle: { fontSize: 15 },
   rowMeta: { fontSize: 11, marginTop: 2 },
   trash: {
     width: 32,
@@ -177,10 +173,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: Spacing.sm,
-    height: 48,
-    borderRadius: Radius.md,
-    borderWidth: 1,
+    gap: 8,
+    height: 52,
+    borderRadius: 16,
+    borderWidth: 1.5,
     borderStyle: 'dashed',
   },
   addText: { fontSize: 14 },

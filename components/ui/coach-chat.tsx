@@ -48,7 +48,7 @@ export function CoachChat({ clientId, role }: { clientId: string | undefined; ro
       >
         {messages.length === 0 ? (
           <Text style={[styles.empty, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-            {t('coaching.chatEmpty')}
+            {t(role === 'coach' ? 'coaching.chatEmptyCoach' : 'coaching.chatEmpty')}
           </Text>
         ) : (
           messages.map((m) => {

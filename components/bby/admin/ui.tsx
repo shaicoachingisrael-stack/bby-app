@@ -12,6 +12,16 @@ export function useLeaveGuard(isDirty: () => boolean) {
   const navigation = useNavigation();
   const check = useRef(isDirty);
   check.current = isDirty;
+  // Le geste « glisser depuis le bord » d'iOS ne peut pas être retenu une fois lancé :
+  // on le coupe tant qu'il y a des modifications ; le bouton retour affiche alors l'avertissement.
+  const dirtyNow = isDirty();
+  useEffect(() => {
+    navigation.setOptions({ gestureEnabled: !dirtyNow });
+    // Sans ça, le geste coupé ici passe au niveau au-dessus et ferme tout l'espace admin.
+    const parent = navigation.getParent();
+    parent?.setOptions({ gestureEnabled: !dirtyNow });
+    return () => parent?.setOptions({ gestureEnabled: true });
+  }, [navigation, dirtyNow]);
   useEffect(
     () =>
       navigation.addListener('beforeRemove', (e: any) => {

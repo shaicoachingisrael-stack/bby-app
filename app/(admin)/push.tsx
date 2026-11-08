@@ -1,51 +1,38 @@
-import { useRouter } from 'expo-router';
-import { ChevronLeft, Send } from 'lucide-react-native';
+import { Bell, Send } from 'lucide-react-native';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AdminChoice, AdminField, AdminHeader, AdminInput, useLeaveGuard } from '@/components/bby/admin/ui';
+import { ActionBar, BFont, Bby } from '@/components/bby/kit';
+import { FooterScreen } from '@/components/bby/nutrition/ui';
 import { supabase } from '@/lib/supabase';
 
-const LINK_CHOICES: { value: string; label: string }[] = [
-  { value: '', label: 'Pas de lien' },
-  { value: '/today', label: "Aujourd'hui" },
-  { value: '/training', label: 'Training' },
-  { value: '/nutrition', label: 'Nutrition' },
-  { value: '/(tabs)/mindset', label: 'Mindset' },
-  { value: '/chat', label: 'Coach IA' },
+const LINK_CHOICES: { key: string; label: string }[] = [
+  { key: '', label: 'Pas de lien' },
+  { key: '/today', label: 'Aujourd’hui' },
+  { key: '/training', label: 'Training' },
+  { key: '/nutrition', label: 'Nutrition' },
+  { key: '/(tabs)/mindset', label: 'Mindset' },
+  { key: '/chat', label: 'Coach IA' },
 ];
 
 export default function PushAdminScreen() {
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
-
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [linkUrl, setLinkUrl] = useState('');
   const [sending, setSending] = useState(false);
 
+  // Un message commencé et pas envoyé : on prévient avant de quitter.
+  useLeaveGuard(() => !sending && (title.trim().length > 0 || body.trim().length > 0));
+
   async function handleSend() {
     if (!title.trim() || !body.trim()) {
-      Alert.alert('Champs manquants', 'Renseigne un titre et un message.');
+      Alert.alert('Il manque un texte', 'Écris un titre et un message avant d’envoyer.');
       return;
     }
     Alert.alert(
-      'Envoyer à toutes les utilisatrices ?',
-      'Le push sera envoyé immédiatement à tous les appareils enregistrés.',
+      'Envoyer à toutes tes clientes ?',
+      'La notification part tout de suite sur leurs téléphones. On ne peut pas l’annuler ensuite.',
       [
         { text: 'Annuler', style: 'cancel' },
         {
@@ -87,198 +74,67 @@ export default function PushAdminScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={[styles.flex, { backgroundColor: palette.background }]}
-    >
-      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <ChevronLeft size={24} color={palette.text} />
-          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-            Retour
-          </Text>
-        </Pressable>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={{
-          paddingHorizontal: Spacing.xl,
-          paddingBottom: insets.bottom + Spacing.xxl,
-          gap: Spacing.lg,
-        }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          Envoyer un push
-        </Text>
-        <Text style={[styles.subtitle, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          Le message sera envoyé à toutes tes utilisatrices ayant accepté les notifications.
-        </Text>
-
-        <Field label="Titre" palette={palette}>
-          <TextInput
-            value={title}
-            onChangeText={setTitle}
-            placeholder="Ex : Nouvelle séance dispo"
-            placeholderTextColor={palette.textSecondary}
-            maxLength={60}
-            style={[styles.input, inputStyle(palette)]}
-          />
-        </Field>
-
-        <Field label="Message" palette={palette}>
-          <TextInput
-            value={body}
-            onChangeText={setBody}
-            placeholder="Ex : Full body 30 min, rejoins-moi maintenant 💪"
-            placeholderTextColor={palette.textSecondary}
-            multiline
-            maxLength={200}
-            style={[styles.textarea, inputStyle(palette)]}
-          />
-        </Field>
-
-        <Field label="Quand on tape sur la notif" palette={palette}>
-          <View style={styles.chips}>
-            {LINK_CHOICES.map((c) => {
-              const selected = linkUrl === c.value;
-              return (
-                <Pressable
-                  key={c.value || 'none'}
-                  onPress={() => setLinkUrl(c.value)}
-                  style={({ pressed }) => [
-                    styles.chip,
-                    {
-                      backgroundColor: selected ? palette.text : palette.surface,
-                      borderColor: selected ? palette.text : palette.border,
-                      opacity: pressed ? 0.85 : 1,
-                    },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      {
-                        color: selected ? palette.background : palette.text,
-                        fontFamily: selected ? Fonts.sansSemibold : Fonts.sansMedium,
-                      },
-                    ]}
-                  >
-                    {c.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-        </Field>
-
-        <Pressable
+    <FooterScreen
+      footer={
+        <ActionBar
+          icon={Send}
+          label={sending ? 'Envoi…' : 'Envoyer'}
           onPress={handleSend}
           disabled={sending}
-          style={({ pressed }) => [
-            styles.cta,
-            {
-              backgroundColor: palette.text,
-              opacity: pressed || sending ? 0.85 : 1,
-            },
-          ]}
-        >
-          {sending ? (
-            <ActivityIndicator color={palette.background} />
-          ) : (
-            <>
-              <Send size={18} color={palette.background} />
-              <Text
-                style={[styles.ctaText, { color: palette.background, fontFamily: Fonts.sansSemibold }]}
-              >
-                Envoyer à tout le monde
+          note="À toutes tes clientes qui ont accepté les notifications."
+        />
+      }
+    >
+      <View style={{ gap: 22 }}>
+        <AdminHeader
+          title="Envoyer une notification"
+          intro="Elle arrive sur le téléphone de toutes tes clientes qui ont accepté les notifications. Tu confirmes avant l’envoi."
+        />
+
+        <AdminField label="Titre" hint="En gras, en haut de la notification." counter={`${title.length} / 60`}>
+          <AdminInput value={title} onChangeText={setTitle} placeholder="Ex : Nouvelle séance dispo" maxLength={60} />
+        </AdminField>
+
+        <AdminField label="Message" hint="Le texte sous le titre." counter={`${body.length} / 200`}>
+          <AdminInput value={body} onChangeText={setBody} placeholder="Ex : Full body 30 min, rejoins-moi maintenant 💪" multiline maxLength={200} />
+        </AdminField>
+
+        <AdminField label="Quand elle touche la notification" hint="L’écran de l’app qui s’ouvre.">
+          <AdminChoice options={LINK_CHOICES} value={linkUrl} onChange={setLinkUrl} />
+        </AdminField>
+
+        <View style={{ gap: 8 }}>
+          <Text style={st.previewLabel}>Aperçu</Text>
+          <View style={st.notif}>
+            <View style={st.notifIcon}>
+              <Bell size={18} color={Bby.ink} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={st.notifTop}>
+                <Text style={st.notifApp}>BODY BY YOU</Text>
+                <Text style={st.notifTime}>maintenant</Text>
+              </View>
+              <Text style={st.notifTitle} numberOfLines={1}>
+                {title.trim() || 'Titre de ta notification'}
               </Text>
-            </>
-          )}
-        </Pressable>
-      </ScrollView>
-    </KeyboardAvoidingView>
+              <Text style={st.notifBody} numberOfLines={4}>
+                {body.trim() || 'Ton message apparaîtra ici.'}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    </FooterScreen>
   );
 }
 
-function Field({
-  label,
-  children,
-  palette,
-}: {
-  label: string;
-  children: React.ReactNode;
-  palette: any;
-}) {
-  return (
-    <View style={{ gap: Spacing.sm }}>
-      <Text
-        style={{
-          color: palette.textSecondary,
-          fontFamily: Fonts.sansMedium,
-          fontSize: 11,
-          letterSpacing: 1.4,
-        }}
-      >
-        {label.toUpperCase()}
-      </Text>
-      {children}
-    </View>
-  );
-}
-
-function inputStyle(palette: any) {
-  return {
-    backgroundColor: palette.surface,
-    borderColor: palette.border,
-    color: palette.text,
-    fontFamily: Fonts.sans,
-  };
-}
-
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  topBar: { paddingHorizontal: Spacing.lg, paddingBottom: Spacing.sm },
-  back: { flexDirection: 'row', alignItems: 'center' },
-  backText: { fontSize: 15, marginLeft: 2 },
-  title: { fontSize: 32, letterSpacing: -0.5, marginTop: Spacing.lg },
-  subtitle: { fontSize: 14, lineHeight: 22 },
-  input: {
-    height: 52,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    paddingHorizontal: Spacing.lg,
-    fontSize: 16,
-  },
-  textarea: {
-    minHeight: 120,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    padding: Spacing.lg,
-    fontSize: 15,
-    lineHeight: 22,
-    textAlignVertical: 'top',
-  },
-  cta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.sm,
-    height: 56,
-    borderRadius: Radius.lg,
-    marginTop: Spacing.lg,
-  },
-  ctaText: { fontSize: 16 },
-  chips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.sm,
-  },
-  chip: {
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: 10,
-    borderRadius: Radius.pill,
-    borderWidth: 1,
-  },
-  chipText: { fontSize: 13 },
+const st = StyleSheet.create({
+  previewLabel: { fontFamily: BFont.sansBold, fontSize: 15, color: Bby.text },
+  notif: { flexDirection: 'row', gap: 12, padding: 14, borderRadius: 22, backgroundColor: Bby.cardAlt },
+  notifIcon: { width: 38, height: 38, borderRadius: 10, backgroundColor: Bby.yellow, alignItems: 'center', justifyContent: 'center' },
+  notifTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  notifApp: { fontFamily: BFont.sansSemibold, fontSize: 11, letterSpacing: 0.6, color: Bby.muted },
+  notifTime: { fontFamily: BFont.sans, fontSize: 11, color: Bby.muted },
+  notifTitle: { fontFamily: BFont.sansSemibold, fontSize: 15, color: Bby.text, marginTop: 2 },
+  notifBody: { fontFamily: BFont.sans, fontSize: 14, lineHeight: 19, color: Bby.text, marginTop: 1 },
 });

@@ -1,7 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { BFont, Bby } from '@/components/bby/kit';
 
 type Option<T extends string> = { value: T; label: string };
 
@@ -13,9 +12,8 @@ type Props<T extends string> = {
 };
 
 export function Segmented<T extends string>({ value, options, onChange, disabled }: Props<T>) {
-  const palette = Colors[useColorScheme() ?? 'light'];
   return (
-    <View style={[styles.container, { backgroundColor: palette.surface }]}>
+    <View style={[styles.container, { backgroundColor: Bby.card }]}>
       {options.map((opt) => {
         const selected = value === opt.value;
         return (
@@ -26,7 +24,7 @@ export function Segmented<T extends string>({ value, options, onChange, disabled
             style={[
               styles.option,
               selected && {
-                backgroundColor: palette.text,
+                backgroundColor: Bby.yellow,
               },
             ]}
           >
@@ -34,11 +32,13 @@ export function Segmented<T extends string>({ value, options, onChange, disabled
               style={[
                 styles.label,
                 {
-                  color: selected ? palette.background : palette.text,
-                  fontFamily: selected ? Fonts.sansSemibold : Fonts.sansMedium,
+                  color: selected ? Bby.ink : Bby.text,
+                  fontFamily: selected ? BFont.sansBold : BFont.sansMedium,
                 },
               ]}
-              numberOfLines={1}
+              numberOfLines={2}
+              adjustsFontSizeToFit
+              minimumFontScale={0.85}
             >
               {opt.label}
             </Text>
@@ -53,16 +53,18 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     padding: 4,
-    borderRadius: Radius.pill,
+    borderRadius: 24,
     gap: 4,
+    borderWidth: 1.5,
+    borderColor: Bby.line,
   },
   option: {
     flex: 1,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.md,
-    borderRadius: Radius.pill,
+    paddingVertical: 10,
+    paddingHorizontal: 6,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  label: { fontSize: 13, letterSpacing: 0.2 },
+  label: { fontSize: 13, textAlign: 'center' },
 });

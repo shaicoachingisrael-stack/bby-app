@@ -11,8 +11,7 @@ import {
   View,
 } from 'react-native';
 
-import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { BFont, Bby } from '@/components/bby/kit';
 import { FileKind, inferExt, MediaBucket, pickMedia, uploadMedia } from '@/lib/upload';
 
 type Props = {
@@ -24,7 +23,6 @@ type Props = {
 };
 
 export function MediaUploader({ kind, bucket, pathPrefix, url, onChange }: Props) {
-  const palette = Colors[useColorScheme() ?? 'light'];
   const [busy, setBusy] = useState<'upload' | 'remove' | null>(null);
 
   async function handlePick() {
@@ -40,7 +38,7 @@ export function MediaUploader({ kind, bucket, pathPrefix, url, onChange }: Props
       const newUrl = await uploadMedia(bucket, `${pathPrefix}/${filename}`, picked);
       onChange(newUrl);
     } catch (e: any) {
-      Alert.alert('Upload impossible', e?.message ?? 'Erreur.');
+      Alert.alert('Envoi impossible', e?.message ?? 'Erreur.');
     } finally {
       setBusy(null);
     }
@@ -69,35 +67,31 @@ export function MediaUploader({ kind, bucket, pathPrefix, url, onChange }: Props
         style={({ pressed }) => [
           styles.empty,
           {
-            backgroundColor: palette.surface,
-            borderColor: palette.border,
+            backgroundColor: Bby.card,
+            borderColor: Bby.line,
             opacity: pressed ? 0.85 : 1,
           },
         ]}
       >
         {busy === 'upload' ? (
           <>
-            <ActivityIndicator color={palette.text} />
-            <Text style={[styles.emptyText, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-              {kind === 'image' ? 'Upload en cours…' : 'Upload de la vidéo…'}
+            <ActivityIndicator color={Bby.text} />
+            <Text style={[styles.emptyText, { color: Bby.muted, fontFamily: BFont.sans }]}>
+              {kind === 'image' ? 'Envoi de l’image…' : 'Envoi de la vidéo… (ça peut prendre une minute)'}
             </Text>
           </>
         ) : (
           <>
-            <View style={[styles.emptyIcon, { backgroundColor: palette.text }]}>
-              {kind === 'image' ? (
-                <ImagePlus size={20} color={palette.background} />
-              ) : (
-                <Video size={20} color={palette.background} />
-              )}
+            <View style={[styles.emptyIcon, { backgroundColor: Bby.yellow }]}>
+              {kind === 'image' ? <ImagePlus size={20} color={Bby.ink} /> : <Video size={20} color={Bby.ink} />}
             </View>
-            <Text style={[styles.emptyText, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
+            <Text style={[styles.emptyText, { color: Bby.text, fontFamily: BFont.sansSemibold }]}>
               {kind === 'image' ? 'Ajouter une image' : 'Ajouter une vidéo'}
             </Text>
             <Text
               style={[
                 styles.emptyHint,
-                { color: palette.textSecondary, fontFamily: Fonts.sans },
+                { color: Bby.muted, fontFamily: BFont.sans },
               ]}
             >
               Depuis ta photothèque
@@ -109,7 +103,7 @@ export function MediaUploader({ kind, bucket, pathPrefix, url, onChange }: Props
   }
 
   return (
-    <View style={[styles.previewWrap, { backgroundColor: palette.surface }]}>
+    <View style={[styles.previewWrap, { backgroundColor: Bby.card }]}>
       {kind === 'image' ? (
         <Image source={{ uri: url }} style={StyleSheet.absoluteFill} contentFit="cover" />
       ) : (
@@ -126,10 +120,10 @@ export function MediaUploader({ kind, bucket, pathPrefix, url, onChange }: Props
           ]}
         >
           {busy === 'upload' ? (
-            <ActivityIndicator color={Palette.albatre} size="small" />
+            <ActivityIndicator color={Bby.text} size="small" />
           ) : (
             <>
-              <RefreshCw size={14} color={Palette.albatre} />
+              <RefreshCw size={14} color={Bby.text} />
               <Text style={styles.barBtnText}>Remplacer</Text>
             </>
           )}
@@ -141,7 +135,7 @@ export function MediaUploader({ kind, bucket, pathPrefix, url, onChange }: Props
             { backgroundColor: 'rgba(168,54,42,0.85)', opacity: pressed ? 0.8 : 1 },
           ]}
         >
-          <Trash2 size={14} color={Palette.albatre} />
+          <Trash2 size={14} color={Bby.text} />
           <Text style={styles.barBtnText}>Retirer</Text>
         </Pressable>
       </View>
@@ -168,13 +162,13 @@ function VideoPreview({ url }: { url: string }) {
 const styles = StyleSheet.create({
   empty: {
     aspectRatio: 16 / 9,
-    borderRadius: Radius.md,
-    borderWidth: 1,
+    borderRadius: 20,
+    borderWidth: 1.5,
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: Spacing.sm,
-    padding: Spacing.lg,
+    gap: 8,
+    padding: 16,
   },
   emptyIcon: {
     width: 44,
@@ -188,7 +182,7 @@ const styles = StyleSheet.create({
   emptyHint: { fontSize: 12 },
   previewWrap: {
     aspectRatio: 16 / 9,
-    borderRadius: Radius.md,
+    borderRadius: 20,
     overflow: 'hidden',
   },
   previewBar: {
@@ -206,11 +200,11 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: Radius.pill,
+    borderRadius: 999,
   },
   barBtnText: {
-    color: Palette.albatre,
-    fontSize: 11,
-    fontWeight: '600',
+    color: Bby.text,
+    fontSize: 12,
+    fontFamily: BFont.sansSemibold,
   },
 });

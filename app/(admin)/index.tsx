@@ -1,17 +1,14 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Bell, CheckCircle2, ChevronLeft, ChevronRight, Dumbbell, FileText, GitBranch, Leaf, Sun, Users, UtensilsCrossed } from 'lucide-react-native';
+import { Bell, CheckCircle2, ChevronRight, Dumbbell, FileText, GitBranch, Leaf, Sun, Users, UtensilsCrossed } from 'lucide-react-native';
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AdminHeader } from '@/components/bby/admin/ui';
+import { BFont, Bby, BbyScreen } from '@/components/bby/kit';
 import { supabase } from '@/lib/supabase';
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
   const [counts, setCounts] = useState({ programs: 0, sessions: 0, recipes: 0, mindset: 0, rituals: 0, journeys: 0 });
 
   const refresh = useCallback(async () => {
@@ -42,167 +39,59 @@ export default function AdminDashboard() {
 
   useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
 
+  const go = (path: string) => () => router.push(path as any);
+
   return (
-    <View style={[styles.flex, { backgroundColor: palette.background }]}>
-      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <ChevronLeft size={24} color={palette.text} />
-          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-            Retour
-          </Text>
-        </Pressable>
-      </View>
+    <BbyScreen bottomSpace={40}>
+      <View style={{ gap: 18 }}>
+        <AdminHeader title="Tableau de bord" intro="Gère le contenu que tes clientes voient dans l’app. Touche une rubrique pour l’ouvrir." />
 
-      <ScrollView
-        contentContainerStyle={{
-          paddingHorizontal: Spacing.xl,
-          paddingBottom: insets.bottom + Spacing.xxl,
-          gap: Spacing.lg,
-        }}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={[styles.eyebrow, { color: palette.textSecondary, fontFamily: Fonts.sansMedium }]}>
-          ADMIN
-        </Text>
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          Tableau de bord
-        </Text>
-        <Text style={[styles.subtitle, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          Gère le contenu que tes clientes verront dans l'app.
-        </Text>
-
-        <View style={{ marginTop: Spacing.lg, gap: Spacing.md }}>
-          <Tile
-            icon={Dumbbell}
-            title="Programmes"
-            count={counts.programs}
-            onPress={() => router.push('/(admin)/programs' as any)}
-            palette={palette}
-          />
-          <Tile
-            icon={FileText}
-            title="Séances"
-            count={counts.sessions}
-            onPress={() => router.push('/(admin)/sessions' as any)}
-            palette={palette}
-          />
-          <Tile
-            icon={UtensilsCrossed}
-            title="Recettes"
-            count={counts.recipes}
-            onPress={() => router.push('/(admin)/recipes' as any)}
-            palette={palette}
-          />
-          <Tile
-            icon={Leaf}
-            title="Mindset"
-            count={counts.mindset}
-            onPress={() => router.push('/(admin)/mindset' as any)}
-            palette={palette}
-          />
-          <Tile
-            icon={CheckCircle2}
-            title="Rituels"
-            count={counts.rituals}
-            onPress={() => router.push('/(admin)/rituals' as any)}
-            palette={palette}
-          />
-          <Tile
-            icon={GitBranch}
-            title="Parcours"
-            count={counts.journeys}
-            onPress={() => router.push('/(admin)/mindset-programs' as any)}
-            palette={palette}
-          />
-          <Tile
-            icon={Sun}
-            title="Affirmations du jour"
-            count="366 phrases, une par jour"
-            onPress={() => router.push('/(admin)/affirmations' as any)}
-            palette={palette}
-          />
-          <Tile
-            icon={Users}
-            title="Clientes (coaching perso)"
-            count="Suivi personnalisé"
-            onPress={() => router.push('/(admin)/clients' as any)}
-            palette={palette}
-          />
-          <Tile
-            icon={Bell}
-            title="Envoyer un push"
-            count="Notification à tes clientes"
-            onPress={() => router.push('/(admin)/push' as any)}
-            palette={palette}
-          />
+        <Text style={st.group}>Training</Text>
+        <View style={{ gap: 10 }}>
+          <Tile icon={Dumbbell} title="Programmes" count={counts.programs} onPress={go('/(admin)/programs')} />
+          <Tile icon={FileText} title="Séances" count={counts.sessions} onPress={go('/(admin)/sessions')} />
         </View>
-      </ScrollView>
-    </View>
+
+        <Text style={st.group}>Nutrition</Text>
+        <Tile icon={UtensilsCrossed} title="Recettes" count={counts.recipes} onPress={go('/(admin)/recipes')} />
+
+        <Text style={st.group}>Mindset</Text>
+        <View style={{ gap: 10 }}>
+          <Tile icon={GitBranch} title="Parcours" count={counts.journeys} onPress={go('/(admin)/mindset-programs')} />
+          <Tile icon={Sun} title="Affirmations du jour" count="366 phrases, une par jour" onPress={go('/(admin)/affirmations')} />
+          <Tile icon={CheckCircle2} title="Rituels" count={counts.rituals} onPress={go('/(admin)/rituals')} />
+          <Tile icon={Leaf} title="Contenus Mindset" count={counts.mindset} onPress={go('/(admin)/mindset')} />
+        </View>
+
+        <Text style={st.group}>Tes clientes</Text>
+        <View style={{ gap: 10 }}>
+          <Tile icon={Users} title="Clientes (coaching perso)" count="Suivi personnalisé" onPress={go('/(admin)/clients')} />
+          <Tile icon={Bell} title="Envoyer une notification" count="À toutes tes clientes" onPress={go('/(admin)/push')} />
+        </View>
+      </View>
+    </BbyScreen>
   );
 }
 
-function Tile({
-  icon: Icon,
-  title,
-  count,
-  onPress,
-  disabled,
-  palette,
-}: {
-  icon: any;
-  title: string;
-  count: number | string;
-  onPress?: () => void;
-  disabled?: boolean;
-  palette: any;
-}) {
+function Tile({ icon: Icon, title, count, onPress }: { icon: any; title: string; count: number | string; onPress: () => void }) {
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      style={({ pressed }) => [
-        styles.tile,
-        {
-          backgroundColor: palette.surface,
-          opacity: disabled ? 0.5 : pressed ? 0.85 : 1,
-        },
-      ]}
-    >
-      <View style={[styles.tileIcon, { backgroundColor: palette.text }]}>
-        <Icon size={20} color={palette.background} />
+    <Pressable onPress={onPress} accessibilityRole="button" style={({ pressed }) => [st.tile, pressed && { opacity: 0.85 }]}>
+      <View style={st.tileIcon}>
+        <Icon size={20} color={Bby.ink} />
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={[styles.tileTitle, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-          {title}
-        </Text>
-        <Text style={[styles.tileCount, { color: palette.textSecondary, fontFamily: Fonts.sans }]}>
-          {typeof count === 'number' ? `${count} entrées` : count}
-        </Text>
+        <Text style={st.tileTitle}>{title}</Text>
+        <Text style={st.tileCount}>{typeof count === 'number' ? `${count} ${count > 1 ? 'éléments' : 'élément'}` : count}</Text>
       </View>
-      {!disabled && <ChevronRight size={18} color={palette.textSecondary} />}
+      <ChevronRight size={18} color={Bby.muted} />
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  topBar: { paddingHorizontal: Spacing.lg, paddingBottom: Spacing.sm },
-  back: { flexDirection: 'row', alignItems: 'center' },
-  backText: { fontSize: 15, marginLeft: 2 },
-  eyebrow: { fontSize: 11, letterSpacing: 1.6 },
-  title: { fontSize: 32, letterSpacing: -0.5, marginTop: 4 },
-  subtitle: { fontSize: 15, lineHeight: 22 },
-  tile: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.lg,
-    padding: Spacing.lg,
-    borderRadius: Radius.lg,
-  },
-  tileIcon: {
-    width: 44, height: 44, borderRadius: 22,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  tileTitle: { fontSize: 16 },
-  tileCount: { fontSize: 13, marginTop: 2 },
+const st = StyleSheet.create({
+  group: { fontFamily: BFont.display, fontSize: 18, color: Bby.text, marginTop: 6 },
+  tile: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16, borderRadius: 20, backgroundColor: Bby.card },
+  tileIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: Bby.yellow, alignItems: 'center', justifyContent: 'center' },
+  tileTitle: { fontFamily: BFont.sansSemibold, fontSize: 16, color: Bby.text },
+  tileCount: { fontFamily: BFont.sans, fontSize: 13, color: Bby.muted, marginTop: 2 },
 });

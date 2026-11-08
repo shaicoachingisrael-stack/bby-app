@@ -1,33 +1,21 @@
 import * as Crypto from 'expo-crypto';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Check, ChevronLeft, Trash2 } from 'lucide-react-native';
-import { useEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Check } from 'lucide-react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { AdminField, AdminHeader, AdminInput, AdminLink, useLeaveGuard } from '@/components/bby/admin/ui';
+import { ActionBar, BFont, Bby } from '@/components/bby/kit';
+import { FooterScreen } from '@/components/bby/nutrition/ui';
 import { MediaList } from '@/components/ui/media-list';
 import { MediaUploader } from '@/components/ui/media-uploader';
-import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { supabase } from '@/lib/supabase';
 import { triggerTranslate } from '@/lib/translate-content';
 import type { Program, Session } from '@/lib/types';
 
+// Une séance : sa vidéo, son titre, son programme.
 export default function SessionEditScreen() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const palette = Colors[useColorScheme() ?? 'light'];
   const params = useLocalSearchParams<{ id?: string; programId?: string }>();
   const id = params.id;
   const isNew = !id;
@@ -42,6 +30,16 @@ export default function SessionEditScreen() {
   const [orderIndex, setOrderIndex] = useState('');
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
+
+  // « Quitter sans enregistrer ? » : on compare aux valeurs chargées.
+  const snapshot = () => JSON.stringify([programId, title, description, duration, videoUrl, orderIndex]);
+  const initial = useRef<string | null>(null);
+  const leaving = useRef(false);
+  useLeaveGuard(() => !leaving.current && initial.current !== null && snapshot() !== initial.current);
+  useEffect(() => {
+    if (!loading && initial.current === null) initial.current = snapshot();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
 
   useEffect(() => {
     (async () => {
@@ -78,7 +76,7 @@ export default function SessionEditScreen() {
 
   async function handleSave() {
     if (!title.trim()) {
-      Alert.alert('Titre manquant');
+      Alert.alert('Il manque le titre', 'Donne un nom à ta séance avant d’enregistrer.');
       return;
     }
     setSaving(true);
@@ -103,16 +101,17 @@ export default function SessionEditScreen() {
         if (error) throw error;
       }
       triggerTranslate('sessions', sessionId);
+      leaving.current = true;
       router.back();
     } catch (e: any) {
-      Alert.alert('Sauvegarde impossible', e?.message ?? 'Erreur.');
+      Alert.alert('Enregistrement impossible', e?.message ?? 'Réessaie dans un instant.');
     } finally {
       setSaving(false);
     }
   }
 
   function handleDelete() {
-    Alert.alert('Supprimer cette séance ?', 'Action définitive.', [
+    Alert.alert('Supprimer cette séance ?', 'C’est définitif.', [
       { text: 'Annuler', style: 'cancel' },
       {
         text: 'Supprimer',
@@ -121,9 +120,10 @@ export default function SessionEditScreen() {
           try {
             const { error } = await supabase.from('sessions').delete().eq('id', id!);
             if (error) throw error;
+            leaving.current = true;
             router.back();
           } catch (e: any) {
-            Alert.alert('Erreur', e?.message ?? 'Suppression impossible.');
+            Alert.alert('Suppression impossible', e?.message ?? 'Réessaie dans un instant.');
           }
         },
       },
@@ -132,149 +132,76 @@ export default function SessionEditScreen() {
 
   if (loading) {
     return (
-      <View
-        style={[styles.flex, { backgroundColor: palette.background, alignItems: 'center', justifyContent: 'center' }]}
-      >
-        <ActivityIndicator color={palette.text} />
+      <View style={{ flex: 1, backgroundColor: Bby.bg, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator color={Bby.text} />
       </View>
     );
   }
 
+  const options: { id: string | null; title: string }[] = [{ id: null, title: 'Sans programme' }, ...programs];
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={[styles.flex, { backgroundColor: palette.background }]}
+    <FooterScreen
+      footer={
+        <ActionBar
+          icon={Check}
+          label={saving ? 'Enregistrement…' : 'Enregistrer'}
+          onPress={handleSave}
+          disabled={saving}
+          note="Traduit automatiquement dans les 4 autres langues."
+        />
+      }
     >
-      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
-          <ChevronLeft size={24} color={palette.text} />
-          <Text style={[styles.backText, { color: palette.text, fontFamily: Fonts.sansMedium }]}>
-            Retour
-          </Text>
-        </Pressable>
-        <Pressable onPress={handleSave} disabled={saving} hitSlop={12}>
-          {saving ? (
-            <ActivityIndicator color={palette.text} />
-          ) : (
-            <Text style={[styles.action, { color: palette.text, fontFamily: Fonts.sansSemibold }]}>
-              Enregistrer
-            </Text>
-          )}
-        </Pressable>
-      </View>
+      <View style={{ gap: 22 }}>
+        <AdminHeader
+          title={isNew ? 'Nouvelle séance' : 'La séance'}
+          intro="Ce que la cliente voit quand elle ouvre une séance de l’onglet Training."
+        />
 
-      <ScrollView
-        contentContainerStyle={{
-          paddingHorizontal: Spacing.xl,
-          paddingBottom: insets.bottom + Spacing.xxl,
-          gap: Spacing.lg,
-        }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <Text style={[styles.title, { color: palette.text, fontFamily: Fonts.displayBold }]}>
-          {isNew ? 'Nouvelle séance' : 'Modifier la séance'}
-        </Text>
-
-        <Field label="Programme" palette={palette}>
-          <View style={{ gap: Spacing.sm }}>
-            <Pressable
-              onPress={() => setProgramId(null)}
-              style={[
-                styles.programOption,
-                {
-                  backgroundColor: programId === null ? palette.text : palette.surface,
-                  borderColor: palette.border,
-                },
-              ]}
-            >
-              <Text
-                style={{
-                  color: programId === null ? palette.background : palette.text,
-                  fontFamily: Fonts.sansMedium,
-                  fontSize: 14,
-                }}
-              >
-                Sans programme
-              </Text>
-              {programId === null && <Check size={16} color={palette.background} />}
-            </Pressable>
-            {programs.map((p) => (
-              <Pressable
-                key={p.id}
-                onPress={() => setProgramId(p.id)}
-                style={[
-                  styles.programOption,
-                  {
-                    backgroundColor: programId === p.id ? palette.text : palette.surface,
-                    borderColor: palette.border,
-                  },
-                ]}
-              >
-                <Text
-                  style={{
-                    color: programId === p.id ? palette.background : palette.text,
-                    fontFamily: Fonts.sansMedium,
-                    fontSize: 14,
-                  }}
-                  numberOfLines={1}
+        <AdminField label="Programme" hint="Le programme dans lequel la séance apparaît.">
+          <View style={{ gap: 8 }}>
+            {options.map((p) => {
+              const on = programId === p.id;
+              return (
+                <Pressable
+                  key={p.id ?? 'none'}
+                  onPress={() => setProgramId(p.id)}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: on }}
+                  style={[s.option, on && s.optionOn]}
                 >
-                  {p.title}
-                </Text>
-                {programId === p.id && <Check size={16} color={palette.background} />}
-              </Pressable>
-            ))}
+                  <Text style={[s.optionText, on && { color: Bby.ink }]} numberOfLines={1}>
+                    {p.title}
+                  </Text>
+                  {on ? <Check size={18} color={Bby.ink} /> : null}
+                </Pressable>
+              );
+            })}
           </View>
-        </Field>
+        </AdminField>
 
-        <Field label="Titre" palette={palette}>
-          <TextInput
-            value={title}
-            onChangeText={setTitle}
-            placeholder="Ex : Full body — focus glutes"
-            placeholderTextColor={palette.textSecondary}
-            style={[styles.input, inputStyle(palette)]}
-          />
-        </Field>
+        <AdminField label="Titre" hint="Le titre de la séance (Training et Aujourd’hui).">
+          <AdminInput value={title} onChangeText={setTitle} placeholder="Ex : Full body — focus glutes" />
+        </AdminField>
 
-        <Field label="Description" palette={palette}>
-          <TextInput
-            value={description}
-            onChangeText={setDescription}
-            placeholder="Optionnel"
-            placeholderTextColor={palette.textSecondary}
-            multiline
-            style={[styles.textarea, inputStyle(palette)]}
-          />
-        </Field>
+        <AdminField label="Description" hint="Sous la vidéo, dans la séance. Facultatif.">
+          <AdminInput value={description} onChangeText={setDescription} placeholder="Ex : Un enchaînement sans sauts…" multiline />
+        </AdminField>
 
-        <View style={{ flexDirection: 'row', gap: Spacing.md }}>
+        <View style={{ flexDirection: 'row', gap: 12 }}>
           <View style={{ flex: 1 }}>
-            <Field label="Durée (min)" palette={palette}>
-              <TextInput
-                value={duration}
-                onChangeText={setDuration}
-                placeholder="35"
-                placeholderTextColor={palette.textSecondary}
-                keyboardType="number-pad"
-                style={[styles.input, inputStyle(palette)]}
-              />
-            </Field>
+            <AdminField label="Durée (min)" hint="Ex : 35">
+              <AdminInput value={duration} onChangeText={setDuration} placeholder="35" keyboardType="number-pad" />
+            </AdminField>
           </View>
           <View style={{ flex: 1 }}>
-            <Field label="Ordre" palette={palette}>
-              <TextInput
-                value={orderIndex}
-                onChangeText={setOrderIndex}
-                placeholder="0"
-                placeholderTextColor={palette.textSecondary}
-                keyboardType="number-pad"
-                style={[styles.input, inputStyle(palette)]}
-              />
-            </Field>
+            <AdminField label="Ordre" hint="1re séance = 0">
+              <AdminInput value={orderIndex} onChangeText={setOrderIndex} placeholder="0" keyboardType="number-pad" />
+            </AdminField>
           </View>
         </View>
 
-        <Field label="Vidéo principale" palette={palette}>
+        <AdminField label="Vidéo principale" hint="La vidéo qui se lance dans la séance.">
           <MediaUploader
             kind="video"
             bucket="session-videos"
@@ -282,114 +209,31 @@ export default function SessionEditScreen() {
             url={videoUrl || null}
             onChange={(u) => setVideoUrl(u ?? '')}
           />
-        </Field>
+        </AdminField>
 
-        <Field label="Vidéos supplémentaires" palette={palette}>
-          <MediaList
-            parentType="session"
-            parentId={sessionId}
-            bucket="session-videos"
-          />
-        </Field>
+        <AdminField label="Vidéos supplémentaires" hint="D’autres vidéos sous la principale. Ajoutées tout de suite, sans enregistrer.">
+          <MediaList parentType="session" parentId={sessionId} bucket="session-videos" />
+        </AdminField>
 
-        {!isNew && (
-          <Pressable
-            onPress={handleDelete}
-            style={({ pressed }) => [styles.danger, { opacity: pressed ? 0.85 : 1 }]}
-          >
-            <Trash2 size={18} color={Palette.albatre} />
-            <Text style={[styles.dangerText, { fontFamily: Fonts.sansSemibold }]}>
-              Supprimer la séance
-            </Text>
-          </Pressable>
-        )}
-      </ScrollView>
-    </KeyboardAvoidingView>
+        {!isNew ? <AdminLink label="Supprimer cette séance" onPress={handleDelete} danger /> : null}
+      </View>
+    </FooterScreen>
   );
 }
 
-function Field({
-  label,
-  children,
-  palette,
-}: {
-  label: string;
-  children: React.ReactNode;
-  palette: any;
-}) {
-  return (
-    <View style={{ gap: Spacing.sm }}>
-      <Text
-        style={{
-          color: palette.textSecondary,
-          fontFamily: Fonts.sansMedium,
-          fontSize: 11,
-          letterSpacing: 1.4,
-        }}
-      >
-        {label.toUpperCase()}
-      </Text>
-      {children}
-    </View>
-  );
-}
-
-function inputStyle(palette: any) {
-  return {
-    backgroundColor: palette.surface,
-    borderColor: palette.border,
-    color: palette.text,
-    fontFamily: Fonts.sans,
-  };
-}
-
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  topBar: {
+const s = StyleSheet.create({
+  option: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.sm,
+    gap: 10,
+    minHeight: 50,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: Bby.line,
+    backgroundColor: Bby.card,
   },
-  back: { flexDirection: 'row', alignItems: 'center' },
-  backText: { fontSize: 15, marginLeft: 2 },
-  action: { fontSize: 15 },
-  title: { fontSize: 28, letterSpacing: -0.5, marginTop: Spacing.lg },
-  programOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: Spacing.lg,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-  },
-  input: {
-    height: 52,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    paddingHorizontal: Spacing.lg,
-    fontSize: 16,
-  },
-  textarea: {
-    minHeight: 120,
-    borderRadius: Radius.md,
-    borderWidth: 1,
-    padding: Spacing.lg,
-    fontSize: 15,
-    lineHeight: 22,
-    textAlignVertical: 'top',
-  },
-  danger: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: Spacing.sm,
-    height: 52,
-    borderRadius: Radius.md,
-    backgroundColor: '#A8362A',
-    marginTop: Spacing.lg,
-  },
-  dangerText: { color: Palette.albatre, fontSize: 15 },
+  optionOn: { backgroundColor: Bby.yellow, borderColor: 'transparent' },
+  optionText: { flex: 1, fontFamily: BFont.sansMedium, fontSize: 15, color: Bby.text },
 });
