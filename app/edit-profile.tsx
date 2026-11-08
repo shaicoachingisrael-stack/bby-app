@@ -23,6 +23,7 @@ import { Colors, Fonts, Palette, Radius, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { pickAvatarFromLibrary, takeAvatarPhoto, uploadAvatar } from '@/lib/avatar';
 import { useAuth } from '@/lib/auth-provider';
+import { applyOwnTargets } from '@/lib/nutrition/targets';
 import { useProfile } from '@/lib/use-profile';
 
 const GOAL_VALUES = ['perte_de_poids', 'prise_de_masse', 'tonification', 'remise_en_forme', 'bien_etre'] as const;
@@ -118,14 +119,29 @@ export default function EditProfileScreen() {
         const n = Number.parseInt(s.replace(/\D/g, ''), 10);
         return Number.isFinite(n) && n > 0 ? n : null;
       };
+      const targets = { kcal: parseInt(kcal), protein: parseInt(protein), water: parseInt(hydration) };
+      const changed =
+        targets.kcal !== (profile?.daily_kcal_target ?? null) ||
+        targets.protein !== (profile?.protein_target_g ?? null) ||
+        targets.water !== (profile?.hydration_target_ml ?? null);
       await update({
         display_name: displayName.trim() || null,
         goal,
         fitness_level: level,
-        daily_kcal_target: parseInt(kcal),
-        protein_target_g: parseInt(protein),
-        hydration_target_ml: parseInt(hydration),
+        daily_kcal_target: targets.kcal,
+        protein_target_g: targets.protein,
+        hydration_target_ml: targets.water,
       });
+      if (changed && user) {
+        // Changer d'objectif relance le calcul automatique, qui réécrit les repères :
+        // on remet ceux qu'elle vient de taper, dans son profil et dans Nutrition.
+        await applyOwnTargets(user.id, targets);
+        await update({
+          daily_kcal_target: targets.kcal,
+          protein_target_g: targets.protein,
+          hydration_target_ml: targets.water,
+        });
+      }
       router.back();
     } catch (e: any) {
       Alert.alert(t('common.saveImpossible'), e?.message ?? t('common.error'));

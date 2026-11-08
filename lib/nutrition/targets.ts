@@ -73,3 +73,43 @@ export function useDayTargets() {
   );
   return { targets: day, refresh, loading };
 }
+
+/**
+ * La cliente change elle-même ses repères (« Modifier le profil ») : l'écran Nutrition lit
+ * nutrition_targets, on y reporte donc ses chiffres. Calories et protéines viennent d'elle,
+ * les lipides sont gardés, les glucides comblent le reste (jamais sous zéro).
+ */
+export async function applyOwnTargets(
+  userId: string,
+  t: { kcal: number | null; protein: number | null; water: number | null },
+) {
+  const { supabase } = await import('@/lib/supabase');
+  const { data } = await supabase
+    .from('nutrition_targets')
+    .select('calories, protein_g, fats_g, carbs_g, water_ml')
+    .eq('user_id', userId)
+    .maybeSingle();
+  const cur = data as { calories: number | null; protein_g: number | null; fats_g: number | null; carbs_g: number | null; water_ml: number | null } | null;
+  const kcal = t.kcal ?? cur?.calories ?? null;
+  const protein = t.protein ?? cur?.protein_g ?? (kcal ? Math.round((kcal * 0.25) / 4) : null);
+  let fats = cur?.fats_g ?? (kcal ? Math.round((kcal * 0.3) / 9) : null);
+  let carbs = cur?.carbs_g ?? null;
+  if (kcal !== null && protein !== null && fats !== null) {
+    // Lipides plafonnés si les calories ne suffisent plus, puis glucides = le reste.
+    fats = Math.min(fats, Math.max(0, Math.floor((kcal - 4 * protein) / 9)));
+    carbs = Math.max(0, Math.round((kcal - 4 * protein - 9 * fats) / 4));
+  }
+  const { error } = await supabase.from('nutrition_targets').upsert(
+    {
+      user_id: userId,
+      calories: kcal,
+      protein_g: protein,
+      fats_g: fats,
+      carbs_g: carbs,
+      water_ml: t.water ?? cur?.water_ml ?? null,
+      computed_at: new Date().toISOString(),
+    },
+    { onConflict: 'user_id' },
+  );
+  if (error) throw error;
+}
