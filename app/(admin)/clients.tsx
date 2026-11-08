@@ -8,6 +8,7 @@ import { Text } from '@/components/ui/text';
 
 import { AdminHeader, a } from '@/components/bby/admin/ui';
 import { BFont, Bby, BbyScreen, PillButton } from '@/components/bby/kit';
+import { endPhrase, endState, formatEndDate } from '@/lib/coaching-end';
 import { useCoachingClients } from '@/lib/use-coaching-admin';
 
 export default function ClientsAdminScreen() {
@@ -16,7 +17,10 @@ export default function ClientsAdminScreen() {
 
   useFocusEffect(useCallback(() => { refresh(); }, [refresh]));
 
-  const premium = clients.filter((c) => c.is_personal_coaching);
+  // Sans date de fin ou fin la plus proche en premier : ce qui demande une action est en haut.
+  const premium = clients
+    .filter((c) => c.is_personal_coaching)
+    .sort((x, y) => (x.coaching_ends_on ?? '0000').localeCompare(y.coaching_ends_on ?? '0000'));
   const others = clients.filter((c) => !c.is_personal_coaching);
 
   return (
@@ -76,9 +80,12 @@ function ClientRow({ c, premium, onPress }: { c: any; premium?: boolean; onPress
           <Text style={[st.initial, premium && { color: Bby.yellow }]}>{initial}</Text>
         )}
       </View>
-      <Text style={[st.name, premium && { color: Bby.ink }]} numberOfLines={1}>
-        {c.display_name || 'Sans nom'}
-      </Text>
+      <View style={{ flex: 1 }}>
+        <Text style={[st.name, premium && { color: Bby.ink }]} numberOfLines={1}>
+          {c.display_name || 'Sans nom'}
+        </Text>
+        {premium ? <EndLine iso={c.coaching_ends_on} /> : null}
+      </View>
       {!premium && c.coaching_interest ? (
         <View style={st.badge}>
           <Text style={st.badgeText}>Intéressée</Text>
@@ -90,12 +97,24 @@ function ClientRow({ c, premium, onPress }: { c: any; premium?: boolean; onPress
   );
 }
 
+function EndLine({ iso }: { iso: string | null | undefined }) {
+  const state = endState(iso);
+  if (!iso) return <Text style={[st.end, { color: '#C2410C' }]}>Date de fin à indiquer</Text>;
+  const color = state === 'ended' ? '#C2410C' : Bby.mutedOnLight;
+  return (
+    <Text style={[st.end, { color }, state !== 'ok' && { fontFamily: BFont.sansSemibold }]} numberOfLines={1}>
+      {state === 'ended' ? `Terminé le ${formatEndDate(iso, false)}` : `Jusqu’au ${formatEndDate(iso, false)} · ${endPhrase(iso)}`}
+    </Text>
+  );
+}
+
 const st = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 20, backgroundColor: Bby.card },
   rowOn: { backgroundColor: Bby.light },
   avatar: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: Bby.yellow },
   initial: { fontFamily: BFont.display, fontSize: 17, color: Bby.ink },
-  name: { flex: 1, fontFamily: BFont.sansSemibold, fontSize: 16, color: Bby.text },
+  end: { fontFamily: BFont.sans, fontSize: 13, marginTop: 2 },
+  name: { fontFamily: BFont.sansSemibold, fontSize: 16, color: Bby.text },
   badge: { borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, backgroundColor: Bby.yellow },
   badgeText: { fontFamily: BFont.sansSemibold, fontSize: 11, color: Bby.ink },
 });

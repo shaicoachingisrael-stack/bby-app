@@ -65,7 +65,7 @@ export function useCoachingClients() {
     setLoading(true);
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, display_name, avatar_url, goal, is_personal_coaching, coaching_interest, coaching_note, coaching_started_at')
+      .select('id, display_name, avatar_url, goal, is_personal_coaching, coaching_interest, coaching_note, coaching_started_at, coaching_ends_on')
       .order('is_personal_coaching', { ascending: false })
       .order('coaching_interest', { ascending: false })
       .order('display_name', { ascending: true });
@@ -90,7 +90,7 @@ export function useClientDetail(clientId: string | undefined) {
     const [{ data: prof }, { data: rows }] = await Promise.all([
       supabase
         .from('profiles')
-        .select('id, display_name, avatar_url, goal, is_personal_coaching, coaching_note, coaching_started_at')
+        .select('id, display_name, avatar_url, goal, is_personal_coaching, coaching_note, coaching_started_at, coaching_ends_on')
         .eq('id', clientId)
         .maybeSingle(),
       supabase
@@ -114,6 +114,18 @@ export function useClientDetail(clientId: string | undefined) {
       if (on) patch.coaching_started_at = new Date().toISOString();
       const { error } = await supabase.from('profiles').update(patch).eq('id', clientId);
       if (error) console.warn('set premium', error);
+      await refresh();
+    },
+    [clientId, refresh],
+  );
+
+  const setEndDate = useCallback(
+    async (iso: string | null) => {
+      if (!clientId) return;
+      // Affichage immédiat, puis lecture de la base.
+      setClient((c) => (c ? { ...c, coaching_ends_on: iso } : c));
+      const { error } = await supabase.from('profiles').update({ coaching_ends_on: iso }).eq('id', clientId);
+      if (error) console.warn('set end date', error);
       await refresh();
     },
     [clientId, refresh],
@@ -165,5 +177,5 @@ export function useClientDetail(clientId: string | undefined) {
     [refresh],
   );
 
-  return { client, assignments, loading, refresh, setPremium, setNote, addAssignment, removeAssignment };
+  return { client, assignments, loading, refresh, setPremium, setEndDate, setNote, addAssignment, removeAssignment };
 }

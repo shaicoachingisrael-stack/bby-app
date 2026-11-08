@@ -110,6 +110,8 @@ export type CoachingClient = {
   coaching_interest: boolean;
   coaching_note: string | null;
   coaching_started_at: string | null;
+  /** Fin du coaching payé (AAAA-MM-JJ), fixée par la coach. */
+  coaching_ends_on?: string | null;
 };
 
 export type CoachingConfig = {

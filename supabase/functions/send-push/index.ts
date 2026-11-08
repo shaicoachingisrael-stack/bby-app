@@ -23,6 +23,14 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   if (req.method !== 'POST') return json({ error: 'Method Not Allowed' }, 405);
 
+  // Tâche du matin (pg_cron, migration 038) : rappels de fin de coaching à la coach.
+  const cronSecret = req.headers.get('x-cron-secret');
+  if (cronSecret !== null) {
+    const expected = Deno.env.get('CRON_SECRET');
+    if (!expected || cronSecret !== expected) return json({ error: 'Forbidden' }, 403);
+    return json(await coachingEndReminders());
+  }
+
   const authHeader = req.headers.get('Authorization');
   if (!authHeader) return json({ error: 'Missing Authorization' }, 401);
 
@@ -89,6 +97,18 @@ Deno.serve(async (req) => {
     }
   }
 
+  return json(await deliver(admin, targetIds, title, message, data));
+});
+
+
+// Envoi des notifications aux téléphones des personnes choisies (toutes si `targetIds` est nul).
+async function deliver(
+  admin: any,
+  targetIds: string[] | null,
+  title: string,
+  message: string,
+  data: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
   let q = admin
     .from('push_tokens')
     .select('expo_token, platform, user_id')
@@ -98,15 +118,15 @@ Deno.serve(async (req) => {
   const { data: rows, error: rowsErr } = await q;
   if (rowsErr) {
     console.error('push_tokens read error', rowsErr);
-    return json({ error: 'Erreur lecture tokens' }, 500);
+    return { error: 'Erreur lecture tokens' };
   }
 
   const clean = (platform: string) =>
     [
       ...new Set(
-        (rows ?? [])
+        ((rows ?? []) as { platform: string; expo_token: string | null }[])
           .filter((r) => r.platform === platform)
-          .map((r) => ((r.expo_token as string) ?? '').replace(/\s+/g, ''))
+          .map((r) => (r.expo_token ?? '').replace(/\s+/g, ''))
           .filter(Boolean),
       ),
     ];
@@ -114,7 +134,7 @@ Deno.serve(async (req) => {
   const androidTokens = clean('android');
 
   if (tokens.length === 0 && androidTokens.length === 0) {
-    return json({ sent: 0, errors: 0, total: 0, message: 'Aucun jeton.' });
+    return { sent: 0, errors: 0, total: 0, message: 'Aucun jeton.' };
   }
 
   let sent = 0;
@@ -168,7 +188,7 @@ Deno.serve(async (req) => {
 
   if (tokens.length === 0) {
     if (dead.length) await admin.from('push_tokens').delete().in('expo_token', dead);
-    return json({ sent, errors, total: androidTokens.length, failures });
+    return { sent, errors, total: androidTokens.length, failures };
   }
 
   let jwt: string;
@@ -176,7 +196,7 @@ Deno.serve(async (req) => {
     jwt = await getApnsJwt();
   } catch (e: any) {
     console.error('JWT error', e);
-    return json({ error: 'JWT signing failed: ' + (e?.message ?? '') }, 500);
+    return { error: 'JWT signing failed: ' + (e?.message ?? '') };
   }
 
   const bundleId = Deno.env.get('APNS_BUNDLE_ID')!;
@@ -238,8 +258,45 @@ Deno.serve(async (req) => {
 
   if (dead.length) await admin.from('push_tokens').delete().in('expo_token', dead);
 
-  return json({ sent, errors, total: tokens.length + androidTokens.length, failures });
-});
+  return { sent, errors, total: tokens.length + androidTokens.length, failures };
+}
+
+// Rappels de fin de coaching : 3 jours avant, puis le jour J. Seulement aux admins (Shaï).
+async function coachingEndReminders() {
+  const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
+  const { data: due, error } = await admin.rpc('claim_coaching_end_reminders');
+  if (error) {
+    console.error('claim reminders', error);
+    return { error: error.message };
+  }
+  const rows = (due ?? []) as { id: string; display_name: string | null; ends_on: string; stage: string; days: number }[];
+  if (rows.length === 0) return { reminders: 0 };
+  const { data: admins } = await admin.from('profiles').select('id').eq('is_admin', true);
+  const adminIds = (admins ?? []).map((a: any) => a.id as string);
+  if (adminIds.length === 0) return { reminders: rows.length, sent: 0 };
+
+  const fmt = (d: string) =>
+    new Date(d + 'T12:00:00Z').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', timeZone: 'UTC' });
+  const results = [];
+  for (const r of rows) {
+    const name = (r.display_name ?? '').trim() || 'une cliente';
+    let title: string;
+    let message: string;
+    if (r.stage === 'soon') {
+      title = 'Coaching bientôt fini';
+      const when = r.days === 1 ? 'demain' : `dans ${r.days} jours`;
+      message = `Le coaching de ${name} se termine ${when} (le ${fmt(r.ends_on)}). Propose-lui de prolonger.`;
+    } else {
+      title = 'Coaching terminé';
+      message =
+        r.days === 0
+          ? `Le coaching de ${name} se termine aujourd’hui. Prolonge-le ou désactive-le dans sa fiche.`
+          : `Le coaching de ${name} est terminé depuis le ${fmt(r.ends_on)}. Prolonge-le ou désactive-le dans sa fiche.`;
+    }
+    results.push(await deliver(admin, adminIds, title, message, { url: `/(admin)/client/${r.id}` }));
+  }
+  return { reminders: rows.length, results };
+}
 
 // --- Android (FCM) : jeton OAuth signé avec la clé du compte de service ---
 let cachedFcm: { value: string; exp: number } | null = null;
